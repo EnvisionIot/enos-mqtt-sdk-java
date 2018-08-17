@@ -1,0 +1,76 @@
+package com.envisioniot.enos.iot_mqtt_sdk.message;
+
+import com.envisioniot.enos.iot_mqtt_sdk.core.msg.IMqttArrivedMessage;
+import com.envisioniot.enos.iot_mqtt_sdk.util.GsonUtil;
+import com.google.common.collect.ImmutableMap;
+
+import java.io.Serializable;
+import java.util.Arrays;
+import java.util.List;
+
+/**
+ * @author zhensheng.cai
+ * @date 2018/8/13.
+ */
+public class AckMessageBody implements Serializable
+{
+	private String id;
+	private int code;
+	private Object data;
+	private String message;
+
+	public byte[] encode()
+	{
+		return GsonUtil.toJson(
+				ImmutableMap.of(
+						"id", getId(),
+						"code", getCode(),
+						"data", getData(),
+						"message", getMessage()
+				)).getBytes();
+	}
+
+
+
+
+	public String getId()
+	{
+		return id;
+	}
+
+	public void setId(String id)
+	{
+		this.id = id;
+	}
+
+	public int getCode()
+	{
+		return code;
+	}
+
+	public void setCode(int code)
+	{
+		this.code = code;
+	}
+
+	@SuppressWarnings("unchecked")
+	public <T> T  getData()
+	{
+		return (T) data;
+	}
+
+	public void setData(Object data)
+	{
+		this.data = data;
+	}
+
+	public String getMessage()
+	{
+		return message;
+	}
+
+	public void setMessage(String message)
+	{
+		this.message = message;
+	}
+}

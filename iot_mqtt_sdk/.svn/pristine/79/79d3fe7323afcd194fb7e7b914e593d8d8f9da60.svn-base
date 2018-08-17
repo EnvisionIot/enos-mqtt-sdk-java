@@ -1,0 +1,49 @@
+//package com.envisioniot.enos.iot_mqtt_sdk.message;
+//
+//import com.envisioniot.enos.iot_mqtt_sdk.core.exception.EnvisionException;
+//import com.envisioniot.enos.iot_mqtt_sdk.core.msg.IMqttDeliveryMessage;
+//import com.envisioniot.enos.iot_mqtt_sdk.util.CheckUtil;
+//import com.envisioniot.enos.iot_mqtt_sdk.util.GsonUtil;
+//import com.google.common.collect.ImmutableMap;
+//
+///**
+// * @author zhensheng.cai
+// * @date 2018/7/4.
+// */
+//@Deprecated
+//public abstract class BaseDeliveryMessage  implements IMqttDeliveryMessage
+//{
+//	@Override
+//	public int getQos()
+//	{
+//		return 0;
+//	}
+//
+//	@Override
+//	public byte[] encode()
+//	{
+//		return GsonUtil.toJson(
+//		        ImmutableMap.of(
+//		                "id", getMessageId(),
+//		                "version", getVersion(),
+//		                "method", getMethod(),
+//		                "params", getParams()
+//		        )).getBytes();
+//	}
+//
+//	@Override
+//	public void check() throws EnvisionException
+//	{
+//	    CheckUtil.checkProductKey(getProductKey());
+//        CheckUtil.checkDeviceKey(getDeviceKey());
+//        CheckUtil.checkNotEmpty(getMessageId(), "messageId");
+//	}
+//
+//	@Override
+//    public String getMessageTopic()
+//    {
+//        return String.format(_getPK_DK_FormatTopic(), getProductKey(), getDeviceKey());
+//    }
+//
+//    abstract protected String _getPK_DK_FormatTopic();
+//}

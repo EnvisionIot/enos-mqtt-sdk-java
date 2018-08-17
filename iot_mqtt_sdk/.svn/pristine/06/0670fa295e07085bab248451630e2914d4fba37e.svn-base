@@ -1,0 +1,45 @@
+package com.envisioniot.enos.iot_mqtt_sdk.core.exception;
+
+/**
+ * @author zhensheng.cai
+ * @date 2018/7/12.
+ */
+public enum EnvisionError
+{
+    /**
+	 *
+	 */
+    INIT_MQTT_CLIENT_FAILED(-100, "INIT_MQTT_CLIENT_FAILED"), MQTT_CLIENT_CONNECT_FAILED(-101, "MQTT_CLIENT_CONNECT_FAILED"), MQTT_CLIENT_PUBLISH_FAILED(
+            -102, "MQTT_CLIENT_PUBLISH_FAILED"), MQTT_CLIENT_DISCONNECT_FAILED(1, "MQTT_CLIENT_DISCONNECT_FAILED"), MQTT_CLIENT_SUBSCRIEBE_FAILED(
+            0, "MQTT_CLIENT_SUBSCRIEBE_FAILED"), MQTT_CLIENT_CLOSE_FAILED(-103, "MQTT_CLIENT_CLOSE_FAILED"), INVALID_DEVICE_CREDENTIAL(
+            0, "INVALID_DEVICE_CREDENTIAL"), INVALID_REPLY_MESSAGE_FORMAT(0, "INVALID_REPLY_MESSAGE_FORMAT"), INVALID_PAYLOAD(0,
+            "INVALID_PAYLOAD"), EMPTY_PAYLOAD(0, "EMPTY_PAYLOAD"), GET_LOCAL_MODEL_FAILED(0, "GET_LOCAL_MODEL_FAILED"), MODEL_VALIDATION_FAILED(
+            0, "MODEL_VALIDATION_FAILED"), RESPONSE_PARSE_ERR(0, "RESPONSE_PARSE_ERR"), MQTT_RESPONSE_PARSED_FALED(0,
+            "MQTT_RESPONSE_PARSED_FALED"), UNSUPPPORTED_REQUEST_CALL_TYPE(0, "UNSUPPPORTED_REQUEST_CALL_TYPE"), SESSION_IS_NULL(0,
+            "SESSION_IS_NULL"), STATUS_IS_UNKNOWN(0, "STATUS_IS_UNKNOWN"), CODE_ERROR_MISSING_ARGS(0, "CODE_ERROR_MISSING_ARGS"), CODE_ERROR_ARG_INVALID(
+            0, "CODE_ERROR_ARG_INVALID"), CANNOT_REGISTER_CALLBACK(-103, "CANNOT_REGISTER_CALLBACK"), DEVICE_SESSION_IS_NULL(-200,
+            "SESSION IS NULL"), CALLBACK_EXECUTION_FAILED(-201, "callback execution failed"), STATUS_ERROR(-202,
+            "invalid operation in current status"),
+
+    STATUS_NOT_ALLOW_LOGIN(-203, "status not allow login"), STATUS_NOT_ALLOW_LOGOUT(-203, "status not allow logout"),
+
+    SUCCESS(0, "success");
+    private int errorCode;
+    private String errorMessage;
+
+    EnvisionError(int errorCode, String errorMessage)
+    {
+        this.errorCode = errorCode;
+        this.errorMessage = errorMessage;
+    }
+
+    public int getErrorCode()
+    {
+        return errorCode;
+    }
+
+    public String getErrorMessage()
+    {
+        return errorMessage;
+    }
+}
