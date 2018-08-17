@@ -1,8 +1,0 @@
-package com.envisioniot.enos.iot_mqtt_sdk.core.msg;
-
-import java.util.List;
-
-public interface IMessageHandler<F extends IMqttArrivedMessage, R extends IMqttDeliveryMessage>
-{
-    R onMessage(F arrivedMessage, List<String> argList) throws Exception;
-}
