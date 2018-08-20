@@ -29,7 +29,7 @@ public class EnvisionTrustManager extends X509ExtendedTrustManager
 	public EnvisionTrustManager() throws Exception
 	{
 		// CA根证书，可以从官网下载
-		InputStream in = MqttClient.class.getResourceAsStream("/root.crt");
+		InputStream in = MqttClient.class.getResourceAsStream("/sChat.jks");
 		CertificateFactory cf = CertificateFactory.getInstance("X.509");
 		Certificate ca = null;
 		try

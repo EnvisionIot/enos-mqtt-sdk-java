@@ -21,9 +21,7 @@ import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.status.SubDeviceLoginR
 import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.status.SubDeviceLogoutRequest;
 import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.status.SubDeviceLogoutResponse;
 import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.topo.*;
-import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.tsl.EventPostRequest;
-import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.tsl.TslTemplateGetRequest;
-import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.tsl.TslTemplateGetResponse;
+import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.tsl.*;
 import com.envisioniot.enos.iot_mqtt_sdk.util.Pair;
 import com.google.common.collect.Lists;
 
@@ -238,6 +236,25 @@ public class SimpleSendReceive
 		}
 	}
 
+
+	public static void postMeasurepoint(){
+		System.out.println("start post measurepoint ...");
+		MeasurepointPostRequest request = new MeasurepointPostRequest();
+		request.addMeasurePoint("power", 60);
+		request.addMeasurePoint("alarm", 300);
+		try
+		{
+			MeasurepointPostResponse rsp = client.publish(request);
+			System.out.println("-->" + rsp);
+
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+
 	public static void postSubEvent(){
 		System.out.println("start post");
 		EventPostRequest postRequest = new EventPostRequest("PowerTooHigh");
@@ -309,18 +326,18 @@ public class SimpleSendReceive
 
 	public static void main(String[] args) throws Exception
 	{
-//		initWithCallback();
-		init();
+		initWithCallback();
+//		init();
 		addTopo();
 		deleteTopo();
-//		postEvent();
-//		postSubEvent();
-//	subDeviceRegister();
-//		subDeviceAddTopo();
-//		subDeviceLogin();
-//		subdeviceLogout();
-//		getTslTemplete();
-//		handleServiceInvocation();
+		postMeasurepoint();
+		postEvent();
+		postSubEvent();
+		subDeviceRegister();
+		subDeviceLogin();
+		subdeviceLogout();
+		getTslTemplete();
+		handleServiceInvocation();
 
 	}
 
