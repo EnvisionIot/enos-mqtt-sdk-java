@@ -29,6 +29,12 @@ public class EventPostRequest extends BaseMqttRequest<EventPostResponse>
 		private String eventIdentifier;
 		private Map<String, Object> valueMap = new HashMap<>();
 
+		public Builder()
+		{
+			valueMap.put("value", new HashMap<String, Object>());
+			valueMap.put("time", System.currentTimeMillis());
+		}
+
 		public Builder setEventIdentifier(String eventIdentifier)
 		{
 			this.eventIdentifier = eventIdentifier;

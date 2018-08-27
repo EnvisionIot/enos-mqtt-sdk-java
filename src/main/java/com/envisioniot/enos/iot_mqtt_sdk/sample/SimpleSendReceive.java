@@ -179,9 +179,9 @@ public class SimpleSendReceive
 		}
 		System.out.println(rsp);
 
-		System.out.println("Assert sub device logout ,post subdevice event");
-		Thread.sleep(3000);
-		postSubEvent();
+//		System.out.println("Assert sub device logout ,post subdevice event");
+//		Thread.sleep(3000);
+//		postSubEvent();
 
 	}
 
@@ -246,7 +246,7 @@ public class SimpleSendReceive
 
 	public static void postEvent() throws InterruptedException
 	{
-		System.out.println("start post");
+		System.out.println("start post event ");
 		EventPostRequest postRequest = EventPostRequest.builder()
 				.setEventIdentifier("PowerTooHigh")
 				.addValue("PowerAlarm", 60)
@@ -264,9 +264,6 @@ public class SimpleSendReceive
 		}
 		System.out.println("post finish");
 
-		while(true){
-			Thread.sleep(1000);
-		}
 	}
 
 
@@ -290,11 +287,11 @@ public class SimpleSendReceive
 
 
 	public static void postSubEvent(){
-		System.out.println("start post");
+		System.out.println("start post sub device event ");
 		EventPostRequest postRequest = EventPostRequest.builder()
 				.setEventIdentifier("PowerTooHigh")
 				.addValue("PowerAlarm", 60)
-				.setDeviceKey(deviceKey)
+				.setDeviceKey(subDeviceKey)
 				.setProductKey(subProductKey)
 				.build();
 		try
