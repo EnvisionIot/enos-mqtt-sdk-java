@@ -56,23 +56,6 @@
             <artifactId>commons-codec</artifactId>
             <version>1.10</version>
         </dependency>
-        <dependency>
-            <groupId>com.aliyun.api.gateway</groupId>
-            <artifactId>sdk-core-java</artifactId>
-            <version>1.0.4</version>
-        </dependency>
-        <dependency>
-            <groupId>com.aliyun</groupId>
-            <artifactId>aliyun-java-sdk-iot</artifactId>
-            <version>5.0.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.aliyun</groupId>
-            <artifactId>aliyun-java-sdk-core</artifactId>
-            <version>3.5.1</version>
-        </dependency>
-
     </dependencies>
     <profiles>
         <profile>
