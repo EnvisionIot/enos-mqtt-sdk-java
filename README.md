@@ -1,4 +1,4 @@
-#Java MQTT SDK使用说明
+# Java MQTT SDK使用说明
 
 ----
 
@@ -36,6 +36,7 @@
 使用SDK非常简单，只要了解到上述能力后，可以很容易的和服务端进行对接，这里以一个简单的样例来告诉大家如何使用sdk。
 <br/>
 首先连接上服务器
+
 ```
 MqttClient client = new MqttClient(prd, productKey, deviceKey, deviceSecret);
 client.connect(new IConnectCallback()
@@ -68,7 +69,7 @@ client.connect(new IConnectCallback()
 <br/>
 当连接成功后，我们就可以发送命令了，比如，我这里在回调函数中让子设备进行login操作。
 
-``` java
+```
 @Override
 public void onConnectSuccess()
 {
@@ -90,7 +91,8 @@ public void onConnectSuccess()
 > 注意，子设备的productKey同样需要通过[控制台](http://tapd.oa.com)，或者[RestfulAPI](http://tapd.oa.com)进行获取。关于子设备的deviceKey, deviceSecret, 除了可以通过[控制台](http://tapd.oa.com)或[RestfulAPI](http://tapd.oa.com)外，我们也可以使用MQTT SDK的SubDeviceDynamicRegRequest来进行注册。
 
 接下来我们发送一个子设备的测点数据给到服务端
-````
+
+```
 public static void postMeasurepoint()
 {
 	    MeasurepointPostRequest request = MeasurepointPostRequest.builder()
@@ -100,8 +102,7 @@ public static void postMeasurepoint()
 	    client.fastPublish(request);
 }
 ```
-
-这里看见，我们用了一个fastPublish方法了，此方法是不用关注返回值，做为测点，我们也不会提供返回值，client里面还有如下两个pulish的方法：
+> 这里看见，我们用了一个fastPublish方法了，此方法是不用关注返回值，做为测点，我们也不会提供返回值，client里面还有如下两个pulish的方法：
 
 ```
 /**
@@ -116,6 +117,7 @@ public <T extends IMqttResponse> T publish(IMqttRequest<T> request) throws Excep
  */
 public <T extends IMqttResponse> void publish(IMqttRequest<T> request, IResponseCallback<T> callback)
 ```
+
 > 两者之间的区别在于：带有回调的publish方法是异步的，带有返回参数的publish方法是同步的，这里还需要注意，如果MeasurepointPostRequest不小心调用了同步的push，那么会一直等待，但是服务端除了错误之外，并没有返回值，所以会一直等到超时。
 
 下面我介绍下如何处理下行消息，下行消息主要是置数，设备服务调用等，在sdk中是以Command来表示的，比如以下实例，我监听了测点置数的事件以及服务端禁用某个设备的事件。
