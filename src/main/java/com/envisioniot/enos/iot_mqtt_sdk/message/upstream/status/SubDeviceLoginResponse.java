@@ -1,10 +1,10 @@
 package com.envisioniot.enos.iot_mqtt_sdk.message.upstream.status;
 
-import java.util.Map;
-import java.util.regex.Pattern;
-
 import com.envisioniot.enos.iot_mqtt_sdk.core.internals.constants.ArrivedTopicPattern;
 import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.BaseMqttResponse;
+
+import java.util.Map;
+import java.util.regex.Pattern;
 
 /**
  * Description: sub-device login response response data contains sub-device
@@ -15,16 +15,17 @@ import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.BaseMqttResponse;
  */
 public class SubDeviceLoginResponse extends BaseMqttResponse
 {
+	private static final long serialVersionUID = -6444027073306760902L;
 	private static Pattern pattern = Pattern.compile(ArrivedTopicPattern.SUB_DEVICE_LOGIN_REPLY);
 	public String getSubProductKey()
 	{
-		Map<String, String> data = ((Map<String, String>) getData());
+		Map<String, String> data =getData();
 		return data.get("productKey");
 	}
 
 	public String getSubDeviceKey()
 	{
-		Map<String, String> data = ((Map<String,String>) getData());
+		Map<String, String> data = getData();
 		return data.get("deviceKey");
 	}
 

@@ -1,14 +1,14 @@
 package com.envisioniot.enos.iot_mqtt_sdk.message.upstream.topo;
 
-import java.util.List;
-import java.util.Map;
-
 import com.envisioniot.enos.iot_mqtt_sdk.core.internals.constants.DeliveryTopicFormat;
 import com.envisioniot.enos.iot_mqtt_sdk.core.internals.constants.MethodConstants;
 import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.BaseMqttRequest;
 import com.envisioniot.enos.iot_mqtt_sdk.util.Pair;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * Description: delete topotaxy request
@@ -18,51 +18,66 @@ import com.google.common.collect.Maps;
  */
 public class DeleteTopoRequest extends BaseMqttRequest<DeleteTopoResponse>
 {
-	private List<Pair<String, String>> subDeviceList = Lists.newArrayList();
-	public DeleteTopoRequest()
-	{
-		setMethod(MethodConstants.TOPO_DELETE);
-	}
+	private static final long serialVersionUID = 5902714018227720689L;
 
-	public void setSubDevices(List<Pair<String, String>> subDeviceList)
-	{
-		this.subDeviceList = subDeviceList;
+	public static Builder builder(){
+		return new Builder();
 	}
-
-	public List<Pair<String, String>> getSubDeviceList()
+	public static class Builder extends BaseMqttRequest.Builder<Builder,DeleteTopoRequest>
 	{
-		return subDeviceList;
-	}
+		private List<Pair<String, String>> subDeviceList = Lists.newArrayList();
 
-	public void setSubDeviceList(List<Pair<String, String>> subDeviceList)
-	{
-		this.subDeviceList = subDeviceList;
-	}
-
-	public void addSubDevice(String productKey, String deviceKey)
-	{
-		subDeviceList.add(Pair.makePair(productKey, deviceKey));
-	}
-
-	public void addSubDevices(List<Pair<String, String>> subDeviceList)
-	{
-		this.subDeviceList.addAll(subDeviceList);
-	}
-
-	@Override
-	public Object getParams()
-	{
-		List<Map<String, String>> params = Lists.newArrayList();
-		for (Pair<String, String> pair : subDeviceList)
+		public Builder setSubDevices(List<Pair<String, String>> subDeviceList)
 		{
-			Map<String, String> map = Maps.newHashMap();
-			map.put("productKey", pair.getFirst());
-			map.put("deviceKey", pair.getSecond());
-			params.add(map);
+			this.subDeviceList = subDeviceList;
+			return this;
 		}
-		return params;
+
+		public Builder setSubDeviceList(List<Pair<String, String>> subDeviceList)
+		{
+			this.subDeviceList = subDeviceList;
+			return this;
+		}
+
+		public Builder addSubDevice(String productKey, String deviceKey)
+		{
+			subDeviceList.add(Pair.makePair(productKey, deviceKey));
+			return this;
+		}
+
+		public Builder addSubDevices(List<Pair<String, String>> subDeviceList)
+		{
+			this.subDeviceList.addAll(subDeviceList);
+			return this;
+		}
+
+		@Override protected String createMethod()
+		{
+			return MethodConstants.TOPO_DELETE;
+		}
+
+		@Override protected Object createParams()
+		{
+			List<Map<String, String>> params = Lists.newArrayList();
+			for (Pair<String, String> pair : subDeviceList)
+			{
+				Map<String, String> map = Maps.newHashMap();
+				map.put("productKey", pair.getFirst());
+				map.put("deviceKey", pair.getSecond());
+				params.add(map);
+			}
+			return params;
+		}
+
+		@Override protected DeleteTopoRequest createRequestInstance()
+		{
+			return new DeleteTopoRequest();
+		}
 	}
 
+	private DeleteTopoRequest()
+	{
+	}
 
 	@Override
 	public Class<DeleteTopoResponse> getAnswerType()

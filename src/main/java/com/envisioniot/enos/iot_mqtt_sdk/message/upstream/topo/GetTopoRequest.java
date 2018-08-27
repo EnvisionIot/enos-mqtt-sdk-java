@@ -1,10 +1,10 @@
 package com.envisioniot.enos.iot_mqtt_sdk.message.upstream.topo;
 
-import java.util.HashMap;
-
 import com.envisioniot.enos.iot_mqtt_sdk.core.internals.constants.DeliveryTopicFormat;
 import com.envisioniot.enos.iot_mqtt_sdk.core.internals.constants.MethodConstants;
 import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.BaseMqttRequest;
+
+import java.util.Collections;
 
 /**
  * Description: get topotaxy request
@@ -14,10 +14,32 @@ import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.BaseMqttRequest;
  */
 public class GetTopoRequest extends BaseMqttRequest<GetTopoResponse>
 {
-	public GetTopoRequest()
+	private static final long serialVersionUID = 9043905757195657061L;
+
+	public static Builder builder(){
+		return new Builder();
+	}
+
+	public static class Builder extends BaseMqttRequest.Builder<Builder,GetTopoRequest>
 	{
-		this.setMethod(MethodConstants.TOPO_GET);
-		this.setParams(new HashMap<>());
+		@Override protected String createMethod()
+		{
+			return MethodConstants.TOPO_GET;
+		}
+
+		@Override protected Object createParams()
+		{
+			return Collections.emptyMap();
+		}
+
+		@Override protected GetTopoRequest createRequestInstance()
+		{
+			return new GetTopoRequest();
+		}
+	}
+
+	private GetTopoRequest()
+	{
 	}
 
 	@Override

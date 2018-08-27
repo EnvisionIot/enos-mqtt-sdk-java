@@ -13,6 +13,7 @@ import java.util.regex.Pattern;
  */
 public class UpdateDeviceTagResponse extends BaseMqttResponse
 {
+    private static final long serialVersionUID = -7551738482591675818L;
     private static Pattern pattern = Pattern.compile(ArrivedTopicPattern.TAG_UPDATE_REPLY);
     @Override
     public Pattern getMatchTopicPattern()

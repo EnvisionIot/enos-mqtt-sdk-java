@@ -1,15 +1,13 @@
 package com.envisioniot.enos.iot_mqtt_sdk.message.upstream.tsl;
 
-import java.util.List;
+import com.envisioniot.enos.iot_mqtt_sdk.core.internals.constants.ArrivedTopicPattern;
+import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.BaseMqttResponse;
+
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import com.envisioniot.enos.iot_mqtt_sdk.core.internals.constants.ArrivedTopicPattern;
-import com.envisioniot.enos.iot_mqtt_sdk.core.msg.IMqttArrivedMessage;
-import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.BaseMqttResponse;
-
 /**
- * 
+ *
  * 错误码 消息 描述 460 request parameter error 请求参数错误 6321 tsl: device not exist in
  * product 设备不存在
   AckMessageBody{"tslModelId":"Z9IKonoq","tslModelName":"zscai_test","tslModelDesc":"1111111111","tslModelCatagory":"zscai_test","tslAttributeMap":{"test":{"minimum":-2.147483648E9,"maximum":2.147483647E9,"exclusiveMinimum":false,"exclusiveMaximum":false,"defaultValue":1.0,"unit":{"unitId":"rad/s","multiplier":"ONE"},"hasQuality":false,"name":"test","desc":"1","required":false,"accessMode":true,"tags":{"tagMap":{}},"identifier":"test"}},"tslMeasurepointMap":{},"tslServiceMap":{"service2":{"outputData":[],"inputData":[],"name":"service2","required":false,"callType":"SYNC","desc":"test","identifier":"service2"},"service1":{"outputData":[],"inputData":[{"minimum":-2.147483648E9,"maximum":2.147483647E9,"exclusiveMinimum":false,"exclusiveMaximum":false,"unit":{"multiplier":"ONE"},"hasQuality":false,"name":"test","desc":"","required":false,"accessMode":false,"tags":{"tagMap":{}},"identifier":"test"}],"name":"service1","required":false,"callType":"ASYNC","desc":"","identifier":"service1"}},"tslEventMap":{},"tag":{"tagMap":{}},"allowAdditionalAttribute":false,"inheritedAttributeIds":[],"inheritedMeasurepointIds":[],"inheritedServiceIds":[],"inheritedEventIds":[],"extraInfo":{"createBy":"yz","createTime":1.534318625917E12,"updateBy":"customer_20180222","updateTime":1.534318748279E12,"ns":"test_orgCode"}}
@@ -23,23 +21,27 @@ public class TslTemplateGetResponse extends BaseMqttResponse
 	private static Pattern pattern = Pattern.compile(ArrivedTopicPattern.TSL_TEMPLATE_GET_REPLY);
 
 
+	@SuppressWarnings("unchecked")
 	public Map<String,Object> getAttributs(){
 		Map<String, Object> data =  this.getData();
 		return ((Map<String, Object>) data.get("tslAttributeMap"));
 	}
 
+	@SuppressWarnings("unchecked")
 	public Map<String,Object> getMeasurepoints()
 	{
 		Map<String, Object> data =  this.getData();
 		return ((Map<String, Object>) data.get("tslMeasurepointMap"));
 	}
 
+	@SuppressWarnings("unchecked")
 	public Map<String,Object> getEvents()
 	{
 		Map<String, Object> data =  this.getData();
 		return ((Map<String, Object>) data.get("tslEventMap"));
 	}
 
+	@SuppressWarnings("unchecked")
 	public Map<String,Object> getServices()
 	{
 		Map<String, Object> data =  this.getData();
@@ -55,7 +57,7 @@ public class TslTemplateGetResponse extends BaseMqttResponse
 
 }
 
-/**
+/*
  * { "id": "123", "code": 200, "data": { "schema":
  * "https://iot-tsl.oss-cn-shanghai.aliyuncs.com/schema.json", "link":
  * "/sys/1234556554/airCondition/thing/", "profile": { "productKey":

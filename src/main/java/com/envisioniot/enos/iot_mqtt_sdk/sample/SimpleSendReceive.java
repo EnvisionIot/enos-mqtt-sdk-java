@@ -1,13 +1,9 @@
 package com.envisioniot.enos.iot_mqtt_sdk.sample;
 
-import java.util.List;
-
 import com.envisioniot.enos.iot_mqtt_sdk.core.IConnectCallback;
 import com.envisioniot.enos.iot_mqtt_sdk.core.MqttClient;
 import com.envisioniot.enos.iot_mqtt_sdk.core.exception.EnvisionException;
 import com.envisioniot.enos.iot_mqtt_sdk.core.msg.IMessageHandler;
-import com.envisioniot.enos.iot_mqtt_sdk.core.msg.IMqttArrivedMessage;
-import com.envisioniot.enos.iot_mqtt_sdk.core.msg.IMqttDeliveryMessage;
 import com.envisioniot.enos.iot_mqtt_sdk.message.downstream.tsl.RrpcInvocationCommand;
 import com.envisioniot.enos.iot_mqtt_sdk.message.downstream.tsl.RrpcInvocationReply;
 import com.envisioniot.enos.iot_mqtt_sdk.message.downstream.tsl.ServiceInvocationCommand;
@@ -15,15 +11,16 @@ import com.envisioniot.enos.iot_mqtt_sdk.message.downstream.tsl.ServiceInvocatio
 import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.register.DeviceRegOption;
 import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.register.SubDeviceDynamicRegRequest;
 import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.register.SubDeviceDynamicRegResponse;
-import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.status.SubDeviceLoginInfo;
-import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.status.SubDeviceLoginRequest;
-import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.status.SubDeviceLoginResponse;
-import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.status.SubDeviceLogoutRequest;
-import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.status.SubDeviceLogoutResponse;
+import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.status.*;
 import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.topo.*;
-import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.tsl.*;
+import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.tsl.EventPostRequest;
+import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.tsl.MeasurepointPostRequest;
+import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.tsl.TslTemplateGetRequest;
+import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.tsl.TslTemplateGetResponse;
 import com.envisioniot.enos.iot_mqtt_sdk.util.Pair;
 import com.google.common.collect.Lists;
+
+import java.util.List;
 
 /**
  * @author zhensheng.cai
@@ -56,7 +53,23 @@ public class SimpleSendReceive
 		try
 		{
 			client= new MqttClient(prd, productKey, deviceKey, deviceSecret);
-			client.connect();
+			client.connect(new IConnectCallback()
+			{
+				@Override public void onConnectSuccess()
+				{
+
+				}
+
+				@Override public void onConnectLost()
+				{
+
+				}
+
+				@Override public void onConnectFailed(int reasonCode)
+				{
+
+				}
+			});
 		}
 		catch (EnvisionException e)
 		{
@@ -99,10 +112,11 @@ public class SimpleSendReceive
 
 	public static void subDeviceRegister(){
 		System.out.println("start register register sub-device , current status : "+client.isConnected());
-		SubDeviceDynamicRegRequest request = new SubDeviceDynamicRegRequest();
-		request.addSubRegisterInfo("eb27piAg",new DeviceRegOption("zscai-sub-device-1", "zscai-sub-device-1", "zscai-sub-device-1"));
-		request.addSubRegisterInfo("eb27piAg",new DeviceRegOption("zscai-sub-device-2", "zscai-sub-device-2", "zscai-sub-device-2"));
-		request.addSubRegisterInfo("eb27piAg", new DeviceRegOption("zscai-sub-device-3", "zscai-sub-device-3", "zscai-sub-device-3"));
+		SubDeviceDynamicRegRequest request =  SubDeviceDynamicRegRequest.builder()
+				.addSubRegisterInfo("eb27piAg",new DeviceRegOption("zscai-sub-device-1", "zscai-sub-device-1", "zscai-sub-device-1"))
+				.addSubRegisterInfo("eb27piAg",new DeviceRegOption("zscai-sub-device-2", "zscai-sub-device-2", "zscai-sub-device-2"))
+				.addSubRegisterInfo("eb27piAg", new DeviceRegOption("zscai-sub-device-3", "zscai-sub-device-3", "zscai-sub-device-3"))
+				.build();
 //		request.setRegProductKey("eb27piAg");
 		SubDeviceDynamicRegResponse rsp = null;
 		try
@@ -119,8 +133,8 @@ public class SimpleSendReceive
 
 	public static void subDeviceLogin(){
 		System.out.println("start register login sub-device , current status : "+client.isConnected());
-		SubDeviceLoginRequest request = new SubDeviceLoginRequest();
-		request.setSubDeviceInfo(new SubDeviceLoginInfo(subProductKey , subDeviceKey, subDeviceSecret));
+		SubDeviceLoginRequest request = SubDeviceLoginRequest.builder()
+				.setSubDeviceInfo(new SubDeviceLoginInfo(subProductKey, subDeviceKey, subDeviceSecret)).build();
 		SubDeviceLoginResponse rsp = null;
 
 		try
@@ -137,9 +151,9 @@ public class SimpleSendReceive
 	public static void subdeviceLogout() throws InterruptedException
 	{
 		System.out.println("start logout sub device...");
-		SubDeviceLogoutRequest request = new SubDeviceLogoutRequest();
-		request.setSubProductKey(subProductKey);
-		request.setSubDeviceKey(subDeviceKey);
+		SubDeviceLogoutRequest request = SubDeviceLogoutRequest.builder()
+				.setSubProductKey(subProductKey)
+				.setSubDeviceKey(subDeviceKey).build();
 		SubDeviceLogoutResponse rsp = null;
 		try
 		{
@@ -159,11 +173,13 @@ public class SimpleSendReceive
 
 
 
+
+
 	public static void addTopo() throws Exception
 	{
 		System.out.println("start add topo ...");
-		AddTopoRequest request = new AddTopoRequest();
-		request.addSubDevice(new SubDeviceInfo(subProductKey, subDeviceKey, subDeviceSecret));
+		AddTopoRequest request = AddTopoRequest.builder().
+				addSubDevice(new SubDeviceInfo(subProductKey, subDeviceKey, subDeviceSecret)).build();
 		AddTopoResponse rsp = client.publish(request);
 		System.out.println("-->" + rsp);
 		getTopo();
@@ -174,8 +190,8 @@ public class SimpleSendReceive
 	public static void deleteTopo() throws Exception
 	{
 		System.out.println("start delete topo...");
-		DeleteTopoRequest request = new DeleteTopoRequest();
-		request.setSubDevices(Lists.newArrayList(Pair.makePair(subProductKey, subDeviceKey)));
+		DeleteTopoRequest request = DeleteTopoRequest.builder()
+				.setSubDevices(Lists.newArrayList(Pair.makePair(subProductKey, subDeviceKey))).build();
 		DeleteTopoResponse rsp = client.publish(request);
 		System.out.println("-->" + rsp);
 		getTopo();
@@ -186,7 +202,8 @@ public class SimpleSendReceive
 	public static void getTopo() throws Exception
 	{
 		System.out.println("start get topo...");
-		GetTopoRequest request = new GetTopoRequest();
+		GetTopoRequest request = GetTopoRequest.builder().build();
+
 		GetTopoResponse rsp = client.publish(request);
 		System.out.println("-->" + rsp);
 
@@ -200,7 +217,7 @@ public class SimpleSendReceive
 	public static void getTslTemplete()
 	{
 		System.out.println("start get tsl template... ");
-		TslTemplateGetRequest request = new TslTemplateGetRequest();
+		TslTemplateGetRequest request = TslTemplateGetRequest.builder().build();
 		TslTemplateGetResponse rsp = null;
 		try
 		{
@@ -216,8 +233,10 @@ public class SimpleSendReceive
 	public static void postEvent() throws InterruptedException
 	{
 		System.out.println("start post");
-		EventPostRequest postRequest = new EventPostRequest("PowerTooHigh");
-		postRequest.addValue("PowerAlarm", 60);
+		EventPostRequest postRequest = EventPostRequest.builder()
+				.setEventIdentifier("PowerTooHigh")
+				.addValue("PowerAlarm", 60)
+				.build();
 		try
 		{
 			/*
@@ -239,13 +258,14 @@ public class SimpleSendReceive
 
 	public static void postMeasurepoint(){
 		System.out.println("start post measurepoint ...");
-		MeasurepointPostRequest request = new MeasurepointPostRequest();
-		request.addMeasurePoint("power", 60);
-		request.addMeasurePoint("alarm", 300);
+		MeasurepointPostRequest request = MeasurepointPostRequest.builder()
+				.addMeasurePoint("power", 60)
+				.addMeasurePoint("alarm", 300)
+				.build();
 		try
 		{
-			MeasurepointPostResponse rsp = client.publish(request);
-			System.out.println("-->" + rsp);
+			client.fastPublish(request);
+//			System.out.println("-->" + rsp);
 
 		}
 		catch (Exception e)
@@ -254,13 +274,14 @@ public class SimpleSendReceive
 		}
 	}
 
-
 	public static void postSubEvent(){
 		System.out.println("start post");
-		EventPostRequest postRequest = new EventPostRequest("PowerTooHigh");
-		postRequest.setProductKey(subProductKey);
-		postRequest.setDeviceKey(subDeviceKey);
-		postRequest.addValue("PowerAlarm", 60);
+		EventPostRequest postRequest = EventPostRequest.builder()
+				.setEventIdentifier("PowerTooHigh")
+				.addValue("PowerAlarm", 60)
+				.setDeviceKey(deviceKey)
+				.setProductKey(subProductKey)
+				.build();
 		try
 		{
 			/**
@@ -320,7 +341,11 @@ public class SimpleSendReceive
 		}
 	}
 
+	public static void postMeasurepointV2(){
+		MeasurepointPostRequest request = MeasurepointPostRequest.builder()
+				.addMeasurePoint("a", "b").build();
 
+	}
 
 
 
@@ -340,6 +365,9 @@ public class SimpleSendReceive
 		handleServiceInvocation();
 
 	}
+
+
+
 
 
 }

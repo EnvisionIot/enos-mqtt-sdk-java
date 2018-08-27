@@ -4,6 +4,7 @@ import com.envisioniot.enos.iot_mqtt_sdk.core.exception.EnvisionException;
 import com.envisioniot.enos.iot_mqtt_sdk.core.msg.IMqttRequest;
 import com.envisioniot.enos.iot_mqtt_sdk.message.BaseAnswerableMessage;
 import com.envisioniot.enos.iot_mqtt_sdk.util.CheckUtil;
+import com.envisioniot.enos.iot_mqtt_sdk.util.StringUtil;
 
 /**
  * @author zhensheng.cai
@@ -15,6 +16,47 @@ public abstract class BaseMqttRequest<T extends BaseMqttResponse> extends BaseAn
 	private static final long serialVersionUID = -1782194368038165072L;
 	private String productKey;
 	private String deviceKey;
+
+	protected abstract static class Builder<B extends Builder , R extends BaseMqttRequest>
+	{
+		private String productKey;
+		private String deviceKey;
+
+		@SuppressWarnings("unchecked")
+		public  B setProductKey(String productKey)
+		{
+			this.productKey = productKey;
+			return (B) this;
+		}
+
+		@SuppressWarnings("unchecked")
+		public  B setDeviceKey(String deviceKey)
+		{
+			this.deviceKey = deviceKey;
+			return (B) this;
+		}
+
+		protected abstract String createMethod();
+
+		protected abstract Object createParams();
+
+		protected abstract R createRequestInstance();
+
+		public R build()
+		{
+			R request = createRequestInstance();
+			if(StringUtil.isNotEmpty(productKey)){
+				request.setProductKey(productKey);
+			}
+			if(StringUtil.isNotEmpty(deviceKey)){
+				request.setDeviceKey(deviceKey);
+			}
+			request.setMethod(createMethod());
+			request.setParams(createParams());
+			return request;
+		}
+	}
+
 
 	@Override public String getProductKey()
 	{

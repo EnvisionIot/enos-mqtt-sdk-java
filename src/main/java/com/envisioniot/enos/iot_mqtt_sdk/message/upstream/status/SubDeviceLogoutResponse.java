@@ -1,10 +1,10 @@
 package com.envisioniot.enos.iot_mqtt_sdk.message.upstream.status;
 
-import java.util.Map;
-import java.util.regex.Pattern;
-
 import com.envisioniot.enos.iot_mqtt_sdk.core.internals.constants.ArrivedTopicPattern;
 import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.BaseMqttResponse;
+
+import java.util.Map;
+import java.util.regex.Pattern;
 
 /**
  * Description: sub-device logout response response data contains sub-device
@@ -15,6 +15,7 @@ import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.BaseMqttResponse;
  */
 public class SubDeviceLogoutResponse extends BaseMqttResponse
 {
+	private static final long serialVersionUID = 8783872769820214468L;
 	private static Pattern pattern = Pattern.compile(ArrivedTopicPattern.SUB_DEVICE_LOGOUT_REPLY);
 
 	public String getSubProductKey()

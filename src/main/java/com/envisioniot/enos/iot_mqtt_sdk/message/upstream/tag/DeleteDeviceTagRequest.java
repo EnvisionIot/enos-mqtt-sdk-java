@@ -1,16 +1,14 @@
 package com.envisioniot.enos.iot_mqtt_sdk.message.upstream.tag;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
-import com.envisioniot.enos.iot_mqtt_sdk.core.exception.EnvisionException;
 import com.envisioniot.enos.iot_mqtt_sdk.core.internals.constants.DeliveryTopicFormat;
 import com.envisioniot.enos.iot_mqtt_sdk.core.internals.constants.MethodConstants;
 import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.BaseMqttRequest;
-import com.envisioniot.enos.iot_mqtt_sdk.util.CheckUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Description: delete device tags
@@ -20,57 +18,60 @@ import com.google.common.collect.Maps;
  */
 public class DeleteDeviceTagRequest extends BaseMqttRequest<DeleteDeviceTagResponse>
 {
-    private List<String> tags = Lists.newArrayList();
+    private static final long serialVersionUID = 8471360794763108486L;
 
-    public DeleteDeviceTagRequest(){
-
+    public static Builder builder(){
+        return new Builder();
     }
 
-    public DeleteDeviceTagRequest(String productKey, String deviceKey)
+    public static class Builder extends BaseMqttRequest.Builder<Builder,DeleteDeviceTagRequest>
     {
-        this.setMethod(MethodConstants.TAG_DELETE);
-        setProductKey(productKey);
-        setDeviceKey(deviceKey);
-    }
+        private List<String> tags = Lists.newArrayList();
 
-    public void addTagKey(String tagKey)
-    {
-        tags.add(tagKey);
-    }
-
-    public void addTagKeys(Collection<String> tagKeys)
-    {
-        tags.addAll(tagKeys);
-    }
-
-    @Override
-    public Object getParams()
-    {
-        List<Map<String, String>> params = Lists.newArrayList();
-        for (String tagKey : tags)
+        @Override protected String createMethod()
         {
-            Map<String, String> keyMap = Maps.newHashMap();
-            keyMap.put("tagKey", tagKey);
-            params.add(keyMap);
+            return MethodConstants.TAG_DELETE;
         }
-        return params;
+
+        @Override protected Object createParams()
+        {
+            List<Map<String, String>> params = Lists.newArrayList();
+            for (String tagKey : tags)
+            {
+                Map<String, String> keyMap = Maps.newHashMap();
+                keyMap.put("tagKey", tagKey);
+                params.add(keyMap);
+            }
+            return params;
+        }
+
+        public Builder addTagKey(String tagKey)
+        {
+            tags.add(tagKey);
+            return this;
+        }
+
+        public Builder addTagKeys(Collection<String> tagKeys)
+        {
+            tags.addAll(tagKeys);
+            return this;
+        }
+
+        public Builder setTags(List<String> tags)
+        {
+            this.tags = tags;
+            return this;
+        }
+
+
+        @Override protected DeleteDeviceTagRequest createRequestInstance()
+        {
+            return new DeleteDeviceTagRequest();
+        }
     }
 
-    public List<String> getTags()
-    {
-        return tags;
-    }
 
-    public void setTags(List<String> tags)
-    {
-        this.tags = tags;
-    }
-
-    @Override
-    public void check() throws EnvisionException
-    {
-        super.check();
-        CheckUtil.checkNotEmpty(tags, "tags");
+    private DeleteDeviceTagRequest(){
     }
 
     @Override

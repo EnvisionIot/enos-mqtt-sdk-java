@@ -16,49 +16,53 @@ import java.util.Map;
  */
 public class SubDeviceLoginRequest extends BaseMqttRequest<SubDeviceLoginResponse>
 {
-	// private static final String method = "combine.login";
 
-	private SubDeviceLoginInfo subDeviceInfo;
+	private static final long serialVersionUID = -3347144897822328244L;
 
-	public SubDeviceLoginRequest()
-	{
-		this.setMethod(MethodConstants.SUB_DEVICE_LOGIN);
+	public static Builder builder(){
+		return new Builder();
 	}
 
-	public SubDeviceLoginRequest(SubDeviceLoginInfo subDeviceInfo)
-	{
-		this.subDeviceInfo = subDeviceInfo;
-		this.setParams(subDeviceInfo.getSignParams());
-		this.setMethod(MethodConstants.SUB_DEVICE_LOGIN);
+	public static class Builder extends BaseMqttRequest.Builder<Builder,SubDeviceLoginRequest>{
+		private SubDeviceLoginInfo subDeviceInfo;
+
+		public Builder setSubDeviceInfo(SubDeviceLoginInfo subDeviceInfo)
+		{
+			this.subDeviceInfo = subDeviceInfo;
+			return this;
+		}
+
+		@Override protected String createMethod()
+		{
+			return MethodConstants.SUB_DEVICE_LOGIN;
+		}
+
+		@Override protected Object createParams()
+		{
+			return this.subDeviceInfo.getSignParams();
+		}
+
+
+		@Override protected SubDeviceLoginRequest createRequestInstance()
+		{
+			return new SubDeviceLoginRequest();
+		}
+
 	}
 
-	public SubDeviceLoginInfo getSubDeviceInfo()
-	{
-		return subDeviceInfo;
-	}
+	private SubDeviceLoginRequest(){}
 
-	public void setSubDeviceInfo(SubDeviceLoginInfo subDeviceInfo)
-	{
-		this.subDeviceInfo = subDeviceInfo;
-		this.setParams(subDeviceInfo.getSignParams());
-	}
-
-	@Override
-	public Map<String, String> getParams()
-	{
-		return this.subDeviceInfo.getSignParams();
-	}
 
 	@Override
 	public void check() throws EnvisionException
 	{
 	    super.check();
-		
-	    CheckUtil.checkNotEmpty(subDeviceInfo.getProductKey(), "subDeviceInfo.productKey");
-        CheckUtil.checkNotEmpty(subDeviceInfo.getDeviceKey(), "subDeviceInfo.deviceKey");
-        CheckUtil.checkNotEmpty(subDeviceInfo.getClientId(), "subDeviceInfo.client");
-        CheckUtil.checkNotEmpty(subDeviceInfo.getSignMethod(), "subDeviceInfo.signMethod");
-        CheckUtil.checkNotEmpty(subDeviceInfo.getSign(), "subDeviceInfo.sign");
+		Map<String,String>params =  getParams();
+		CheckUtil.checkNotEmpty(params.get("productKey"), "subDeviceInfo.productKey");
+        CheckUtil.checkNotEmpty(params.get("deviceKey"), "subDeviceInfo.deviceKey");
+        CheckUtil.checkNotEmpty(params.get("clientId"), "subDeviceInfo.client");
+        CheckUtil.checkNotEmpty(params.get("signMethod"), "subDeviceInfo.signMethod");
+        CheckUtil.checkNotEmpty(params.get("sign"), "subDeviceInfo.sign");
 	}
 
 	@Override

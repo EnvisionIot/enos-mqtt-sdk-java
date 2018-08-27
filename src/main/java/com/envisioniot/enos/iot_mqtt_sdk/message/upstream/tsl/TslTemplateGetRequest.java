@@ -1,10 +1,10 @@
 package com.envisioniot.enos.iot_mqtt_sdk.message.upstream.tsl;
 
-import java.util.HashMap;
-
 import com.envisioniot.enos.iot_mqtt_sdk.core.internals.constants.DeliveryTopicFormat;
 import com.envisioniot.enos.iot_mqtt_sdk.core.internals.constants.MethodConstants;
 import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.BaseMqttRequest;
+
+import java.util.Collections;
 
 /**
  {
@@ -20,10 +20,30 @@ public class TslTemplateGetRequest extends BaseMqttRequest<TslTemplateGetRespons
 {
     private static final long serialVersionUID = -8443886905071947074L;
 
-    public TslTemplateGetRequest()
+    public static Builder builder(){
+        return new Builder();
+    }
+    public static class Builder extends BaseMqttRequest.Builder<Builder,TslTemplateGetRequest>
     {
-        this.setParams(new HashMap<>());
-        this.setMethod(MethodConstants.TSL_TEMPLATE_GET);
+        @Override protected String createMethod()
+        {
+            return MethodConstants.TSL_TEMPLATE_GET;
+        }
+
+        @Override protected Object createParams()
+        {
+            return Collections.emptyMap();
+        }
+
+        @Override protected TslTemplateGetRequest createRequestInstance()
+        {
+            return new TslTemplateGetRequest();
+        }
+
+    }
+
+    private TslTemplateGetRequest()
+    {
     }
 
     @Override

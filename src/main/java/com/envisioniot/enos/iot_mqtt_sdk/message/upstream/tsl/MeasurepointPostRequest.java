@@ -1,11 +1,11 @@
 package com.envisioniot.enos.iot_mqtt_sdk.message.upstream.tsl;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.envisioniot.enos.iot_mqtt_sdk.core.internals.constants.DeliveryTopicFormat;
 import com.envisioniot.enos.iot_mqtt_sdk.core.internals.constants.MethodConstants;
 import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.BaseMqttRequest;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * { "id": "123", "version": "1.0", "params": { "Power": { "value": "on",
@@ -19,24 +19,44 @@ public class MeasurepointPostRequest extends BaseMqttRequest<MeasurepointPostRes
 {
 	private static final long serialVersionUID = 4018722889739885894L;
 
-	public MeasurepointPostRequest()
-	{
-		this.setParams(new HashMap<String, Map<String, Object>>());
-		this.setMethod(MethodConstants.MEASUREPOINT_POST);
+	public static  MeasurepointPostRequest.Builder builder(){
+		return new Builder();
 	}
 
-	public void addMeasurePoint(String key, Object value)
-	{
-		this.addMeasurePoint(key, value, System.currentTimeMillis());
+	public static class Builder extends BaseMqttRequest.Builder<Builder,MeasurepointPostRequest>{
+		private Map<String, Map<String, Object>> params = new HashMap<>();
+
+		public Builder addMeasurePoint(String key, Object value){
+			return this.addMeasurePoint(key, value, System.currentTimeMillis());
+		}
+
+		public Builder addMeasurePoint(String key, Object value, long timestamp)
+		{
+			Map<String, Object> pointValue = new HashMap<>();
+			pointValue.put("value", value);
+			pointValue.put("timestamp", timestamp);
+			params.put(key, pointValue);
+			return this;
+		}
+
+		@Override protected String createMethod()
+		{
+			return MethodConstants.MEASUREPOINT_POST;
+		}
+
+		@Override protected Object createParams()
+		{
+			return params;
+		}
+
+		@Override protected MeasurepointPostRequest createRequestInstance()
+		{
+			return new MeasurepointPostRequest();
+		}
 	}
 
-	public void addMeasurePoint(String key, Object value, long timestamp)
+	private MeasurepointPostRequest()
 	{
-		Map<String, Map<String, Object>> pointValues = this.getParams();
-		Map<String, Object> pointValue = new HashMap<>();
-		pointValue.put("value", value);
-		pointValue.put("timestamp", timestamp);
-		pointValues.put(key, pointValue);
 	}
 
 

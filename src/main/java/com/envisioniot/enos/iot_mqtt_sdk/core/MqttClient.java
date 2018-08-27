@@ -1,7 +1,5 @@
 package com.envisioniot.enos.iot_mqtt_sdk.core;
 
-import java.util.concurrent.atomic.AtomicLong;
-
 import com.envisioniot.enos.iot_mqtt_sdk.core.exception.EnvisionException;
 import com.envisioniot.enos.iot_mqtt_sdk.core.internals.MqttConnection;
 import com.envisioniot.enos.iot_mqtt_sdk.core.msg.IMessageHandler;
@@ -10,6 +8,8 @@ import com.envisioniot.enos.iot_mqtt_sdk.core.msg.IMqttRequest;
 import com.envisioniot.enos.iot_mqtt_sdk.core.msg.IMqttResponse;
 import com.envisioniot.enos.iot_mqtt_sdk.core.profile.Profile;
 import com.envisioniot.enos.iot_mqtt_sdk.util.StringUtil;
+
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Envision Mqtt Sdk
@@ -92,14 +92,10 @@ public class MqttClient
 		connection.getProcessor().setArrivedMsgHandler(arrivedMsgCls, handler);
 	}
 
-	public void connect() throws EnvisionException
-	{
-		connection.connect();
-	}
 
 	/**
-	 * connect with the callback, called when connect success, failed or connection lost
-	 * @param callback
+	 * connect with the callback
+	 * @param callback callback called when connect success, failed or connection lost
 	 * @throws EnvisionException
 	 */
 	public void connect(IConnectCallback callback) throws EnvisionException
@@ -140,5 +136,4 @@ public class MqttClient
 			request.setDeviceKey(profile.getDeviceKey());
 		}
 	}
-
 }

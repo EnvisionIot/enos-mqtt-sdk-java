@@ -14,6 +14,7 @@ import java.util.regex.Pattern;
 public class DeleteTopoResponse extends BaseMqttResponse
 {
 
+    private static final long serialVersionUID = -6759065710108009661L;
     private static Pattern pattern = Pattern.compile(ArrivedTopicPattern.TOPO_DELETE_REPLY);
 
     @Override

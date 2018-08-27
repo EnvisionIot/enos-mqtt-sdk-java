@@ -1,14 +1,14 @@
 package com.envisioniot.enos.iot_mqtt_sdk.message.upstream.topo;
 
-import java.util.List;
-import java.util.Map;
-
 import com.envisioniot.enos.iot_mqtt_sdk.core.exception.EnvisionException;
 import com.envisioniot.enos.iot_mqtt_sdk.core.internals.constants.DeliveryTopicFormat;
 import com.envisioniot.enos.iot_mqtt_sdk.core.internals.constants.MethodConstants;
 import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.BaseMqttRequest;
 import com.envisioniot.enos.iot_mqtt_sdk.util.CheckUtil;
 import com.google.common.collect.Lists;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * Description: add topo request
@@ -18,42 +18,59 @@ import com.google.common.collect.Lists;
  */
 public class AddTopoRequest extends BaseMqttRequest<AddTopoResponse>
 {
-	private List<SubDeviceInfo> subDeviceInfoList = Lists.newArrayList();
+	private static final long serialVersionUID = -5999452330092417149L;
 
-	public AddTopoRequest()
+	public static Builder builder()
 	{
-		this.setMethod(MethodConstants.TOPO_ADD);
+		return new Builder();
 	}
 
-	public List<SubDeviceInfo> getSubDeviceInfoList()
+	public static class Builder extends BaseMqttRequest.Builder<Builder,AddTopoRequest>
 	{
-		return subDeviceInfoList;
-	}
+		private List<SubDeviceInfo> subDeviceInfoList = Lists.newArrayList();
 
-	public void setSubDeviceInfoList(List<SubDeviceInfo> subDeviceInfoList)
-	{
-		this.subDeviceInfoList = subDeviceInfoList;
-	}
-
-	public void addSubDevice(SubDeviceInfo deviceInfo)
-	{
-		subDeviceInfoList.add(deviceInfo);
-	}
-
-	public void addSubDevices(List<SubDeviceInfo> deviceInfoList)
-	{
-		subDeviceInfoList.addAll(deviceInfoList);
-	}
-
-	@Override
-	public Object getParams()
-	{
-		List<Map<String, String>> params = Lists.newArrayList();
-		for (SubDeviceInfo deviceInfo : subDeviceInfoList)
+		public Builder setSubDeviceInfoList(List<SubDeviceInfo> subDeviceInfoList)
 		{
-			params.add(deviceInfo.getObject());
+			this.subDeviceInfoList = subDeviceInfoList;
+			return this;
 		}
-		return params;
+
+		public Builder addSubDevice(SubDeviceInfo deviceInfo)
+		{
+			subDeviceInfoList.add(deviceInfo);
+			return this;
+		}
+
+		public Builder addSubDevices(List<SubDeviceInfo> deviceInfoList)
+		{
+			subDeviceInfoList.addAll(deviceInfoList);
+			return this;
+		}
+
+		@Override protected String createMethod()
+		{
+			return MethodConstants.TOPO_ADD;
+		}
+
+		@Override protected Object createParams()
+		{
+			List<Map<String, String>> params = Lists.newArrayList();
+			for (SubDeviceInfo deviceInfo : subDeviceInfoList)
+			{
+				params.add(deviceInfo.createSignMap());
+			}
+			return params;
+		}
+
+		@Override protected AddTopoRequest createRequestInstance()
+		{
+			return new AddTopoRequest();
+		}
+	}
+
+
+	private AddTopoRequest()
+	{
 	}
 
 	@Override
@@ -66,14 +83,15 @@ public class AddTopoRequest extends BaseMqttRequest<AddTopoResponse>
 	public void check() throws EnvisionException
 	{
 	    super.check();
-		CheckUtil.checkNotEmpty(subDeviceInfoList, "subDeviceInfoList");
-		for (SubDeviceInfo subDeviceInfo : subDeviceInfoList)
+		List<Map<String, String>> params = getParams();
+		CheckUtil.checkNotEmpty(params, "subDeviceInfoList");
+		for (Map<String, String> param : params)
 		{
-	        CheckUtil.checkNotEmpty(subDeviceInfo.getProductKey(), "subDeviceInfo.productKey");
-	        CheckUtil.checkNotEmpty(subDeviceInfo.getDeviceKey(), "subDeviceInfo.deviceKey");
-	        CheckUtil.checkNotEmpty(subDeviceInfo.getClientId(), "subDeviceInfo.client");
-	        CheckUtil.checkNotEmpty(subDeviceInfo.getSignMethod(), "subDeviceInfo.signMethod");
-	        CheckUtil.checkNotEmpty(subDeviceInfo.getSign(), "subDeviceInfo.sign");
+			CheckUtil.checkNotEmpty(param.get("productKey"), "subDeviceInfo.productKey");
+			CheckUtil.checkNotEmpty(param.get("deviceKey"), "subDeviceInfo.deviceKey");
+			CheckUtil.checkNotEmpty(param.get("clientId"), "subDeviceInfo.client");
+			CheckUtil.checkNotEmpty(param.get("signMethod"), "subDeviceInfo.signMethod");
+			CheckUtil.checkNotEmpty(param.get("sign"), "subDeviceInfo.sign");
 		}
 	}
 

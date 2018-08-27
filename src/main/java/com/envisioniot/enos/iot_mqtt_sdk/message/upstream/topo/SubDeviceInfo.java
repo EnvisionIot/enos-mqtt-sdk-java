@@ -1,10 +1,10 @@
 package com.envisioniot.enos.iot_mqtt_sdk.message.upstream.topo;
 
-import java.io.Serializable;
-import java.util.Map;
-
 import com.envisioniot.enos.iot_mqtt_sdk.core.internals.SignUtil;
 import com.google.common.collect.Maps;
+
+import java.io.Serializable;
+import java.util.Map;
 
 /**
  * Description: sub-device information
@@ -84,7 +84,7 @@ public class SubDeviceInfo implements Serializable
 		this.sign = sign;
 	}
 
-	public Map<String, String> getObject()
+	public Map<String, String> createSignMap()
 	{
 		Map<String, String> params = Maps.newHashMap();
 		params.put("productKey", productKey);
