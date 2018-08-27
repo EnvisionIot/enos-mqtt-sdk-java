@@ -1,13 +1,13 @@
 package com.envisioniot.enos.iot_mqtt_sdk.message.downstream.tsl;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.envisioniot.enos.iot_mqtt_sdk.core.exception.EnvisionException;
 import com.envisioniot.enos.iot_mqtt_sdk.core.internals.constants.DeliveryTopicFormat;
 import com.envisioniot.enos.iot_mqtt_sdk.message.downstream.BaseMqttReply;
-import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.ResponseCode;
 import com.envisioniot.enos.iot_mqtt_sdk.util.CheckUtil;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -19,36 +19,54 @@ public class ServiceInvocationReply extends BaseMqttReply
 	private static final long serialVersionUID = 1506910581305477787L;
 	private String serviceIdentifier;
 
-	public ServiceInvocationReply(String serviceIdentifier){
-		super();
-		this.setServiceIdentifier(serviceIdentifier);
+	public static Builder builder(){
+		return new Builder();
+	}
+	public static class Builder extends BaseMqttReply.Builder<Builder ,ServiceInvocationReply >{
+		private Map<String, Object> map = new HashMap<>();
+
+		public Builder addOutputData(String point, Object value)
+		{
+			map.put(point, value);
+			return this;
+		}
+
+		public Builder addOutputDatas(Map<String, Object> values)
+		{
+			map.putAll(values);
+			return this;
+		}
+
+		public Builder setOutputDatas(Map<String, Object> values)
+		{
+			map = values;
+			return this;
+		}
+
+
+		@Override protected Object createData()
+		{
+			return map;
+		}
+
+		@Override protected ServiceInvocationReply createRequestInstance()
+		{
+			return new ServiceInvocationReply();
+		}
 	}
 
-	public ServiceInvocationReply(String productKey, String deviceKey, String serviceIdentifier)
+	@Override public void setTopicArgs(List<String> args)
 	{
-		this.serviceIdentifier = serviceIdentifier;
-		this.setData(new HashMap<String, Object>());
-		this.setCode(ResponseCode.SUCCESS);
-		setProductKey(productKey);
-		setDeviceKey(deviceKey);
+		if(args.size() == 3 ){
+			this.setProductKey(args.get(0));
+			this.setDeviceKey(args.get(1));
+			this.setServiceIdentifier(args.get(2));
+		}
+		else {
+			throw new UnsupportedOperationException("topic args size not match!");
+		}
 	}
 
-	public void addOutputData(String point, Object value)
-	{
-	    Map<String, Object> map = getData();
-	    map.put(point, value);
-	}
-
-	public void addOutputDatas(Map<String, Object> values)
-	{
-		Map<String, Object> map = getData();
-		map.putAll(values);
-	}
-
-	public void setOutputDatas(Map<String, Object> values)
-	{
-		this.setData(values);
-	}
 
 	@Override
 	public void check() throws EnvisionException

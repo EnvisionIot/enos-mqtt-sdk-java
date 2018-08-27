@@ -17,6 +17,7 @@ import java.util.regex.Pattern;
  */
 public class ServiceInvocationCommand extends BaseMqttCommand<ServiceInvocationReply>
 {
+    private static final long serialVersionUID = -6852970783309556308L;
     private static Pattern pattern = Pattern.compile(ArrivedTopicPattern.SERVICE_INVOKE_COMMAND);
 
     @Override

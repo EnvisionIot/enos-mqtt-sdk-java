@@ -14,6 +14,7 @@ import java.util.regex.Pattern;
  */
 public class MeasurepointSetCommand extends BaseMqttCommand<MeasurepointSetReply>
 {
+    private static final long serialVersionUID = -6511773492855053181L;
     private static Pattern pattern = Pattern.compile(ArrivedTopicPattern.MEASUREPOINT_SET_COMMAND);
 
     @Override

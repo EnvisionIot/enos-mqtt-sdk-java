@@ -2,7 +2,6 @@ package com.envisioniot.enos.iot_mqtt_sdk.message.downstream.device;
 
 import com.envisioniot.enos.iot_mqtt_sdk.core.internals.constants.DeliveryTopicFormat;
 import com.envisioniot.enos.iot_mqtt_sdk.message.downstream.BaseMqttReply;
-import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.ResponseCode;
 
 /**
  * Created by yi.dai on 2018/7/17.
@@ -10,13 +9,24 @@ import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.ResponseCode;
 public class DeleteDeviceCommandReply extends BaseMqttReply
 {
 
+	private static final long serialVersionUID = -9194212758770027914L;
 
-	public DeleteDeviceCommandReply(String productKey, String deviceKey)
+	public static Builder builder(){
+		return new Builder();
+	}
+
+	public static class Builder extends BaseMqttReply.Builder<Builder, DeleteDeviceCommandReply>
 	{
-		setProductKey(productKey);
-		setDeviceKey(deviceKey);
-		setCode(ResponseCode.SUCCESS);
-		setData("");
+
+		@Override protected Object createData()
+		{
+			return "";
+		}
+
+		@Override protected DeleteDeviceCommandReply createRequestInstance()
+		{
+			return new DeleteDeviceCommandReply();
+		}
 	}
 
     @Override

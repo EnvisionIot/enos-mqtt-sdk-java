@@ -1,21 +1,21 @@
 package com.envisioniot.enos.iot_mqtt_sdk.core.internals;
 
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.*;
-
 import com.envisioniot.enos.iot_mqtt_sdk.core.IConnectCallback;
+import com.envisioniot.enos.iot_mqtt_sdk.core.IResponseCallback;
+import com.envisioniot.enos.iot_mqtt_sdk.core.exception.EnvisionError;
+import com.envisioniot.enos.iot_mqtt_sdk.core.exception.EnvisionException;
 import com.envisioniot.enos.iot_mqtt_sdk.core.msg.*;
+import com.envisioniot.enos.iot_mqtt_sdk.core.msg.IMqttArrivedMessage.DecodeResult;
 import com.envisioniot.enos.iot_mqtt_sdk.core.profile.Profile;
+import com.envisioniot.enos.iot_mqtt_sdk.message.downstream.BaseMqttReply;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.eclipse.paho.client.mqttv3.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.envisioniot.enos.iot_mqtt_sdk.core.IResponseCallback;
-import com.envisioniot.enos.iot_mqtt_sdk.core.exception.EnvisionError;
-import com.envisioniot.enos.iot_mqtt_sdk.core.exception.EnvisionException;
-import com.envisioniot.enos.iot_mqtt_sdk.core.msg.IMqttArrivedMessage.DecodeResult;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.*;
 
 /**
  *
@@ -125,6 +125,10 @@ public class DefaultProcessor implements MqttCallback , MqttCallbackExtended
 								deliveryMsg.setMessageId(msg.getMessageId());
 								deliveryMsg.setProductKey(msg.getProductKey());
 								deliveryMsg.setDeviceKey(msg.getDeviceKey());
+								/*set the reply topic*/
+								if(deliveryMsg instanceof BaseMqttReply){
+									((BaseMqttReply) deliveryMsg).setTopicArgs(pathList);
+								}
 								try
 								{
 									mqttClient.publish(deliveryMsg.getMessageTopic(), deliveryMsg.encode(), deliveryMsg.getQos(), false);

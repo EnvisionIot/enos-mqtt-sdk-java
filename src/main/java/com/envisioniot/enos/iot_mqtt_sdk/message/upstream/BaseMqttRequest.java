@@ -17,6 +17,10 @@ public abstract class BaseMqttRequest<T extends BaseMqttResponse> extends BaseAn
 	private String productKey;
 	private String deviceKey;
 
+	protected BaseMqttRequest()
+	{
+	}
+
 	protected abstract static class Builder<B extends Builder , R extends BaseMqttRequest>
 	{
 		private String productKey;

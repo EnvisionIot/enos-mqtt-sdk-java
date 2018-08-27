@@ -22,6 +22,7 @@ import java.util.regex.Pattern;
  */
 public class RrpcInvocationCommand extends BaseMqttCommand<RrpcInvocationReply>
 {
+	private static final long serialVersionUID = -1268006656571832440L;
 	private static Pattern pattern = Pattern.compile(ArrivedTopicPattern.RRPC_COMMAND);
 
 

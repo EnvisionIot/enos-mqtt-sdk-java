@@ -6,7 +6,9 @@ import com.envisioniot.enos.iot_mqtt_sdk.core.msg.IMqttReply;
 import com.envisioniot.enos.iot_mqtt_sdk.message.BaseAckMessage;
 import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.ResponseCode;
 import com.envisioniot.enos.iot_mqtt_sdk.util.CheckUtil;
+import com.envisioniot.enos.iot_mqtt_sdk.util.StringUtil;
 
+import java.util.List;
 
 /**
  * Notice： 需要有一个仅包含topic参数的构造方法。
@@ -16,22 +18,63 @@ import com.envisioniot.enos.iot_mqtt_sdk.util.CheckUtil;
  */
 public abstract class BaseMqttReply extends BaseAckMessage implements IMqttReply
 {
+	private static final long serialVersionUID = -5315349562529412528L;
 	private String productKey;
 	private String deviceKey;
 
-	public BaseMqttReply()
+	protected abstract static class Builder<B extends Builder, R extends BaseMqttReply>{
+		private Integer code;
+		private String message;
+
+		@SuppressWarnings("unchecked")
+		public B setCode(int code)
+		{
+			this.code = code;
+			return ((B) this);
+		}
+
+		@SuppressWarnings("unchecked")
+		public B setMessage(String message)
+		{
+			this.message = message;
+			return ((B) this);
+		}
+
+		protected abstract Object createData();
+
+		protected abstract R createRequestInstance();
+
+		public R build(){
+			R reply = createRequestInstance();
+			reply.setCode(code != null ? code : ResponseCode.SUCCESS);
+			if(StringUtil.isNotEmpty(message)){
+				reply.setMessage(message);
+			}
+			reply.setData(createData());
+			return reply;
+		}
+	}
+
+	protected BaseMqttReply()
 	{
 		this.setCode(ResponseCode.SUCCESS);
 		this.setMessage("");
-
 	}
 
 	@Override public void check() throws EnvisionException
 	{
-
 		CheckUtil.checkProductKey(this.getProductKey());
 		CheckUtil.checkDeviceKey(this.getDeviceKey());
+	}
 
+	public void setTopicArgs(List<String> args){
+		if(args.size() == 2 ){
+			this.setProductKey(args.get(0));
+			this.setDeviceKey(args.get(1));
+		}
+		else {
+			throw new UnsupportedOperationException("topic args size not match!");
+		}
 	}
 
 

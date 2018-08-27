@@ -1,11 +1,10 @@
 package com.envisioniot.enos.iot_mqtt_sdk.message.downstream.tsl;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import com.envisioniot.enos.iot_mqtt_sdk.core.exception.EnvisionException;
 import com.envisioniot.enos.iot_mqtt_sdk.core.internals.constants.DeliveryTopicFormat;
 import com.envisioniot.enos.iot_mqtt_sdk.message.downstream.BaseMqttReply;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * { "id": "123", "code": 200, "data": { "power": "on", "temp": "23" } }
@@ -17,33 +16,44 @@ import com.envisioniot.enos.iot_mqtt_sdk.message.downstream.BaseMqttReply;
 
 public class MeasurepointGetReply extends BaseMqttReply
 {
-	public MeasurepointGetReply(String productKey, String deviceKey)
-	{
-		setData(new HashMap<String, String>());
-		setProductKey(productKey);
-		setDeviceKey(deviceKey);
+
+	private static final long serialVersionUID = -8407011589653796967L;
+
+	public static Builder builder(){
+		return new Builder();
 	}
 
-	@SuppressWarnings("unchecked")
-	public void addMeaurepoint(String pointKey, String value)
+	public static class Builder extends BaseMqttReply.Builder<Builder, MeasurepointGetReply>
 	{
-		Map<String, String> data = (Map<String, String>) this.getData();
-		data.put(pointKey, value);
-	}
+		private Map<String, Object> data = new HashMap<String, Object>();
 
-	@SuppressWarnings("unchecked")
-	public void addMeasurepoint(String k1, String v1, String k2, String v2)
-	{
-		Map<String, String> data = (Map<String, String>) this.getData();
-		data.put(k1, v1);
-		data.put(k2, v2);
-	}
+		public Builder addMeaurepoint(String pointKey, Object value)
+		{
+			data.put(pointKey, value);
+			return this;
+		}
 
-	@SuppressWarnings("unchecked")
-	public void addMeasurepoints(Map<String, String> points)
-	{
-		Map<String, String> data = (Map<String, String>) this.getData();
-		data.putAll(points);
+		public Builder addMeasurepoints(Map<String, Object> points)
+		{
+			data.putAll(points);
+			return this;
+		}
+
+		public Builder setMeasurepoints(Map<String, Object> points){
+			data = points;
+			return this;
+		}
+
+		@Override protected Object createData()
+		{
+			return data;
+		}
+
+		@Override protected MeasurepointGetReply createRequestInstance()
+		{
+			return new MeasurepointGetReply();
+		}
+
 	}
 
     @Override

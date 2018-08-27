@@ -10,11 +10,8 @@ import com.envisioniot.enos.iot_mqtt_sdk.core.exception.EnvisionException;
  */
 public interface IMqttDeliveryMessage extends IMqttMessage
 {
-
 	/**
 	 * implement the parameter validation by each request
-	 * 
-	 * @return
 	 */
 	void check() throws EnvisionException;
 
@@ -28,7 +25,7 @@ public interface IMqttDeliveryMessage extends IMqttMessage
 	/**
 	 * get the qos of publish message
 	 * 
-	 * @return
+	 * @return the qos
 	 */
 	int getQos();
 

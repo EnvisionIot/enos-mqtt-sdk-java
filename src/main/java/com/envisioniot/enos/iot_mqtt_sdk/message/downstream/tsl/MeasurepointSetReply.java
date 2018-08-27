@@ -2,7 +2,6 @@ package com.envisioniot.enos.iot_mqtt_sdk.message.downstream.tsl;
 
 import com.envisioniot.enos.iot_mqtt_sdk.core.internals.constants.DeliveryTopicFormat;
 import com.envisioniot.enos.iot_mqtt_sdk.message.downstream.BaseMqttReply;
-import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.ResponseCode;
 
 /**
  * @author zhensheng.cai
@@ -11,13 +10,26 @@ import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.ResponseCode;
 public class MeasurepointSetReply extends BaseMqttReply
 {
 
-	public MeasurepointSetReply(String productKey, String deviceKey)
-	{
-		setProductKey(productKey);
-		setDeviceKey(deviceKey);
-		this.setCode(ResponseCode.SUCCESS);
-		this.setData("");
+	private static final long serialVersionUID = 7250499387416208335L;
+
+	public static Builder builder(){
+		return new Builder();
 	}
+
+	public static class Builder extends BaseMqttReply.Builder<Builder, MeasurepointSetReply>
+	{
+
+		@Override protected Object createData()
+		{
+			return "";
+		}
+
+		@Override protected MeasurepointSetReply createRequestInstance()
+		{
+			return new MeasurepointSetReply();
+		}
+	}
+
 
     @Override
     protected String _getPK_DK_FormatTopic()

@@ -1,14 +1,10 @@
 package com.envisioniot.enos.iot_mqtt_sdk.message;
 
-import com.envisioniot.enos.iot_mqtt_sdk.core.msg.IMqttArrivedMessage;
 import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.ResponseCode;
 import com.envisioniot.enos.iot_mqtt_sdk.util.GsonUtil;
-import com.google.common.collect.ImmutableMap;
 
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -17,6 +13,7 @@ import java.util.Map;
  */
 public class AckMessageBody implements Serializable
 {
+	private static final long serialVersionUID = -2367357179961511079L;
 	private String id;
 	private int code;
 	private Object data;

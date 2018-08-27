@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
  */
 public class DisableDeviceCommand extends BaseMqttCommand<DisableDeviceCommandReply>
 {
+    private static final long serialVersionUID = 6698331828857201890L;
     private static Pattern pattern = Pattern.compile(ArrivedTopicPattern.DISABLE_DEVICE_COMMAND);
     @Override
     public Class<DisableDeviceCommandReply> getAnswerType()

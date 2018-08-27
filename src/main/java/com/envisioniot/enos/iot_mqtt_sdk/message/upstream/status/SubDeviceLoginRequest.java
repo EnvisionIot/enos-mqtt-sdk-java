@@ -12,7 +12,7 @@ import java.util.Map;
  * Description: sub-device login request
  *
  * @author zhonghua.wu
- * @create 2018-07-09 14:38
+ * @date 2018-07-09 14:38
  */
 public class SubDeviceLoginRequest extends BaseMqttRequest<SubDeviceLoginResponse>
 {
@@ -26,11 +26,12 @@ public class SubDeviceLoginRequest extends BaseMqttRequest<SubDeviceLoginRespons
 	public static class Builder extends BaseMqttRequest.Builder<Builder,SubDeviceLoginRequest>{
 		private SubDeviceLoginInfo subDeviceInfo;
 
-		public Builder setSubDeviceInfo(SubDeviceLoginInfo subDeviceInfo)
+		public Builder setSubDeviceInfo(String productKey, String deviceKey, String deviceSecret )
 		{
-			this.subDeviceInfo = subDeviceInfo;
+			this.subDeviceInfo = new SubDeviceLoginInfo(productKey,deviceKey, deviceSecret);
 			return this;
 		}
+
 
 		@Override protected String createMethod()
 		{

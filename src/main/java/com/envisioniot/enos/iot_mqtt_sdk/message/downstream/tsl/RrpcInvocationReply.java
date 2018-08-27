@@ -2,8 +2,8 @@ package com.envisioniot.enos.iot_mqtt_sdk.message.downstream.tsl;
 
 import com.envisioniot.enos.iot_mqtt_sdk.core.internals.constants.DeliveryTopicFormat;
 import com.envisioniot.enos.iot_mqtt_sdk.message.downstream.BaseMqttReply;
-import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.ResponseCode;
-import com.envisioniot.enos.iot_mqtt_sdk.util.BASE64Coding;
+
+import java.util.List;
 
 /**
  * 对于RRPC的reply 其实是一个透传的reply 只需要保证云端能够收到返回就可以了，甚至可以是二进制的返回
@@ -22,24 +22,49 @@ public class RrpcInvocationReply extends BaseMqttReply
 	private static final long serialVersionUID = -8875307064989466897L;
 	private String rrpcMessageId;
 
-	public RrpcInvocationReply(String rrpcMessageId)
-	{
-		super();
-		this.rrpcMessageId = rrpcMessageId;
+	public static Builder builder(){
+		return new Builder();
 	}
 
-	public RrpcInvocationReply(String productKey , String deviceKey, String rrpcMessageId)
+	public static class Builder extends BaseMqttReply.Builder<Builder,RrpcInvocationReply >{
+		private Object data;
+
+		public Builder setData(Object data)
+		{
+			this.data = data;
+			return this;
+		}
+
+		@Override protected Object createData()
+		{
+			return data;
+		}
+
+		@Override protected RrpcInvocationReply createRequestInstance()
+		{
+			return new RrpcInvocationReply();
+		}
+	}
+
+
+	@Override public void setTopicArgs(List<String> args)
 	{
-		super();
-		this.setProductKey(productKey);
-		this.setDeviceKey(deviceKey);
-		this.rrpcMessageId = rrpcMessageId;
+		if(args.size() == 3 ){
+			this.setProductKey(args.get(0));
+			this.setDeviceKey(args.get(1));
+			this.setRrpcMessageId(args.get(2));
+		}
+		else {
+			throw new UnsupportedOperationException("topic args size not match!");
+		}
+
 	}
 
 	@Override public String getMessageTopic()
 	{
 		return String.format(_getPK_DK_FormatTopic(), getProductKey(), getDeviceKey(), this.rrpcMessageId);
 	}
+
 
 	@Override
     protected String _getPK_DK_FormatTopic()

@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
  */
 public class DeleteDeviceCommand extends BaseMqttCommand<DeleteDeviceCommandReply>
 {
+    private static final long serialVersionUID = 6043547152767421664L;
     private static Pattern pattern = Pattern.compile(ArrivedTopicPattern.DELETE_DEVICE_COMMAND);
 
     @Override

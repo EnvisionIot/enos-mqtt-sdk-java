@@ -4,14 +4,15 @@ import com.envisioniot.enos.iot_mqtt_sdk.core.IConnectCallback;
 import com.envisioniot.enos.iot_mqtt_sdk.core.MqttClient;
 import com.envisioniot.enos.iot_mqtt_sdk.core.exception.EnvisionException;
 import com.envisioniot.enos.iot_mqtt_sdk.core.msg.IMessageHandler;
-import com.envisioniot.enos.iot_mqtt_sdk.message.downstream.tsl.RrpcInvocationCommand;
-import com.envisioniot.enos.iot_mqtt_sdk.message.downstream.tsl.RrpcInvocationReply;
-import com.envisioniot.enos.iot_mqtt_sdk.message.downstream.tsl.ServiceInvocationCommand;
-import com.envisioniot.enos.iot_mqtt_sdk.message.downstream.tsl.ServiceInvocationReply;
-import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.register.DeviceRegOption;
+import com.envisioniot.enos.iot_mqtt_sdk.message.downstream.device.DisableDeviceCommand;
+import com.envisioniot.enos.iot_mqtt_sdk.message.downstream.device.DisableDeviceCommandReply;
+import com.envisioniot.enos.iot_mqtt_sdk.message.downstream.tsl.*;
 import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.register.SubDeviceDynamicRegRequest;
 import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.register.SubDeviceDynamicRegResponse;
-import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.status.*;
+import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.status.SubDeviceLoginRequest;
+import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.status.SubDeviceLoginResponse;
+import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.status.SubDeviceLogoutRequest;
+import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.status.SubDeviceLogoutResponse;
 import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.topo.*;
 import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.tsl.EventPostRequest;
 import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.tsl.MeasurepointPostRequest;
@@ -55,9 +56,22 @@ public class SimpleSendReceive
 			client= new MqttClient(prd, productKey, deviceKey, deviceSecret);
 			client.connect(new IConnectCallback()
 			{
-				@Override public void onConnectSuccess()
+				@Override
+				public void onConnectSuccess()
 				{
-
+					try
+					{
+						System.out.println("start register login sub-device , current status : " + client.isConnected());
+						SubDeviceLoginRequest request = SubDeviceLoginRequest.builder()
+								.setSubDeviceInfo(subProductKey, subDeviceKey, subDeviceSecret)
+								.build();
+						SubDeviceLoginResponse rsp = client.publish(request);;
+						System.out.println(rsp);
+					}
+					catch (Exception e)
+					{
+						e.printStackTrace();
+					}
 				}
 
 				@Override public void onConnectLost()
@@ -112,10 +126,10 @@ public class SimpleSendReceive
 
 	public static void subDeviceRegister(){
 		System.out.println("start register register sub-device , current status : "+client.isConnected());
-		SubDeviceDynamicRegRequest request =  SubDeviceDynamicRegRequest.builder()
-				.addSubRegisterInfo("eb27piAg",new DeviceRegOption("zscai-sub-device-1", "zscai-sub-device-1", "zscai-sub-device-1"))
-				.addSubRegisterInfo("eb27piAg",new DeviceRegOption("zscai-sub-device-2", "zscai-sub-device-2", "zscai-sub-device-2"))
-				.addSubRegisterInfo("eb27piAg", new DeviceRegOption("zscai-sub-device-3", "zscai-sub-device-3", "zscai-sub-device-3"))
+		SubDeviceDynamicRegRequest request = SubDeviceDynamicRegRequest.builder()
+				.addSubRegisterInfo("eb27piAg", "zscai-sub-device-1", "zscai-sub-device-1", "zscai-sub-device-1")
+				.addSubRegisterInfo("eb27piAg", "zscai-sub-device-2", "zscai-sub-device-2", "zscai-sub-device-2")
+				.addSubRegisterInfo("eb27piAg", "zscai-sub-device-3", "zscai-sub-device-3", "zscai-sub-device-3")
 				.build();
 //		request.setRegProductKey("eb27piAg");
 		SubDeviceDynamicRegResponse rsp = null;
@@ -134,7 +148,7 @@ public class SimpleSendReceive
 	public static void subDeviceLogin(){
 		System.out.println("start register login sub-device , current status : "+client.isConnected());
 		SubDeviceLoginRequest request = SubDeviceLoginRequest.builder()
-				.setSubDeviceInfo(new SubDeviceLoginInfo(subProductKey, subDeviceKey, subDeviceSecret)).build();
+				.setSubDeviceInfo(subProductKey, subDeviceKey, subDeviceSecret).build();
 		SubDeviceLoginResponse rsp = null;
 
 		try
@@ -258,10 +272,8 @@ public class SimpleSendReceive
 
 	public static void postMeasurepoint(){
 		System.out.println("start post measurepoint ...");
-		MeasurepointPostRequest request = MeasurepointPostRequest.builder()
-				.addMeasurePoint("power", 60)
-				.addMeasurePoint("alarm", 300)
-				.build();
+		MeasurepointPostRequest request = MeasurepointPostRequest.builder().setProductKey(subProductKey).setDeviceKey(subDeviceKey)
+				.addMeasurePoint("p1", "string").addMeasurePoint("p2", "{'value':123.4,  quality:2}").build();
 		try
 		{
 			client.fastPublish(request);
@@ -273,6 +285,9 @@ public class SimpleSendReceive
 			e.printStackTrace();
 		}
 	}
+
+
+
 
 	public static void postSubEvent(){
 		System.out.println("start post");
@@ -306,10 +321,9 @@ public class SimpleSendReceive
             public ServiceInvocationReply onMessage(ServiceInvocationCommand request, List<String> argList) throws Exception
             {
                 System.out.println("rcvn async serevice invocation command" +  request + " topic " + argList);
-                ServiceInvocationReply reply = new ServiceInvocationReply(argList.get(0), argList.get(1), argList.get(2));
-                reply.addOutputData("pointA" , "valueA");
-                return reply;
-            }
+                return ServiceInvocationReply.builder().addOutputData("pointA", "valueA")
+						.build();
+			}
             
         };
         
@@ -321,8 +335,7 @@ public class SimpleSendReceive
 					throws Exception
 			{
 				System.out.println("rcv rrpc commadnd " + arrivedMessage + "topic " + argList);
-				RrpcInvocationReply reply = new RrpcInvocationReply(argList.get(0), argList.get(1), argList.get(2));
-				return reply;
+				return RrpcInvocationReply.builder().build();
 			}
 		});
         
@@ -347,6 +360,28 @@ public class SimpleSendReceive
 
 	}
 
+
+	public static void measurepointSetHandler(){
+		client.setArrivedMsgHandler(MeasurepointSetCommand.class, new IMessageHandler<MeasurepointSetCommand, MeasurepointSetReply>()
+		{
+			@Override
+			public MeasurepointSetReply onMessage(MeasurepointSetCommand arrivedMessage, List<String> argList) throws Exception
+			{
+				return null;
+			}
+		});
+
+		client.setArrivedMsgHandler(DisableDeviceCommand.class, new IMessageHandler<DisableDeviceCommand, DisableDeviceCommandReply>()
+		{
+
+			@Override
+			public DisableDeviceCommandReply onMessage(DisableDeviceCommand command, List<String> argList) throws Exception
+			{
+				// disable device and ret 201 reply
+				return DisableDeviceCommandReply.builder().setCode(201).build();
+			}
+		});
+	}
 
 
 	public static void main(String[] args) throws Exception
