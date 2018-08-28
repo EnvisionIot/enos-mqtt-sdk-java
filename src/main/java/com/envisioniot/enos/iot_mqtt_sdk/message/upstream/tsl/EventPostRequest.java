@@ -13,6 +13,8 @@ import java.util.Map;
  * { "id": "123", "version": "1.0", "params": { "value": { "Power": "on", "WF":
  * "2" }, "time": 1524448722000 }, "method":
  * "thing.event.{tsl.event.identifier}.post" }
+ * --------
+ *
  * 
  * @author zhensheng.cai
  * @date 2018/7/3.

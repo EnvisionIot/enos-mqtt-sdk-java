@@ -34,7 +34,7 @@ public class MeasurepointPostRequest extends BaseMqttRequest<MeasurepointPostRes
 		{
 			Map<String, Object> pointValue = new HashMap<>();
 			pointValue.put("value", value);
-			pointValue.put("timestamp", timestamp);
+			pointValue.put("time", timestamp);
 			params.put(key, pointValue);
 			return this;
 		}
