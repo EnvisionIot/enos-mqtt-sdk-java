@@ -15,6 +15,19 @@ import java.util.Map;
  * "thing.event.{tsl.event.identifier}.post" }
  * --------
  *
+ * "params":{
+ "events":{
+ "Power":{
+ "value":"1.0,
+ "quality": "9"
+ },
+ "temp":1.02 ,
+ "branchCurr":[
+ "1.02","2.02","7.93"
+ ]
+ }
+ "time":123456
+ }
  * 
  * @author zhensheng.cai
  * @date 2018/7/3.
@@ -29,12 +42,12 @@ public class EventPostRequest extends BaseMqttRequest<EventPostResponse>
 	public static class Builder extends BaseMqttRequest.Builder<Builder,EventPostRequest>
 	{
 		private String eventIdentifier;
-		private Map<String, Object> valueMap = new HashMap<>();
+		private Map<String, Object> params = new HashMap<>();
 
 		public Builder()
 		{
-			valueMap.put("value", new HashMap<String, Object>());
-			valueMap.put("time", System.currentTimeMillis());
+			params.put("events", new HashMap<String, Object>());
+			params.put("time", System.currentTimeMillis());
 		}
 
 		public Builder setEventIdentifier(String eventIdentifier)
@@ -46,31 +59,30 @@ public class EventPostRequest extends BaseMqttRequest<EventPostResponse>
 		@SuppressWarnings("unchecked")
 		public Builder addValue(String point, Object value)
 		{
-			Map<String, Object> values = (Map<String, Object>) valueMap.get("value");
+			Map<String, Object> values = (Map<String, Object>) params.get("events");
 			values.put(point, value);
 			return this;
 		}
 
-		@SuppressWarnings("unchecked")
-		public Builder addValue(String k1, Object v1, String k2, Object v2)
-		{
-			Map<String, Object> values = (Map<String, Object>)  valueMap.get("value");
-			values.put(k1, v1);
-			values.put(k2, v2);
-			return this;
-		}
 
 		@SuppressWarnings("unchecked")
 		public Builder addValues(Map<String, Object> value)
 		{
-			Map<String, Object> values = (Map<String, Object>)  valueMap.get("value");
+			Map<String, Object> values = (Map<String, Object>)  params.get("events");
 			values.putAll(value);
+			return this;
+		}
+
+		@SuppressWarnings("unchecked")
+		public Builder setValues(Map<String, Object> value)
+		{
+			params.put("events", value);
 			return this;
 		}
 
 		public Builder setTimestamp(long timestamp)
 		{
-			valueMap.put("time", timestamp);
+			params.put("time", timestamp);
 			return this;
 		}
 
@@ -81,7 +93,7 @@ public class EventPostRequest extends BaseMqttRequest<EventPostResponse>
 
 		@Override protected Object createParams()
 		{
-			return valueMap;
+			return params;
 		}
 
 		@Override protected EventPostRequest createRequestInstance()

@@ -32,19 +32,31 @@ public class SimpleSendReceive
 	private static final String local = "tcp://localhost:11883";
 	private static final String alpha = "tcp://10.24.10.56:11883";
 	private static final String prd = "tcp://10.24.8.76:11883";
+
+
+	//alpha环境网关设备三元组
+	private static final String productKey = "invu9zyT";
+	public static final String deviceKey = "m7plCgtarp";
+	public static final String deviceSecret = "t3O5bRTfTYJ9UMS2wCrb";
+
+	//alpha环境子设备三元组
+	public static final String subProductKey = "ybuO63Oe";
+	public static final String subDeviceKey = "96Iy2aWmv7";
+	public static final String subDeviceSecret = "HUxm8Vcm7sod0v6XV8I3";
+
 //	private static final String productKey = "8myRluG6";
 //	public static final String deviceKey = "zscai-test-device";
 //	public static final String deviceSecret = "KDZLIqVCn6rU11TKp8XO";
-	private static final String productKey = "NyDmJcbZ";
-	public static final String deviceKey = "xCPLxZtLKg";
-	public static final String deviceSecret = "0sfmTw2c9gY5JcopMrvd";
+//	private static final String productKey = "NyDmJcbZ";
+//	public static final String deviceKey = "xCPLxZtLKg";
+//	public static final String deviceSecret = "0sfmTw2c9gY5JcopMrvd";
 
 //	public static final String subProductKey = "iM3Zf8uF";
 //	public static final String subDeviceKey = "zscai-sub-device";
 //	public static final String subDeviceSecret = "ZnH5DJvo3uE9c5fxoXug";
-	public static final String subProductKey = "muB7helV";
-	public static final String subDeviceKey = "UKaQFBAemf";
-	public static final String subDeviceSecret = "MEwVRDFptW6YctnS2GlF";
+//	public static final String subProductKey = "muB7helV";
+//	public static final String subDeviceKey = "UKaQFBAemf";
+//	public static final String subDeviceSecret = "MEwVRDFptW6YctnS2GlF";
 
 
 	private static MqttClient client;
@@ -96,7 +108,7 @@ public class SimpleSendReceive
 		System.out.println("start connect with callback ... ");
 		try
 		{
-			client= new MqttClient(prd, productKey, deviceKey, deviceSecret);
+			client= new MqttClient(alpha, productKey, deviceKey, deviceSecret);
 			client.getProfile().setConnectionTimeout(10);
 			client.connect(new IConnectCallback()
 			{
@@ -127,9 +139,9 @@ public class SimpleSendReceive
 	public static void subDeviceRegister(){
 		System.out.println("start register register sub-device , current status : "+client.isConnected());
 		SubDeviceDynamicRegRequest request = SubDeviceDynamicRegRequest.builder()
-				.addSubRegisterInfo("eb27piAg", "zscai-sub-device-1", "zscai-sub-device-1", "zscai-sub-device-1")
-				.addSubRegisterInfo("eb27piAg", "zscai-sub-device-2", "zscai-sub-device-2", "zscai-sub-device-2")
-				.addSubRegisterInfo("eb27piAg", "zscai-sub-device-3", "zscai-sub-device-3", "zscai-sub-device-3")
+				.addSubRegisterInfo(subProductKey, "zscai-sub-device-1", "zscai-sub-device-1", "zscai-sub-device-1")
+				.addSubRegisterInfo(subProductKey, "zscai-sub-device-2", "zscai-sub-device-2", "zscai-sub-device-2")
+				.addSubRegisterInfo(subProductKey, "zscai-sub-device-3", "zscai-sub-device-3", "zscai-sub-device-3")
 				.build();
 //		request.setRegProductKey("eb27piAg");
 		SubDeviceDynamicRegResponse rsp = null;
@@ -241,8 +253,25 @@ public class SimpleSendReceive
 		{
 			e.printStackTrace();
 		}
-		System.out.println(rsp);
+		System.out.println("-->" + rsp);
 	}
+
+	public static void getSubTslTemplate(){
+		System.out.println("start get sub device tsl template... ");
+		TslTemplateGetRequest request = TslTemplateGetRequest.builder().setProductKey(subProductKey)
+				.setDeviceKey(subDeviceKey).build();
+		TslTemplateGetResponse rsp = null;
+		try
+		{
+			rsp = client.publish(request);
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+		System.out.println("-->" + rsp);
+	}
+
 
 	public static void postEvent() throws InterruptedException
 	{
@@ -386,14 +415,15 @@ public class SimpleSendReceive
 		initWithCallback();
 //		init();
 		addTopo();
-		deleteTopo();
-		postMeasurepoint();
-		postEvent();
-		postSubEvent();
-		subDeviceRegister();
+//		deleteTopo();
+//		postMeasurepoint();
+//		postEvent();
 		subDeviceLogin();
-		subdeviceLogout();
-		getTslTemplete();
+		postSubEvent();
+//		subDeviceRegister();
+//		subdeviceLogout();
+//		getTslTemplete();
+		getSubTslTemplate();
 		handleServiceInvocation();
 
 	}
