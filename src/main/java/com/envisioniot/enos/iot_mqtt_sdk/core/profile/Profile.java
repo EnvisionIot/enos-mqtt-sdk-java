@@ -1,5 +1,9 @@
 package com.envisioniot.enos.iot_mqtt_sdk.core.profile;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.net.URL;
+import java.security.KeyStore;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,6 +18,9 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 
 import com.envisioniot.enos.iot_mqtt_sdk.core.internals.SignUtil;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManagerFactory;
 
 public class Profile
 {
@@ -34,6 +41,10 @@ public class Profile
     private int connectionTimeout;
     private int timeToWait;
     private long timestamp = System.currentTimeMillis();
+    private boolean sslSecured = false;
+    private String jksPath = "cChat.jks";
+    private char[] jksPwd = "cNetty".toCharArray();
+    private String jksAlgorithm = "SunX509";
 
     public Profile(String regionURL, String productKey, String deviceKey, String deviceSecret)
     {
@@ -106,19 +117,35 @@ public class Profile
         MqttConnectOptions connectOptions = new MqttConnectOptions();
         connectOptions.setUserName(mqttUsername);
         connectOptions.setPassword(mqttPassword.toCharArray());
-
         connectOptions.setKeepAliveInterval(this.getKeepAlive());
         connectOptions.setAutomaticReconnect(true);
         connectOptions.setConnectionTimeout(this.getConnectionTimeout());
+        if(sslSecured){
+            SSLContext ctx;
+            try
+            {
+                 ctx = createContext(jksPath, jksPwd, jksAlgorithm);
+            }
+            catch (Exception e){
+                throw new RuntimeException("create SSL context failed",e.fillInStackTrace());
+            }
+            connectOptions.setSocketFactory(ctx.getSocketFactory());
+        }
 
         return connectOptions;
     }
+
 
     public int getKeepAlive()
     {
         return keepAlive;
     }
 
+    /**
+     * set connection keepAlive SECONDS
+     * @param keepAlive seconds
+     * @return
+     */
     public Profile setKeepAlive(int keepAlive)
     {
         this.keepAlive = keepAlive;
@@ -130,6 +157,11 @@ public class Profile
         return connectionTimeout;
     }
 
+    /**
+     * set connection timeout SECONDS
+     * @param connectionTimeout seconds
+     * @return
+     */
     public Profile setConnectionTimeout(int connectionTimeout)
     {
         this.connectionTimeout = connectionTimeout;
@@ -154,4 +186,33 @@ public class Profile
     {
         return deviceKey + "|securemode=2,signmethod=" + SignUtil.hmacsha1 + ",timestamp=" + timestamp + "|";
     }
+
+    public Profile setSSLSecured(boolean flag){
+        this.sslSecured = flag;
+        return this;
+    }
+
+    public boolean getSSLSecured(){
+        return this.sslSecured;
+    }
+
+    private SSLContext createContext(String path , char[] pwd , String algorithm) throws Exception {
+        SSLContext context = SSLContext.getInstance("TLS");
+        KeyStore ks = KeyStore.getInstance("JKS");
+        URL url = getClass().getClassLoader().getResource(path);
+        if(url != null){
+            /*load resource*/
+            ks.load(getClass().getResourceAsStream(path), pwd);
+        }
+        else
+        {
+            /*try load file*/
+            ks.load(new FileInputStream(new File(path)), pwd);
+        }
+        TrustManagerFactory tmf = TrustManagerFactory.getInstance(algorithm);
+        tmf.init(ks);
+        context.init(null, tmf.getTrustManagers(), null);
+        return context;
+    }
+
 }

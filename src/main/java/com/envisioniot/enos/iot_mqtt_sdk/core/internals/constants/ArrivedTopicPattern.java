@@ -42,7 +42,7 @@ public class ArrivedTopicPattern
 	public static final String MEASUREPOINT_SET_COMMAND = "/sys/(.*)/(.*)/thing/service/measurepoint/set";
 	public static final String SERVICE_INVOKE_COMMAND = "/sys/(.*)/(.*)/thing/service/(.*)";
 	public static final String MODEL_DOWN_RAW_COMMAND = "/sys/(.*)/(.*)/thing/model/down_raw";
-	public static final String MEASUREPOINT_GET_COMMAND = "/sys/(.*)/(.*)/thing/model/measurepoint/get";
+	public static final String MEASUREPOINT_GET_COMMAND = "/sys/(.*)/(.*)/thing/service/measurepoint/get";
 	public static final String RRPC_COMMAND = "/sys/(.*)/(.*)/rrpc/request/(.*)";
 
 	public static final String DELETE_DEVICE_COMMAND = "/sys/(.*)/(.*)/thing/delete";

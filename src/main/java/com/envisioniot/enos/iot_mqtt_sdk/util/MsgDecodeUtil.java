@@ -12,6 +12,9 @@ import java.util.regex.Matcher;
  */
 public class MsgDecodeUtil
 {
+
+
+
 	public static List<String> match(IMqttArrivedMessage sampleMsg, String topic)
 	{
 		Matcher matcher = sampleMsg.getMatchTopicPattern().matcher(topic);

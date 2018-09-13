@@ -14,14 +14,12 @@ import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.status.SubDeviceLoginR
 import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.status.SubDeviceLogoutRequest;
 import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.status.SubDeviceLogoutResponse;
 import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.topo.*;
-import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.tsl.EventPostRequest;
-import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.tsl.MeasurepointPostRequest;
-import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.tsl.TslTemplateGetRequest;
-import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.tsl.TslTemplateGetResponse;
+import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.tsl.*;
 import com.envisioniot.enos.iot_mqtt_sdk.util.Pair;
 import com.google.common.collect.Lists;
 
 import java.util.List;
+import java.util.Random;
 
 /**
  * @author zhensheng.cai
@@ -31,29 +29,46 @@ public class SimpleSendReceive
 {
 	private static final String local = "tcp://localhost:11883";
 	private static final String alpha = "tcp://10.24.10.56:11883";
+	private static final String beta = "tcp://10.24.101.51:11883";
 	private static final String prd = "tcp://10.24.8.76:11883";
+
+	private static final String alphaSSL = "ssl://10.24.10.56:11883";
 
 
 	//alpha环境网关设备三元组
-	private static final String productKey = "invu9zyT";
-	public static final String deviceKey = "m7plCgtarp";
-	public static final String deviceSecret = "t3O5bRTfTYJ9UMS2wCrb";
+//	private static final String productKey = "invu9zyT";
+//	public static final String deviceKey = "m7plCgtarp";
+//	public static final String deviceSecret = "t3O5bRTfTYJ9UMS2wCrb";
+//
+//	//alpha环境子设备三元组
+//	public static final String subProductKey = "ybuO63Oe";
+//	public static final String subDeviceKey = "96Iy2aWmv7";
+//	public static final String subDeviceSecret = "HUxm8Vcm7sod0v6XV8I3";
 
-	//alpha环境子设备三元组
-	public static final String subProductKey = "ybuO63Oe";
-	public static final String subDeviceKey = "96Iy2aWmv7";
-	public static final String subDeviceSecret = "HUxm8Vcm7sod0v6XV8I3";
-
+	/*alpha*/
 //	private static final String productKey = "8myRluG6";
 //	public static final String deviceKey = "zscai-test-device";
 //	public static final String deviceSecret = "KDZLIqVCn6rU11TKp8XO";
-//	private static final String productKey = "NyDmJcbZ";
-//	public static final String deviceKey = "xCPLxZtLKg";
-//	public static final String deviceSecret = "0sfmTw2c9gY5JcopMrvd";
-
+//
 //	public static final String subProductKey = "iM3Zf8uF";
 //	public static final String subDeviceKey = "zscai-sub-device";
 //	public static final String subDeviceSecret = "ZnH5DJvo3uE9c5fxoXug";
+
+
+	private static final String productKey = "E8Fw4uiX";
+	public static final String deviceKey = "zscai-test-device";
+	public static final String deviceSecret = "0FztEAMUeBgxq1qRzSYH";
+
+	public static final String subProductKey = "E8Fw4uiX";
+	public static final String subDeviceKey = "zscai-sub-device";
+	public static final String subDeviceSecret = "QPrun07hEPeBEwv0faJF";
+
+
+
+//	private static final String productKey = "NyDmJcbZ";
+//	public static final String deviceKey = "xCPLxZtLKg";
+//	public static final String deviceSecret = "0sfmTw2c9gY5JcopMrvd"
+
 //	public static final String subProductKey = "muB7helV";
 //	public static final String subDeviceKey = "UKaQFBAemf";
 //	public static final String subDeviceSecret = "MEwVRDFptW6YctnS2GlF";
@@ -65,7 +80,7 @@ public class SimpleSendReceive
 	public static void init(){
 		try
 		{
-			client= new MqttClient(prd, productKey, deviceKey, deviceSecret);
+			client= new MqttClient(alpha, productKey, deviceKey, deviceSecret);
 			client.connect(new IConnectCallback()
 			{
 				@Override
@@ -108,7 +123,7 @@ public class SimpleSendReceive
 		System.out.println("start connect with callback ... ");
 		try
 		{
-			client= new MqttClient(alpha, productKey, deviceKey, deviceSecret);
+			client= new MqttClient(beta, productKey, deviceKey, deviceSecret);
 			client.getProfile().setConnectionTimeout(10);
 			client.connect(new IConnectCallback()
 			{
@@ -136,6 +151,39 @@ public class SimpleSendReceive
 		System.out.println("connect result :" + client.isConnected());
 	}
 
+	public static void initSSLConnection(){
+		System.out.println("start connect with callback ... ");
+		try
+		{
+			client= new MqttClient(alphaSSL, productKey, deviceKey, deviceSecret);
+			client.getProfile().setConnectionTimeout(10).setSSLSecured(true);
+			client.connect(new IConnectCallback()
+			{
+				@Override public void onConnectSuccess()
+				{
+					System.out.println("connect success");
+				}
+
+				@Override public void onConnectLost()
+				{
+					System.out.println("onConnectLost");
+				}
+
+				@Override public void onConnectFailed(int reasonCode)
+				{
+					System.out.println("onConnectFailed : "+ reasonCode);
+				}
+
+			});
+		}
+		catch (EnvisionException e)
+		{
+			//e.printStackTrace();
+		}
+		System.out.println("connect result :" + client.isConnected());
+	}
+
+
 	public static void subDeviceRegister(){
 		System.out.println("start register register sub-device , current status : "+client.isConnected());
 		SubDeviceDynamicRegRequest request = SubDeviceDynamicRegRequest.builder()
@@ -158,7 +206,7 @@ public class SimpleSendReceive
 	}
 
 	public static void subDeviceLogin(){
-		System.out.println("start register login sub-device , current status : "+client.isConnected());
+		System.out.println("start login sub-device , current status : "+client.isConnected());
 		SubDeviceLoginRequest request = SubDeviceLoginRequest.builder()
 				.setSubDeviceInfo(subProductKey, subDeviceKey, subDeviceSecret).build();
 		SubDeviceLoginResponse rsp = null;
@@ -297,12 +345,15 @@ public class SimpleSendReceive
 
 
 	public static void postMeasurepoint(){
+		Random random = new Random();
 		System.out.println("start post measurepoint ...");
-		MeasurepointPostRequest request = MeasurepointPostRequest.builder().setProductKey(subProductKey).setDeviceKey(subDeviceKey)
-				.addMeasurePoint("p1", "string").addMeasurePoint("p2", "{'value':123.4,  quality:2}").build();
+		MeasurepointPostRequest request = MeasurepointPostRequest.builder()
+				.addMeasurePoint("point1", random.nextInt(100)).build();
+//				.addMeasurePoint("p2", "{'value':123.4,  quality:2}").build();
 		try
 		{
 			client.fastPublish(request);
+
 //			System.out.println("-->" + rsp);
 
 		}
@@ -311,6 +362,45 @@ public class SimpleSendReceive
 			e.printStackTrace();
 		}
 	}
+
+	public static void postSubMeasurepoint(){
+		Random random = new Random();
+		System.out.println("start post measurepoint ...");
+		MeasurepointPostRequest request = MeasurepointPostRequest.builder()
+				.setProductKey(subProductKey).setDeviceKey(subDeviceKey)
+				.addMeasurePoint("point1", random.nextInt(100)).build();
+//				.addMeasurePoint("p2", "{'value':123.4,  quality:2}").build();
+		try
+		{
+			client.fastPublish(request);
+
+//			System.out.println("-->" + rsp);
+
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+	public static void postSyncMeasurepoint(){
+		Random random = new Random();
+		System.out.println("start post measurepoint ...");
+		MeasurepointPostRequest request = MeasurepointPostRequest.builder()
+				.addMeasurePoint("point1", random.nextInt(100)).build();
+		try
+		{
+			MeasurepointPostResponse rsp = client.publish(request);
+			System.out.println("-->" + rsp);
+//			System.out.println("-->" + rsp);
+
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
+
 
 
 
@@ -364,20 +454,7 @@ public class SimpleSendReceive
 				return RrpcInvocationReply.builder().build();
 			}
 		});
-        
-        //client.addCommandHandler(handler);
 
-		//hold the thread
-		while(true){
-			try
-			{
-				Thread.sleep(1000);
-			}
-			catch (InterruptedException e)
-			{
-				e.printStackTrace();
-			}
-		}
 	}
 
 	public static void postMeasurepointV2(){
@@ -409,22 +486,41 @@ public class SimpleSendReceive
 		});
 	}
 
+	public static void disconnect() throws EnvisionException
+	{
+		client.disconnect();
+		System.out.println("disconnect success");
+	}
+
+
 
 	public static void main(String[] args) throws Exception
 	{
+
+//		initSSLConnection();
 		initWithCallback();
+//		disconnect();
 //		init();
 		addTopo();
-//		deleteTopo();
+//		getTopo();
 //		postMeasurepoint();
 //		postEvent();
 		subDeviceLogin();
-		postSubEvent();
+//		postSubEvent();
 //		subDeviceRegister();
-//		subdeviceLogout();
 //		getTslTemplete();
-		getSubTslTemplate();
-		handleServiceInvocation();
+//		getSubTslTemplate();
+//		subdeviceLogout();
+//		deleteTopo();
+
+//		handleServiceInvocation();
+		while(true){
+//			postSubMeasurepoint();
+			postSyncMeasurepoint();
+			Thread.sleep(50);
+		}
+
+
 
 	}
 

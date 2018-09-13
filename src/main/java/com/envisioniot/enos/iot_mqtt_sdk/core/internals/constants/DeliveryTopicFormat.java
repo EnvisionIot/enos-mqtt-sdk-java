@@ -32,7 +32,7 @@ public class DeliveryTopicFormat
 	public static final String MEASUREPOINT_SET_REPLY = "/sys/%s/%s/thing/service/measurepoint/set_reply";
 	public static final String SERVICE_INVOKE_REPLY = "/sys/%s/%s/thing/service/%s_reply";
 	public static final String MODEL_DOWN_RAW_REPLY = "/sys/%s/%s/thing/model/down_raw_reply";
-	public static final String MEASUREPOINT_GET_REPLY = "/sys/%s/%s/thing/model/measurepoint/get";
+	public static final String MEASUREPOINT_GET_REPLY = "/sys/%s/%s/thing/service/measurepoint/get_reply";
 	public static final String RRPC_REPLY = "/sys/%s/%s/rrpc/response/%s";
 
 	public static final String ENABLE_DEVICE_REPLY = "/sys/%s/%s/thing/enable_reply";

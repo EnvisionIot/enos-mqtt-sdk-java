@@ -48,7 +48,7 @@ public class ModelDownRawCommand extends BaseMqttCommand<ModelDownRawReply>
     @Override
 	public DecodeResult decode(String topic, byte[] payload)
     {
-		List<String> path = MsgDecodeUtil.match(this, topic);
+		List<String> path = this.match(topic);
 		if(path == null)
 		{
 			return null;

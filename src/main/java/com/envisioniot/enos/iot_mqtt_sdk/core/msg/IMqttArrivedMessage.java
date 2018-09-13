@@ -20,6 +20,22 @@ public interface IMqttArrivedMessage extends IMqttMessage
 {
     public Pattern getMatchTopicPattern();
 
+    public default List<String> match(String topic){
+        Matcher matcher = this.getMatchTopicPattern().matcher(topic);
+        if (matcher.matches())
+        {
+            String[] groups = new String[matcher.groupCount()];
+            for (int i = 0; i < matcher.groupCount(); i++)
+            {
+                groups[i] = matcher.group(i + 1);
+            }
+
+            return Arrays.asList(groups);
+        }
+        return null;
+    }
+
+
     /**
      *
      * @param topic
@@ -28,7 +44,8 @@ public interface IMqttArrivedMessage extends IMqttMessage
      * @throws Exception
      */
     public default DecodeResult decode(String topic, byte[] payload) throws Exception{
-        List<String> path = MsgDecodeUtil.match(this, topic);
+
+        List<String> path =this.match(topic);
         if(path == null)
         {
             return null;
