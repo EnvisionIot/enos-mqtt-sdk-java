@@ -3,7 +3,7 @@
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.envisioniot.enos</groupId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.1</version>
     <artifactId>iot_mqtt_sdk</artifactId>
 
     <name>iot_mqtt_sdk</name>
