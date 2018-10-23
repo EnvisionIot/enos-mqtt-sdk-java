@@ -70,7 +70,7 @@ client.connect(new IConnectCallback()
  ```
   mqtt的Connect报文参数：
   mqttClientId: clientId+"|securemode=2,signmethod=hmacsha1,timestamp=132323232|"
-  mqttUsername: deviceName+"&"+productKey
+  mqttUsername: deviceKey+"&"+productKey
   mqttPassword: sign_hmac(deviceSecret,content)
  ```
 其中clientId可以用户自行定义，timestamp可以采用当前时间戳，
@@ -180,7 +180,7 @@ client.setArrivedMsgHandler(DisableDeviceCommand.class, new IMessageHandler<Disa
 
 <br/>
 
-![图片描述](/tfl/captures/2018-08/tapd_20716331_base64_1534760042_26.png)
+![packages](https://github.com/EnvisionIot/enos-iot-mqtt-java-sdk/blob/master/src/main/resources/imgs/tapd_20716331_base64_1534760042_26.png)
 
 
 ----------
