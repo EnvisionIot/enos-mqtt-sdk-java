@@ -120,8 +120,10 @@ public void onConnectSuccess()
 public static void postMeasurepoint()
 {
 	    MeasurepointPostRequest request = MeasurepointPostRequest.builder()
-	    .setProductKey(subProductKey).setDeviceKey(subDeviceKey).addMeasurePoint("p1", "string")
+	    .setProductKey(subProductKey).setDeviceKey(subDeviceKey)
+	    .addMeasurePoint("p1", "string")
 	    .addMeasurePoint("p2", "{'value':123.4,  'quality':2}")
+	    .addMeasurePoint("p3", 100.2)
 	    .build();
 	    client.fastPublish(request);
 }
@@ -163,9 +165,9 @@ client.setArrivedMsgHandler(DisableDeviceCommand.class, new IMessageHandler<Disa
     @Override
     public DisableDeviceCommandReply onMessage(DisableDeviceCommand command, List<String> argList) throws Exception
     {
-        // disable device and ret 201 reply
+        // disable device and ret 200 reply
       	return DisableDeviceCommandReply.builder()
-				.setCode(201).build();
+				.setCode(200).build();
     }
 });
 ```
