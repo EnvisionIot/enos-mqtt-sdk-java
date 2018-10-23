@@ -4,7 +4,7 @@
 
 #### SDK获取
 
-​​我们按照此[MQTT协议规范](http://tapd.oa.com)，实现了一个Java版本，便于开发者专注于业务开发，无需关注协议细节，可以通过[GitHub](http://https://github.com/EnvisionIot/enos-iot-mqtt-java-sdk)获取源码。
+​​我们按照此[MQTT协议规范](https://dev.envisioncn.com/devportal/index.html#/166/57baab5ed3eb4806104b045d/doccenter/DeviceConnection2.0/ZH/4@%E6%93%8D%E4%BD%9C%E6%8C%87%E5%8D%97/11@%E8%AE%BE%E5%A4%87%E7%AB%AF%E5%BC%80%E5%8F%91%E6%8C%87%E5%8D%97/2@SDK%E8%AE%BE%E5%A4%87%E7%AB%AF%E5%8D%8F%E8%AE%AE.md)，实现了一个Java版本，便于开发者专注于业务开发，无需关注协议细节，可以通过[GitHub](http://https://github.com/EnvisionIot/enos-iot-mqtt-java-sdk)获取源码。
 <br/>
 另外，我们也直接把jar包上传到了maven仓库，开发者只需引入此依赖即可。
 
@@ -17,6 +17,7 @@
 ```
 <br/>
 #### 功能说明
+
 目前此预览版只是把基础的功能封装了，功能表如下：
 
 - 支持子设备的身份注册
@@ -35,6 +36,7 @@
 #### SDK使用
 使用SDK非常简单，只要了解到上述能力后，可以很容易的和服务端进行对接，这里以一个简单的样例来告诉大家如何使用sdk。
 <br/>
+
 首先连接上服务器
 
 ```
@@ -60,7 +62,26 @@ client.connect(new IConnectCallback()
         }
 });
 ```
+> 对于非Java SDK的用户，用户可以根据设备三元组信息自行组织MQTT CONNECT报文参数，进行设备登录：
 
+ ```
+  mqtt的Connect报文参数：
+  mqttClientId: clientId+"|securemode=2,signmethod=hmacsha1,timestamp=132323232|"
+  mqttUsername: deviceName+"&"+productKey
+  mqttPassword: sign_hmac(deviceSecret,content)
+ ```
+其中clientId可以用户自行定义，timestamp可以采用当前时间戳，
+sign签名需要把以下参数按字典排序后，根据signmethod加签。
+
+* content的值为提交给服务器的参数（productKey、deviceKey、timestamp和clientId），按照字母顺序排序, 然后将参数值依次拼接。
+* clientId：表示客户端ID，建议使用设备的MAC地址或SN码，64字符内。需要与mqttClientId中设置的clientId字段一致。
+* timestamp：表示当前时间毫秒值，可以不传递。需要与mqttClientId中设置的timestamp字段一致。
+* mqttClientId：格式中||内为扩展参数。
+* signmethod：表示签名算法类型。当前版本下请使用hmacsha1
+* securemode：表示目前安全模式，当前版本下请填写字段2
+
+例如 clientId = clientId123，deviceKey = test， productKey = 123， timestamp = 1524448722000，deviceSecret=deviceSecret
+sign= hmacsha1(deviceSecret, clientId123deviceKeytestproductKey123timestamp1524448722000)
 
 > 在构建MqttClient的参数中，product， productKey，deviceKey以及deviceSecret应该从控制台中获取，或者通过[RestfulAPI](http://tapd.oa.com)进行获取。
 
