@@ -7,52 +7,47 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
- *
  * 错误码 消息 描述 460 request parameter error 请求参数错误 6321 tsl: device not exist in
  * product 设备不存在
-  AckMessageBody{"tslModelId":"Z9IKonoq","tslModelName":"zscai_test","tslModelDesc":"1111111111","tslModelCatagory":"zscai_test","tslAttributeMap":{"test":{"minimum":-2.147483648E9,"maximum":2.147483647E9,"exclusiveMinimum":false,"exclusiveMaximum":false,"defaultValue":1.0,"unit":{"unitId":"rad/s","multiplier":"ONE"},"hasQuality":false,"name":"test","desc":"1","required":false,"accessMode":true,"tags":{"tagMap":{}},"identifier":"test"}},"tslMeasurepointMap":{},"tslServiceMap":{"service2":{"outputData":[],"inputData":[],"name":"service2","required":false,"callType":"SYNC","desc":"test","identifier":"service2"},"service1":{"outputData":[],"inputData":[{"minimum":-2.147483648E9,"maximum":2.147483647E9,"exclusiveMinimum":false,"exclusiveMaximum":false,"unit":{"multiplier":"ONE"},"hasQuality":false,"name":"test","desc":"","required":false,"accessMode":false,"tags":{"tagMap":{}},"identifier":"test"}],"name":"service1","required":false,"callType":"ASYNC","desc":"","identifier":"service1"}},"tslEventMap":{},"tag":{"tagMap":{}},"allowAdditionalAttribute":false,"inheritedAttributeIds":[],"inheritedMeasurepointIds":[],"inheritedServiceIds":[],"inheritedEventIds":[],"extraInfo":{"createBy":"yz","createTime":1.534318625917E12,"updateBy":"customer_20180222","updateTime":1.534318748279E12,"ns":"test_orgCode"}}
+ * AckMessageBody{"tslModelId":"Z9IKonoq","tslModelName":"zscai_test","tslModelDesc":"1111111111","tslModelCatagory":"zscai_test","tslAttributeMap":{"test":{"minimum":-2.147483648E9,"maximum":2.147483647E9,"exclusiveMinimum":false,"exclusiveMaximum":false,"defaultValue":1.0,"unit":{"unitId":"rad/s","multiplier":"ONE"},"hasQuality":false,"name":"test","desc":"1","required":false,"accessMode":true,"tags":{"tagMap":{}},"identifier":"test"}},"tslMeasurepointMap":{},"tslServiceMap":{"service2":{"outputData":[],"inputData":[],"name":"service2","required":false,"callType":"SYNC","desc":"test","identifier":"service2"},"service1":{"outputData":[],"inputData":[{"minimum":-2.147483648E9,"maximum":2.147483647E9,"exclusiveMinimum":false,"exclusiveMaximum":false,"unit":{"multiplier":"ONE"},"hasQuality":false,"name":"test","desc":"","required":false,"accessMode":false,"tags":{"tagMap":{}},"identifier":"test"}],"name":"service1","required":false,"callType":"ASYNC","desc":"","identifier":"service1"}},"tslEventMap":{},"tag":{"tagMap":{}},"allowAdditionalAttribute":false,"inheritedAttributeIds":[],"inheritedMeasurepointIds":[],"inheritedServiceIds":[],"inheritedEventIds":[],"extraInfo":{"createBy":"yz","createTime":1.534318625917E12,"updateBy":"customer_20180222","updateTime":1.534318748279E12,"ns":"test_orgCode"}}
+ *
  * @author zhensheng.cai
  * @date 2018/7/12.
  */
-public class TslTemplateGetResponse extends BaseMqttResponse
-{
+public class TslTemplateGetResponse extends BaseMqttResponse {
 
-	private static final long serialVersionUID = -5129474304666285214L;
-	private static Pattern pattern = Pattern.compile(ArrivedTopicPattern.TSL_TEMPLATE_GET_REPLY);
+    private static final long serialVersionUID = -5129474304666285214L;
+    private static Pattern pattern = Pattern.compile(ArrivedTopicPattern.TSL_TEMPLATE_GET_REPLY);
 
 
-	@SuppressWarnings("unchecked")
-	public Map<String,Object> getAttributs(){
-		Map<String, Object> data =  this.getData();
-		return ((Map<String, Object>) data.get("tslAttributeMap"));
-	}
+    @SuppressWarnings("unchecked")
+    public Map<String, Object> getAttributs() {
+        Map<String, Object> data = this.getData();
+        return ((Map<String, Object>) data.get("tslAttributeMap"));
+    }
 
-	@SuppressWarnings("unchecked")
-	public Map<String,Object> getMeasurepoints()
-	{
-		Map<String, Object> data =  this.getData();
-		return ((Map<String, Object>) data.get("tslMeasurepointMap"));
-	}
+    @SuppressWarnings("unchecked")
+    public Map<String, Object> getMeasurepoints() {
+        Map<String, Object> data = this.getData();
+        return ((Map<String, Object>) data.get("tslMeasurepointMap"));
+    }
 
-	@SuppressWarnings("unchecked")
-	public Map<String,Object> getEvents()
-	{
-		Map<String, Object> data =  this.getData();
-		return ((Map<String, Object>) data.get("tslEventMap"));
-	}
+    @SuppressWarnings("unchecked")
+    public Map<String, Object> getEvents() {
+        Map<String, Object> data = this.getData();
+        return ((Map<String, Object>) data.get("tslEventMap"));
+    }
 
-	@SuppressWarnings("unchecked")
-	public Map<String,Object> getServices()
-	{
-		Map<String, Object> data =  this.getData();
-		return ((Map<String, Object>) data.get("tslServiceMap"));
-	}
+    @SuppressWarnings("unchecked")
+    public Map<String, Object> getServices() {
+        Map<String, Object> data = this.getData();
+        return ((Map<String, Object>) data.get("tslServiceMap"));
+    }
 
     @Override
-    public Pattern getMatchTopicPattern()
-    {
-		return pattern;
-	}
+    public Pattern getMatchTopicPattern() {
+        return pattern;
+    }
 
 
 }

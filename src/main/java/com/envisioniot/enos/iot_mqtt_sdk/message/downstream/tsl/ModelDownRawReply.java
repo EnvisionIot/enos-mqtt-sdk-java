@@ -12,21 +12,29 @@ public class ModelDownRawReply extends BaseMqttReply
 
 	private static final long serialVersionUID = 3238459840562301410L;
 
-	public static Builder builder(){
-		return new Builder();
+	private byte[] payload;
+
+	public ModelDownRawReply() {}
+
+	public ModelDownRawReply(byte[] payload)
+	{
+		this.payload = payload;
 	}
 
-	public static class Builder extends BaseMqttReply.Builder<Builder, ModelDownRawReply>{
+	public void setPayload(byte[] payload)
+	{
+		this.payload = payload;
+	}
 
-		@Override protected Object createData()
-		{
-			return "";
-		}
+	public byte[] getPayload()
+	{
+		return payload;
+	}
 
-		@Override protected ModelDownRawReply createRequestInstance()
-		{
-			return new ModelDownRawReply();
-		}
+	@Override
+	public byte[] encode()
+	{
+		return payload;
 	}
 
 	@Override

@@ -11,14 +11,12 @@ import java.util.regex.Pattern;
  * @author zhonghua.wu
  * @create 2018-07-09 14:22
  */
-public class AddTopoResponse extends BaseMqttResponse
-{
+public class AddTopoResponse extends BaseMqttResponse {
     private static final long serialVersionUID = -6597119960979344814L;
     private static Pattern pattern = Pattern.compile(ArrivedTopicPattern.TOPO_ADD_REPLY);
 
     @Override
-    public Pattern getMatchTopicPattern()
-    {
+    public Pattern getMatchTopicPattern() {
         return pattern;
     }
 }

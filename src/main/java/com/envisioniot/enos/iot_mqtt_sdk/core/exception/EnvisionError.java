@@ -4,11 +4,10 @@ package com.envisioniot.enos.iot_mqtt_sdk.core.exception;
  * @author zhensheng.cai
  * @date 2018/7/12.
  */
-public enum EnvisionError
-{
+public enum EnvisionError {
     /**
-	 *
-	 */
+     *
+     */
     INIT_MQTT_CLIENT_FAILED(-100, "INIT_MQTT_CLIENT_FAILED"),
     MQTT_CLIENT_CONNECT_FAILED(-101, "MQTT_CLIENT_CONNECT_FAILED"),
     MQTT_CLIENT_PUBLISH_FAILED(-102, "MQTT_CLIENT_PUBLISH_FAILED"),
@@ -29,29 +28,27 @@ public enum EnvisionError
     CODE_ERROR_MISSING_ARGS(-117, "CODE_ERROR_MISSING_ARGS"),
     CODE_ERROR_ARG_INVALID(-118, "CODE_ERROR_ARG_INVALID"),
     CANNOT_REGISTER_CALLBACK(-119, "CANNOT_REGISTER_CALLBACK"),
-    DEVICE_SESSION_IS_NULL(-120,"SESSION IS NULL"),
+    DEVICE_SESSION_IS_NULL(-120, "SESSION IS NULL"),
     CALLBACK_EXECUTION_FAILED(-121, "callback execution failed"),
     STATUS_ERROR(-122, "invalid operation in current status"),
     STATUS_NOT_ALLOW_LOGIN(-123, "status not allow login"),
     STATUS_NOT_ALLOW_LOGOUT(-124, "status not allow logout"),
+    FUTURE_TASK_TIME_OUT(-125, "sync request timeout"),
 
     SUCCESS(0, "success");
     private int errorCode;
     private String errorMessage;
 
-    EnvisionError(int errorCode, String errorMessage)
-    {
+    EnvisionError(int errorCode, String errorMessage) {
         this.errorCode = errorCode;
         this.errorMessage = errorMessage;
     }
 
-    public int getErrorCode()
-    {
+    public int getErrorCode() {
         return errorCode;
     }
 
-    public String getErrorMessage()
-    {
+    public String getErrorMessage() {
         return errorMessage;
     }
 }

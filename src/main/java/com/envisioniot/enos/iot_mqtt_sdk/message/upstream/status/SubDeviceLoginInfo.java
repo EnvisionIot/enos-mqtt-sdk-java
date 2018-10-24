@@ -1,10 +1,10 @@
 package com.envisioniot.enos.iot_mqtt_sdk.message.upstream.status;
 
-import java.io.Serializable;
-import java.util.Map;
-
 import com.envisioniot.enos.iot_mqtt_sdk.core.internals.SignUtil;
 import com.google.common.collect.Maps;
+
+import java.io.Serializable;
+import java.util.Map;
 
 /**
  * Description: sub-device information
@@ -12,114 +12,97 @@ import com.google.common.collect.Maps;
  * @author zhonghua.wu
  * @create 2018-07-12 15:45
  */
-public class SubDeviceLoginInfo implements Serializable
-{
-	private static final long serialVersionUID = -2144256254717113693L;
+public class SubDeviceLoginInfo implements Serializable {
+    private static final long serialVersionUID = -2144256254717113693L;
 
-	private static final String DEFAULT_SIGN_METHOD = SignUtil.hmacsha1;
+    private static final String DEFAULT_SIGN_METHOD = SignUtil.hmacsha1;
 
-	private String productKey;
-	private String deviceKey;
-	
-	private String clientId;
-	private long timestamp;
-	private String sign;
-	private String signMethod = DEFAULT_SIGN_METHOD;
-	private boolean cleanSession = false;
-	private Map<String,String> signParams;
-	public SubDeviceLoginInfo()
-	{
-	}
+    private String productKey;
+    private String deviceKey;
 
-	public SubDeviceLoginInfo(String productKey, String deviceKey, String deviceSecret)
-	{
-		this.productKey = productKey;
-		this.deviceKey = deviceKey;
-		this.clientId = getDefaultClientId(productKey, deviceKey);
-		this.timestamp = System.currentTimeMillis();
-		signParams = Maps.newHashMap();
-		signParams.put("productKey", productKey);
-		signParams.put("deviceKey", deviceKey);
-		signParams.put("clientId", clientId);
-		signParams.put("timestamp", String.valueOf(timestamp));
-		
-		this.sign = SignUtil.sign(deviceSecret, signParams);
-		this.signMethod = DEFAULT_SIGN_METHOD;
-		signParams.put("signMethod", this.signMethod);
-		signParams.put("sign", sign);
-		signParams.put("cleanSession", String.valueOf(cleanSession));
-	}
+    private String clientId;
+    private long timestamp;
+    private String sign;
+    private String signMethod = DEFAULT_SIGN_METHOD;
+    private boolean cleanSession = false;
+    private Map<String, String> signParams;
 
-	public String getClientId()
-	{
-		return clientId;
-	}
+    public SubDeviceLoginInfo() {
+    }
 
-	public void setClientId(String clientId)
-	{
-		this.clientId = clientId;
-	}
+    public SubDeviceLoginInfo(String productKey, String deviceKey, String deviceSecret) {
+        this.productKey = productKey;
+        this.deviceKey = deviceKey;
+        this.clientId = getDefaultClientId(productKey, deviceKey);
+        this.timestamp = System.currentTimeMillis();
+        signParams = Maps.newHashMap();
+        signParams.put("productKey", productKey);
+        signParams.put("deviceKey", deviceKey);
+        signParams.put("clientId", clientId);
+        signParams.put("timestamp", String.valueOf(timestamp));
 
-	public long getTimestamp()
-	{
-		return timestamp;
-	}
+        this.sign = SignUtil.sign(deviceSecret, signParams);
+        this.signMethod = DEFAULT_SIGN_METHOD;
+        signParams.put("signMethod", this.signMethod);
+        signParams.put("sign", sign);
+        signParams.put("cleanSession", String.valueOf(cleanSession));
+    }
 
-	public void setTimestamp(long timestamp)
-	{
-		this.timestamp = timestamp;
-	}
+    public String getClientId() {
+        return clientId;
+    }
 
-	public String getSignMethod()
-	{
-		return signMethod;
-	}
+    public void setClientId(String clientId) {
+        this.clientId = clientId;
+    }
 
-	public void setSignMethod(String signMethod)
-	{
-		this.signMethod = signMethod;
-	}
+    public long getTimestamp() {
+        return timestamp;
+    }
 
-	public String getSign()
-	{
-		return sign;
-	}
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
+    }
 
-	public void setSign(String sign)
-	{
-		this.sign = sign;
-	}
+    public String getSignMethod() {
+        return signMethod;
+    }
 
-	public boolean isCleanSession()
-	{
-		return cleanSession;
-	}
+    public void setSignMethod(String signMethod) {
+        this.signMethod = signMethod;
+    }
 
-	public void setCleanSession(boolean cleanSession)
-	{
-		this.cleanSession = cleanSession;
-	}
+    public String getSign() {
+        return sign;
+    }
+
+    public void setSign(String sign) {
+        this.sign = sign;
+    }
+
+    public boolean isCleanSession() {
+        return cleanSession;
+    }
+
+    public void setCleanSession(boolean cleanSession) {
+        this.cleanSession = cleanSession;
+    }
 
 
+    public Map<String, String> getSignParams() {
+        return signParams;
+    }
 
-	public Map<String, String> getSignParams()
-	{
-		return signParams;
-	}
+    private String getDefaultClientId(String productKey, String deviceKey) {
+        return String.format("%s.%s.%s", productKey, deviceKey, String.valueOf(System.currentTimeMillis()));
+    }
 
-	private String getDefaultClientId(String productKey, String deviceKey)
-	{
-		return String.format("%s.%s.%s", productKey, deviceKey, String.valueOf(System.currentTimeMillis()));
-	}
-	
-	public String getProductKey()
-	{
-	    return productKey;
-	}
-	
-	public String getDeviceKey()
-	{
-	    return deviceKey;
-	}
+    public String getProductKey() {
+        return productKey;
+    }
+
+    public String getDeviceKey() {
+        return deviceKey;
+    }
 
 }

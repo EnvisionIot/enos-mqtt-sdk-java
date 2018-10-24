@@ -17,40 +17,35 @@ import java.util.Map;
  * @author zhonghua.wu
  * @create 2018-07-09 14:42
  */
-public class UpdateDeviceTagRequest extends BaseMqttRequest<UpdateDeviceTagResponse>
-{
+public class UpdateDeviceTagRequest extends BaseMqttRequest<UpdateDeviceTagResponse> {
     private static final long serialVersionUID = 8472140661039105628L;
 
-    public static Builder builder(){
+    public static Builder builder() {
         return new Builder();
     }
 
-    public static class Builder extends BaseMqttRequest.Builder<Builder,UpdateDeviceTagRequest>
-    {
+    public static class Builder extends BaseMqttRequest.Builder<Builder, UpdateDeviceTagRequest> {
         private Map<String, String> tags = Maps.newHashMap();
 
-        public Builder addTag(String tagKey, String tagValue)
-        {
+        public Builder addTag(String tagKey, String tagValue) {
             tags.put(tagKey, tagValue);
             return this;
         }
 
-        public Builder addTags(Map<String, String> tags)
-        {
+        public Builder addTags(Map<String, String> tags) {
             this.tags.putAll(tags);
             return this;
         }
 
-        @Override protected String createMethod()
-        {
+        @Override
+        protected String createMethod() {
             return MethodConstants.TAG_UPDATE;
         }
 
-        @Override protected Object createParams()
-        {
+        @Override
+        protected Object createParams() {
             List<Map<String, String>> params = Lists.newArrayList();
-            for (Map.Entry<String, String> entry : tags.entrySet())
-            {
+            for (Map.Entry<String, String> entry : tags.entrySet()) {
                 Map<String, String> map = Maps.newHashMap();
                 map.put("tagKey", entry.getKey());
                 map.put("tagValue", entry.getValue());
@@ -59,35 +54,33 @@ public class UpdateDeviceTagRequest extends BaseMqttRequest<UpdateDeviceTagRespo
             return params;
         }
 
-        @Override protected UpdateDeviceTagRequest createRequestInstance()
-        {
+        @Override
+        protected UpdateDeviceTagRequest createRequestInstance() {
             return new UpdateDeviceTagRequest();
         }
     }
 
-    private UpdateDeviceTagRequest(){
+    private UpdateDeviceTagRequest() {
     }
 
 
     @Override
-    public Class<UpdateDeviceTagResponse> getAnswerType()
-    {
+    public Class<UpdateDeviceTagResponse> getAnswerType() {
         return UpdateDeviceTagResponse.class;
     }
 
-    @Override public void check() throws EnvisionException
-    {
+    @Override
+    public void check() throws EnvisionException {
         super.check();
         List<Map<String, String>> params = getParams();
-        for (Map<String, String> param : params)
-        {
+        for (Map<String, String> param : params) {
             CheckUtil.checkNotEmpty(param.get("tagKey"), "tagKey");
             CheckUtil.checkNotEmpty(param.get("tagValue"), "tagValue");
         }
     }
+
     @Override
-    protected String _getPK_DK_FormatTopic()
-    {
+    protected String _getPK_DK_FormatTopic() {
         return DeliveryTopicFormat.TAG_UPDATE_TOPIC_FMT;
     }
 

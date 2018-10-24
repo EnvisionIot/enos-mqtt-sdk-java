@@ -13,26 +13,22 @@ import java.util.regex.Pattern;
  * @author zhonghua.wu
  * @create 2018-07-09 14:35
  */
-public class SubDeviceLogoutResponse extends BaseMqttResponse
-{
-	private static final long serialVersionUID = 8783872769820214468L;
-	private static Pattern pattern = Pattern.compile(ArrivedTopicPattern.SUB_DEVICE_LOGOUT_REPLY);
+public class SubDeviceLogoutResponse extends BaseMqttResponse {
+    private static final long serialVersionUID = 8783872769820214468L;
+    private static Pattern pattern = Pattern.compile(ArrivedTopicPattern.SUB_DEVICE_LOGOUT_REPLY);
 
-	public String getSubProductKey()
-	{
-		Map<String, String> data = getData();
-		return data.get("productKey");
-	}
+    public String getSubProductKey() {
+        Map<String, String> data = getData();
+        return data.get("productKey");
+    }
 
-	public String getSubDeviceKey()
-	{
-		Map<String, String> data = getData();
-		return data.get("deviceKey");
-	}
+    public String getSubDeviceKey() {
+        Map<String, String> data = getData();
+        return data.get("deviceKey");
+    }
 
     @Override
-    public Pattern getMatchTopicPattern()
-    {
-		return pattern;
-	}
+    public Pattern getMatchTopicPattern() {
+        return pattern;
+    }
 }

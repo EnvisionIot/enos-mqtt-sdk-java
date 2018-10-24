@@ -1,11 +1,11 @@
 package com.envisioniot.enos.iot_mqtt_sdk.message.upstream.tsl;
 
+import java.util.Arrays;
+
 import com.envisioniot.enos.iot_mqtt_sdk.core.internals.constants.DeliveryTopicFormat;
 import com.envisioniot.enos.iot_mqtt_sdk.core.internals.constants.MethodConstants;
 import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.BaseMqttRequest;
-import com.envisioniot.enos.iot_mqtt_sdk.util.CodingUtil;
-
-import java.io.ByteArrayOutputStream;
+import com.envisioniot.enos.iot_mqtt_sdk.util.StringUtil;
 
 /**
  * @author zhensheng.cai
@@ -15,15 +15,29 @@ public class ModelUpRawRequest extends BaseMqttRequest<ModelUpRawResponse>
 {
 	private static final long serialVersionUID = -8326661698539822393L;
 
-	public static Builder builder(){
+	private byte[] payload;
+
+	private ModelUpRawRequest()
+	{
+	}
+
+	public static Builder builder()
+	{
 		return new Builder();
 	}
 
-	public static class Builder extends BaseMqttRequest.Builder<Builder,ModelUpRawRequest>
+	public static class Builder extends BaseMqttRequest.Builder<Builder, ModelUpRawRequest>
 	{
-		private byte[] rawContent;
-		public void setRawContent(byte[] rawContent){
-			this.rawContent = rawContent;
+		public Builder()
+		{
+		}
+
+		private byte[] payload;
+
+		public Builder setPayload(byte[] payload)
+		{
+			this.payload = payload;
+			return this;
 		}
 
 		@Override protected String createMethod()
@@ -33,17 +47,58 @@ public class ModelUpRawRequest extends BaseMqttRequest<ModelUpRawResponse>
 
 		@Override protected Object createParams()
 		{
-			return rawContent;
+			throw new UnsupportedOperationException("unsupported operation");
 		}
 
-		@Override protected ModelUpRawRequest createRequestInstance()
-		{
+		@Override
+		protected ModelUpRawRequest createRequestInstance(){
 			return new ModelUpRawRequest();
+		}
+
+		@Override
+		public ModelUpRawRequest build() {
+			ModelUpRawRequest request = createRequestInstance();
+			if (StringUtil.isNotEmpty(productKey)) {
+				request.setProductKey(productKey);
+			}
+			if (StringUtil.isNotEmpty(deviceKey)) {
+				request.setDeviceKey(deviceKey);
+			}
+			request.setMethod(createMethod());
+			request.setPayload(payload);
+			return request;
 		}
 	}
 
-	private ModelUpRawRequest()
+	@Override
+	public String getId() {
+		return "unknown";
+	}
+
+	@Override
+	public void setId(String id) {
+		throw new UnsupportedOperationException("cannot set raw request message id");
+	}
+
+	@Override
+	public String getMessageId() {
+		return "unknown";
+	}
+
+	@Override
+	public void setMessageId(String msgId) {
+		throw new UnsupportedOperationException("cannot set raw request message id");
+	}
+
+	@Override
+	public byte[] encode()
 	{
+		return payload;
+	}
+
+	public ModelUpRawRequest setPayload(byte[] payload) {
+		this.payload = payload;
+		return this;
 	}
 
 	@Override
@@ -52,28 +107,16 @@ public class ModelUpRawRequest extends BaseMqttRequest<ModelUpRawResponse>
 		return ModelUpRawResponse.class;
 	}
 
-
-	/**
-	 * id : String -> encode int (length) :encode String
-	 * version : String -> encode int(length) : encode string
-	 * method : same as version
-	 * params/rawContent  : byte[] -> encode int(length) : encode byte[]
-	 * @return
-	 */
 	@Override
-	public byte[] encode(){
-		ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		CodingUtil.paddingString(bos, getMessageId());
-		CodingUtil.paddingString(bos, getVersion());
-		CodingUtil.paddingString(bos, getMethod());
-		CodingUtil.paddingBytes(bos, getParams());
-		return bos.toByteArray();
+	protected String _getPK_DK_FormatTopic()
+	{
+		return DeliveryTopicFormat.MODEL_UP_RAW;
 	}
 
-	
-    @Override
-    protected String _getPK_DK_FormatTopic()
-    {
-        return DeliveryTopicFormat.MODEL_UP_RAW;
-    }
+	@Override
+	public String toString() {
+		return "ModelUpRawRequest{" +
+				"payload=" + Arrays.toString(payload) +
+				"} ";
+	}
 }

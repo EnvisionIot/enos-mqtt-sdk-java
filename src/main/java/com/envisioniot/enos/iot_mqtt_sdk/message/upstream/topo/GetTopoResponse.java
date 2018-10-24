@@ -12,40 +12,37 @@ import java.util.regex.Pattern;
 /**
  * Description: get topotaxy response
  * message :
+ * <p>
+ * {
+ * "id": "123",
+ * "code": 200,
+ * "data": [
+ * {
+ * "deviceName": "deviceName1234",
+ * "productKey": "1234556554"
+ * }
+ * ]
+ * }
  *
- {
- "id": "123",
- "code": 200,
- "data": [
- {
- "deviceName": "deviceName1234",
- "productKey": "1234556554"
- }
- ]
- }
  * @author zhonghua.wu
  * @create 2018-07-09 14:26
  */
-public class GetTopoResponse extends BaseMqttResponse
-{
+public class GetTopoResponse extends BaseMqttResponse {
 
-	private static final long serialVersionUID = -1454569981740206606L;
-	private static Pattern pattern = Pattern.compile(ArrivedTopicPattern.TOPO_GET_REPLY);
+    private static final long serialVersionUID = -1454569981740206606L;
+    private static Pattern pattern = Pattern.compile(ArrivedTopicPattern.TOPO_GET_REPLY);
 
-	public List<Pair<String, String>> getSubDeviceInfo()
-	{
-		List<Pair<String, String>> subDeviceInfo = Lists.newArrayList();
-		List<Map<String, String>> data = getData();
-		for (Map<String, String> map : data)
-		{
-			subDeviceInfo.add(Pair.makePair(map.get("productKey"), map.get("deviceKey")));
-		}
-		return subDeviceInfo;
-	}
+    public List<Pair<String, String>> getSubDeviceInfo() {
+        List<Pair<String, String>> subDeviceInfo = Lists.newArrayList();
+        List<Map<String, String>> data = getData();
+        for (Map<String, String> map : data) {
+            subDeviceInfo.add(Pair.makePair(map.get("productKey"), map.get("deviceKey")));
+        }
+        return subDeviceInfo;
+    }
 
     @Override
-    public Pattern getMatchTopicPattern()
-    {
-		return pattern;
-	}
+    public Pattern getMatchTopicPattern() {
+        return pattern;
+    }
 }

@@ -9,13 +9,12 @@ import java.io.Serializable;
  * @author zhonghua.wu
  * @create 2018-07-17 10:42
  */
-public class DeviceBasicInfo implements Serializable
-{
-	private static final long serialVersionUID = -3092183058672019646L;
+public class DeviceBasicInfo implements Serializable {
+    private static final long serialVersionUID = -3092183058672019646L;
 
-	public String iotId;
-	public String productKey;
-	public String deviceKey;
-	public String deviceSecret;
+    public String iotId;
+    public String productKey;
+    public String deviceKey;
+    public String deviceSecret;
 
 }

@@ -4,11 +4,11 @@ import com.envisioniot.enos.iot_mqtt_sdk.core.msg.IMqttResponse;
 
 /**
  * response code used in {@link IMqttResponse}
+ *
  * @author zhensheng.cai
  * @date 2018/7/6.
  */
-public class ResponseCode
-{
+public class ResponseCode {
     /**
      * 成功
      */
@@ -45,14 +45,12 @@ public class ResponseCode
     public static final int TIME_OUT = 6205;
 
     /**
-     *
      * 设备端等待响应超时
      */
     public static final int LOCAL_TIME_OUT = 6305;
 
     /**
-
-    /**
+     * /**
      * RRPC的响应服务没有提供
      */
     public static final int RRPC_HANDLER_NOT_FOUND = 10001;

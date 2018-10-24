@@ -1,15 +1,13 @@
 package com.envisioniot.enos.iot_mqtt_sdk.message.downstream.tsl;
 
+import com.envisioniot.enos.iot_mqtt_sdk.core.internals.constants.ArrivedTopicPattern;
+import com.envisioniot.enos.iot_mqtt_sdk.message.downstream.BaseMqttCommand;
+import com.envisioniot.enos.iot_mqtt_sdk.util.CodingUtil;
+
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
-
-import com.envisioniot.enos.iot_mqtt_sdk.core.internals.constants.ArrivedTopicPattern;
-import com.envisioniot.enos.iot_mqtt_sdk.core.msg.IMqttArrivedMessage;
-import com.envisioniot.enos.iot_mqtt_sdk.message.downstream.BaseMqttCommand;
-import com.envisioniot.enos.iot_mqtt_sdk.util.CodingUtil;
-import com.envisioniot.enos.iot_mqtt_sdk.util.MsgDecodeUtil;
 
 /**
  * 数据流转Topic为{productKey}/{deviceName}/thing/downlink/reply/message。
@@ -22,13 +20,36 @@ public class ModelDownRawCommand extends BaseMqttCommand<ModelDownRawReply>
 	private static final long serialVersionUID = -2665555261792974946L;
 	private static Pattern pattern = Pattern.compile(ArrivedTopicPattern.MODEL_DOWN_RAW_COMMAND);
 
+	private byte[] payload;
 
-	public byte[] getRawContent(){
-		return ((byte[]) getParams());
+	public ModelDownRawCommand()
+	{}
+
+	public ModelDownRawCommand(byte[] payload)
+    {
+        this.payload = payload;
+    }
+
+	public void setPayload(byte[] payload)
+	{
+		this.payload = payload;
 	}
 
-	public void setRawContent(byte[] rawContent){
-		this.setParams(rawContent);
+	public byte[] getPayload()
+	{
+		return payload;
+	}
+
+	@Override
+	public DecodeResult decode(String topic, byte[] payload)
+    {
+		List<String> topicArg = this.match(topic);
+		if (topicArg == null) {
+			return null;
+		}
+		ModelDownRawCommand mdc = new ModelDownRawCommand();
+	    mdc.payload = payload;
+		return new DecodeResult(mdc, topicArg);
 	}
 
     @Override
@@ -37,54 +58,10 @@ public class ModelDownRawCommand extends BaseMqttCommand<ModelDownRawReply>
         return ModelDownRawReply.class;
     }
 
-
     @Override
     public Pattern getMatchTopicPattern()
     {
-		return pattern;
-	}
-    
+        return pattern;
+    }
 
-    @Override
-	public DecodeResult decode(String topic, byte[] payload)
-    {
-		List<String> path = this.match(topic);
-		if(path == null)
-		{
-			return null;
-		}
-
-		ModelDownRawCommand cmd;
-		try
-		{
-			ByteBuffer buffer = ByteBuffer.wrap(payload);
-			cmd = new ModelDownRawCommand();
-			cmd.setMessageId(CodingUtil.readString(buffer));
-			cmd.setVersion(CodingUtil.readString(buffer));
-			cmd.setMethod(CodingUtil.readString(buffer));
-			cmd.setParams(CodingUtil.readBytes(buffer));
-		}
-		catch(Exception e)
-		{
-			throw new RuntimeException("decode payload err:" + Arrays.toString(payload), e);
-		}
-
-		if(cmd == null)
-		{
-			throw new RuntimeException("can't decode payload:" + Arrays.toString(payload));
-		}
-
-		cmd.setMessageTopic(topic);
-
-		if(path.size() > 0)
-		{
-			cmd.setProductKey(path.get(0));
-		}
-
-		if(path.size() > 1)
-		{
-			cmd.setDeviceKey(path.get(1));
-		}
-		return new DecodeResult( cmd, path);
-	}
 }

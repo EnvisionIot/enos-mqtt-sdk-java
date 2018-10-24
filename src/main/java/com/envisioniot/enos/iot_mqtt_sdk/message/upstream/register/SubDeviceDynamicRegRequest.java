@@ -18,110 +18,104 @@ import java.util.Map;
  * @author zhonghua.wu
  * @create 2018-07-20 10:33
  */
-public class SubDeviceDynamicRegRequest extends BaseMqttRequest<SubDeviceDynamicRegResponse>
-{
-	private static final long serialVersionUID = -5164903941570526819L;
-	private static final int MAX_DEVICE_SIZE = 1000;
+public class SubDeviceDynamicRegRequest extends BaseMqttRequest<SubDeviceDynamicRegResponse> {
+    private static final long serialVersionUID = -5164903941570526819L;
+    private static final int MAX_DEVICE_SIZE = 1000;
 
-	public static Builder builder(){
-		return new Builder();
-	}
+    public static Builder builder() {
+        return new Builder();
+    }
 
-	public static class Builder extends BaseMqttRequest.Builder<Builder,SubDeviceDynamicRegRequest>{
-		private List<Map<String, Object>> params = new ArrayList<>();
+    public static class Builder extends BaseMqttRequest.Builder<Builder, SubDeviceDynamicRegRequest> {
+        private List<Map<String, Object>> params = new ArrayList<>();
 
-		@Override protected String createMethod()
-		{
-			return MethodConstants.SUB_DEVICE_REGISTER;
-		}
+        @Override
+        protected String createMethod() {
+            return MethodConstants.SUB_DEVICE_REGISTER;
+        }
 
-		@Override protected Object createParams()
-		{
-			return params;
-		}
+        @Override
+        protected Object createParams() {
+            return params;
+        }
 
-		@Override protected SubDeviceDynamicRegRequest createRequestInstance()
-		{
-			return new SubDeviceDynamicRegRequest();
-		}
+        @Override
+        protected SubDeviceDynamicRegRequest createRequestInstance() {
+            return new SubDeviceDynamicRegRequest();
+        }
 
-		public Builder addSubBatchRegisterInfo(String subProductKey, List<DeviceRegOption> regOptions){
-			params.addAll(createBatchRegInfoMap(subProductKey, regOptions));
-			return this;
-		}
+        public Builder addSubBatchRegisterInfo(String subProductKey, List<DeviceRegOption> regOptions) {
+            params.addAll(createBatchRegInfoMap(subProductKey, regOptions));
+            return this;
+        }
 
-		public Builder setSubBatchRegisterInfo(String subProductKey, List<DeviceRegOption> regOptions){
-			params = createBatchRegInfoMap(subProductKey, regOptions);
-			return this;
-		}
+        public Builder setSubBatchRegisterInfo(String subProductKey, List<DeviceRegOption> regOptions) {
+            params = createBatchRegInfoMap(subProductKey, regOptions);
+            return this;
+        }
 
-		public Builder addSubRegisterInfo(String subProductKey, DeviceRegOption regOption){
-			params.add(createRegInfoMap(subProductKey, regOption));
-			return this;
-		}
+        public Builder addSubRegisterInfo(String subProductKey, DeviceRegOption regOption) {
+            params.add(createRegInfoMap(subProductKey, regOption));
+            return this;
+        }
 
-		public Builder addSubRegisterInfo(String subProductKey, String deviceKey, String deviceName, String deviceDesc)
-		{
-			addSubRegisterInfo(subProductKey, new DeviceRegOption(deviceKey, deviceName, deviceDesc));
-			return this;
-		}
-		public Builder addSubRegisterInfo(String subProductkey, String deviceKey, String deviceName, String deviceDesc,
-				Map<String, Object> deviceAttrs)
-		{
-			addSubRegisterInfo(subProductkey, new DeviceRegOption(deviceKey, deviceName, deviceDesc, deviceAttrs));
-			return this;
-		}
+        public Builder addSubRegisterInfo(String subProductKey, String deviceKey, String deviceName, String deviceDesc) {
+            addSubRegisterInfo(subProductKey, new DeviceRegOption(deviceKey, deviceName, deviceDesc));
+            return this;
+        }
 
-	}
+        public Builder addSubRegisterInfo(String subProductkey, String deviceKey, String deviceName, String deviceDesc,
+                                          Map<String, Object> deviceAttrs) {
+            addSubRegisterInfo(subProductkey, new DeviceRegOption(deviceKey, deviceName, deviceDesc, deviceAttrs));
+            return this;
+        }
 
-	private SubDeviceDynamicRegRequest(){
-	}
+    }
 
-	private static List<Map<String, Object>> createBatchRegInfoMap(String subProductKey, List<DeviceRegOption> regOptions){
-		List<Map<String, Object>> params = new ArrayList<>();
-		for (DeviceRegOption regOption : regOptions)
-		{
-			params.add(createRegInfoMap(subProductKey, regOption));
-		}
-		return params;
-	}
+    private SubDeviceDynamicRegRequest() {
+    }
 
-	private  static  Map<String, Object> createRegInfoMap(String subProductKey, DeviceRegOption regOption){
-		Map<String, Object> param = new HashMap<>();
-		param.put("productKey", subProductKey);
+    private static List<Map<String, Object>> createBatchRegInfoMap(String subProductKey, List<DeviceRegOption> regOptions) {
+        List<Map<String, Object>> params = new ArrayList<>();
+        for (DeviceRegOption regOption : regOptions) {
+            params.add(createRegInfoMap(subProductKey, regOption));
+        }
+        return params;
+    }
 
-		if (regOption.deviceAttributes != null && !regOption.deviceAttributes.isEmpty()) {
-			param.put("deviceAttributes", regOption.deviceAttributes);
-		}
-		if (StringUtil.isNotEmpty(regOption.deviceKey)) {
-			param.put("deviceKey", regOption.deviceKey);
-		}
-		if (StringUtil.isNotEmpty(regOption.deviceName)) {
-			param.put("deviceName", regOption.deviceName);
-		}
-		if (StringUtil.isNotEmpty(regOption.deviceDesc)) {
-			param.put("deviceDesc", regOption.deviceDesc);
-		}
-		return param;
-	}
+    private static Map<String, Object> createRegInfoMap(String subProductKey, DeviceRegOption regOption) {
+        Map<String, Object> param = new HashMap<>();
+        param.put("productKey", subProductKey);
 
+        if (regOption.deviceAttributes != null && !regOption.deviceAttributes.isEmpty()) {
+            param.put("deviceAttributes", regOption.deviceAttributes);
+        }
+        if (StringUtil.isNotEmpty(regOption.deviceKey)) {
+            param.put("deviceKey", regOption.deviceKey);
+        }
+        if (StringUtil.isNotEmpty(regOption.deviceName)) {
+            param.put("deviceName", regOption.deviceName);
+        }
+        if (StringUtil.isNotEmpty(regOption.deviceDesc)) {
+            param.put("deviceDesc", regOption.deviceDesc);
+        }
+        return param;
+    }
 
-	@Override
-	public Class<SubDeviceDynamicRegResponse> getAnswerType()
-	{
-		return SubDeviceDynamicRegResponse.class;
-	}
-
-	@Override
-	public void check() throws EnvisionException
-	{
-		List<Map<String, Object>> params = this.getParams();
-		CheckUtil.checkMaxSize(params, MAX_DEVICE_SIZE, "regOptionList");
-	}
 
     @Override
-    protected String _getPK_DK_FormatTopic()
-    {
+    public Class<SubDeviceDynamicRegResponse> getAnswerType() {
+        return SubDeviceDynamicRegResponse.class;
+    }
+
+    @Override
+    public void check() throws EnvisionException {
+        List<Map<String, Object>> params = this.getParams();
+        CheckUtil.checkMaxSize(params, MAX_DEVICE_SIZE, "regOptionList");
+    }
+
+    @Override
+    protected String _getPK_DK_FormatTopic() {
         return DeliveryTopicFormat.SUB_DEVICE_REGISTER_TOPIC_FMT;
     }
 }

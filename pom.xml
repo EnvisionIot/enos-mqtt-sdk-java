@@ -1,15 +1,15 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.envisioniot.enos</groupId>
-    <version>0.0.1</version>
+    <version>0.0.2-SNAPSHOT</version>
     <artifactId>iot_mqtt_sdk</artifactId>
 
     <name>iot_mqtt_sdk</name>
-    <url>http://www.envisioncn.com</url>
+    <url>http://www.envisioniot.com</url>
     <inceptionYear>2018</inceptionYear>
-
 
 
     <properties>
@@ -57,6 +57,27 @@
             <version>1.10</version>
         </dependency>
     </dependencies>
+
+    <distributionManagement>
+        <repository>
+            <id>envision.repo</id>
+            <name>envision internal repository for released artifacts</name>
+            <url>http://nexus.envisioncn.com/content/repositories/releases</url>
+        </repository>
+        <snapshotRepository>
+            <id>envision.repo.snapshots</id>
+            <name>envision internal repository for snapshots artifacts</name>
+            <url>http://nexus.envisioncn.com/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <!--<snapshotRepository>-->
+        <!--<id>mvn.repo</id>-->
+        <!--<url>https://oss.sonatype.org/content/repositories/snapshots/</url>-->
+        <!--</snapshotRepository>-->
+        <!--<repository>-->
+        <!--<id>mvn.repo</id>-->
+        <!--<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>-->
+        <!--</repository>-->
+    </distributionManagement>
     <profiles>
         <profile>
             <id>mvn.repo</id>
@@ -88,26 +109,6 @@
                     </plugin>
                 </plugins>
             </build>
-            <distributionManagement>
-                <!--<repository>-->
-                <!--<id>envision.repo</id>-->
-                <!--<name>envision internal repository for released artifacts</name>-->
-                <!--<url>http://nexus.envisioncn.com/content/repositories/releases</url>-->
-                <!--</repository>-->
-                <!--<snapshotRepository>-->
-                <!--<id>envision.repo.snapshots</id>-->
-                <!--<name>envision internal repository for snapshots artifacts</name>-->
-                <!--<url>http://nexus.envisioncn.com/content/repositories/snapshots</url>-->
-                <!--</snapshotRepository>-->
-                <snapshotRepository>
-                    <id>mvn.repo</id>
-                    <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-                </snapshotRepository>
-                <repository>
-                    <id>mvn.repo</id>
-                    <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-                </repository>
-            </distributionManagement>
         </profile>
     </profiles>
 

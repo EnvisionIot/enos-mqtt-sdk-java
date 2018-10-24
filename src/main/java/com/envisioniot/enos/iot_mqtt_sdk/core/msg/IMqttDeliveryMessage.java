@@ -8,29 +8,28 @@ import com.envisioniot.enos.iot_mqtt_sdk.core.exception.EnvisionException;
  *
  * @author zhensheng.cai on 2018/7/3.
  */
-public interface IMqttDeliveryMessage extends IMqttMessage
-{
-	/**
-	 * implement the parameter validation by each request
-	 */
-	void check() throws EnvisionException;
+public interface IMqttDeliveryMessage extends IMqttMessage {
+    /**
+     * implement the parameter validation by each request
+     */
+    void check() throws EnvisionException;
 
-	/**
-	 * get the payload of the message
-	 * 
-	 * @return
-	 */
-	byte[] encode();
+    /**
+     * get the payload of the message
+     *
+     * @return
+     */
+    byte[] encode();
 
-	/**
-	 * get the qos of publish message
-	 * 
-	 * @return the qos
-	 */
-	int getQos();
+    /**
+     * get the qos of publish message
+     *
+     * @return the qos
+     */
+    int getQos();
 
-	@Override default void setMessageTopic(String topic)
-	{
-		throw new UnsupportedOperationException("answer message type can't set topic");
-	}
+    @Override
+    default void setMessageTopic(String topic) {
+        throw new UnsupportedOperationException("answer message type can't set topic");
+    }
 }

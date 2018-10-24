@@ -8,21 +8,18 @@ import java.util.regex.Pattern;
 /**
  * Created by yi.dai on 2018/7/11.
  */
-public class DeleteDeviceCommand extends BaseMqttCommand<DeleteDeviceCommandReply>
-{
+public class DeleteDeviceCommand extends BaseMqttCommand<DeleteDeviceCommandReply> {
     private static final long serialVersionUID = 6043547152767421664L;
     private static Pattern pattern = Pattern.compile(ArrivedTopicPattern.DELETE_DEVICE_COMMAND);
 
     @Override
-    public Class<DeleteDeviceCommandReply> getAnswerType()
-    {
+    public Class<DeleteDeviceCommandReply> getAnswerType() {
         return DeleteDeviceCommandReply.class;
     }
 
 
     @Override
-    public Pattern getMatchTopicPattern()
-    {
+    public Pattern getMatchTopicPattern() {
         return pattern;
     }
 }

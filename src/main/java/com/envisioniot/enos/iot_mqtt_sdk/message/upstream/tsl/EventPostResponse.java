@@ -12,30 +12,26 @@ import java.util.regex.Pattern;
  * @author zhensheng.cai
  * @date 2018/7/9.
  */
-public class EventPostResponse extends BaseMqttResponse
-{
+public class EventPostResponse extends BaseMqttResponse {
     private static final long serialVersionUID = -8771628509472624926L;
     private static Pattern pattern = Pattern.compile(ArrivedTopicPattern.EVENT_POST_REPLY);
 
 
     @Override
-    public Pattern getMatchTopicPattern()
-    {
+    public Pattern getMatchTopicPattern() {
         return pattern;
     }
 
     @Override
     public List<String> match(String topic) {
         Matcher matcher = this.getMatchTopicPattern().matcher(topic);
-        if (matcher.matches())
-        {
+        if (matcher.matches()) {
             String[] groups = new String[matcher.groupCount()];
-            for (int i = 0; i < matcher.groupCount(); i++)
-            {
+            for (int i = 0; i < matcher.groupCount(); i++) {
                 groups[i] = matcher.group(i + 1);
             }
             List<String> topicArgs = Arrays.asList(groups);
-            if(topicArgs.size()== 3 &&  "measurepoint".equals(topicArgs.get(2))) {
+            if (topicArgs.size() == 3 && "measurepoint".equals(topicArgs.get(2))) {
                 return null;
             }
             return topicArgs;

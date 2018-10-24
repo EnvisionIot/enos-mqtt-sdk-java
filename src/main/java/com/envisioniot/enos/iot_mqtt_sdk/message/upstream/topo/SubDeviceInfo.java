@@ -12,114 +12,99 @@ import java.util.Map;
  * @author zhonghua.wu
  * @create 2018-07-12 15:45
  */
-public class SubDeviceInfo implements Serializable
-{
-	private static final long serialVersionUID = -2144256254717113693L;
+public class SubDeviceInfo implements Serializable {
+    private static final long serialVersionUID = -2144256254717113693L;
 
-	private static final String DEFAULT_SIGN_METHOD = SignUtil.hmacsha1;
+    private static final String DEFAULT_SIGN_METHOD = SignUtil.hmacsha1;
 
-	private String productKey;
-	private String deviceKey;
-	private String clientId;
-	private long timestamp;
-	private String sign;
-	private String signMethod;
+    private String productKey;
+    private String deviceKey;
+    private String clientId;
+    private long timestamp;
+    private String sign;
+    private String signMethod;
 
-	public SubDeviceInfo()
-	{
-	}
+    public SubDeviceInfo() {
+    }
 
-	public SubDeviceInfo(String productKey, String deviceKey, String deviceSecret)
-	{
-		this.productKey = productKey;
-		this.deviceKey = deviceKey;
-		
-		this.clientId = getDefaultClientId(productKey, deviceKey);
-		this.timestamp = System.currentTimeMillis();
-		this.signMethod = DEFAULT_SIGN_METHOD;
-		
-		Map<String, String> params = Maps.newHashMap();
-		params.put("productKey", productKey);
-		params.put("deviceKey", deviceKey);
-		params.put("clientId", clientId);
-		params.put("timestamp", String.valueOf(timestamp));
-		this.sign = SignUtil.sign(deviceSecret, params);
-	}
+    public SubDeviceInfo(String productKey, String deviceKey, String deviceSecret) {
+        this.productKey = productKey;
+        this.deviceKey = deviceKey;
 
-	public String getClientId()
-	{
-		return clientId;
-	}
+        this.clientId = getDefaultClientId(productKey, deviceKey);
+        this.timestamp = System.currentTimeMillis();
+        this.signMethod = DEFAULT_SIGN_METHOD;
 
-	public void setClientId(String clientId)
-	{
-		this.clientId = clientId;
-	}
+        Map<String, String> params = Maps.newHashMap();
+        params.put("productKey", productKey);
+        params.put("deviceKey", deviceKey);
+        params.put("clientId", clientId);
+        params.put("timestamp", String.valueOf(timestamp));
+        this.sign = SignUtil.sign(deviceSecret, params);
+    }
 
-	public long getTimestamp()
-	{
-		return timestamp;
-	}
+    public String getClientId() {
+        return clientId;
+    }
 
-	public void setTimestamp(long timestamp)
-	{
-		this.timestamp = timestamp;
-	}
+    public void setClientId(String clientId) {
+        this.clientId = clientId;
+    }
 
-	public String getSignMethod()
-	{
-		return signMethod;
-	}
+    public long getTimestamp() {
+        return timestamp;
+    }
 
-	public void setSignMethod(String signMethod)
-	{
-		this.signMethod = signMethod;
-	}
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
+    }
 
-	public String getSign() {
-		return sign;
-	}
+    public String getSignMethod() {
+        return signMethod;
+    }
 
-	public void setSign(String sign) {
-		this.sign = sign;
-	}
+    public void setSignMethod(String signMethod) {
+        this.signMethod = signMethod;
+    }
 
-	public Map<String, String> createSignMap()
-	{
-		Map<String, String> params = Maps.newHashMap();
-		params.put("productKey", productKey);
-		params.put("deviceKey", deviceKey);
-		params.put("clientId", clientId);
-		params.put("timestamp", String.valueOf(timestamp));
-		params.put("signMethod", this.signMethod);
-		params.put("sign", sign);
-		return params;
-	}
+    public String getSign() {
+        return sign;
+    }
 
-	private String getDefaultClientId(String productKey, String deviceKey)
-	{
-		return String.format("%s.%s.%s", productKey, deviceKey, String.valueOf(System.currentTimeMillis()));
-	}
-	
-	public String getProductKey()
-	{
-	    return productKey;
-	}
-	
-	public String getDeviceKey()
-	{
-	    return deviceKey;
-	}
+    public void setSign(String sign) {
+        this.sign = sign;
+    }
 
-	public SubDeviceInfo setProductKey(String productKey)
-	{
-		this.productKey = productKey;
-		return this;
-	}
+    public Map<String, String> createSignMap() {
+        Map<String, String> params = Maps.newHashMap();
+        params.put("productKey", productKey);
+        params.put("deviceKey", deviceKey);
+        params.put("clientId", clientId);
+        params.put("timestamp", String.valueOf(timestamp));
+        params.put("signMethod", this.signMethod);
+        params.put("sign", sign);
+        return params;
+    }
 
-	public SubDeviceInfo setDeviceKey(String deviceKey)
-	{
-		this.deviceKey = deviceKey;
-		return this;
-	}
+    private String getDefaultClientId(String productKey, String deviceKey) {
+        return String.format("%s.%s.%s", productKey, deviceKey, String.valueOf(System.currentTimeMillis()));
+    }
+
+    public String getProductKey() {
+        return productKey;
+    }
+
+    public String getDeviceKey() {
+        return deviceKey;
+    }
+
+    public SubDeviceInfo setProductKey(String productKey) {
+        this.productKey = productKey;
+        return this;
+    }
+
+    public SubDeviceInfo setDeviceKey(String deviceKey) {
+        this.deviceKey = deviceKey;
+        return this;
+    }
 }
