@@ -83,7 +83,7 @@ sign签名需要把以下参数按字典排序后，根据signmethod加签。
 * signmethod：表示签名算法类型。当前版本下请使用hmacsha1
 * securemode：表示目前安全模式，当前版本下请填写字段2
 
-例如 clientId = clientId123，deviceKey = test， productKey = 123， timestamp = 1524448722000，deviceSecret=deviceSecret
+例如 clientId = 123，deviceKey = test， productKey = 123， timestamp = 1524448722000，deviceSecret=deviceSecret
 sign= hmacsha1(deviceSecret, clientId123deviceKeytestproductKey123timestamp1524448722000)
 
 > 在构建MqttClient的参数中，product， productKey，deviceKey以及deviceSecret应该从控制台中获取，或者通过[RestfulAPI](http://tapd.oa.com)进行获取。
