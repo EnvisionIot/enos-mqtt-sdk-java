@@ -71,10 +71,10 @@ client.connect(new IConnectCallback()
   mqtt的Connect报文参数：
   mqttClientId: clientId+"|securemode=2,signmethod=hmacsha1,timestamp=132323232|"
   mqttUsername: deviceKey+"&"+productKey
-  mqttPassword: sign_hmac(deviceSecret,content)
+  mqttPassword: uppercase(sign_hmac(deviceSecret,content))
  ```
 其中clientId可以用户自行定义，timestamp可以采用当前时间戳，
-sign签名需要把以下参数按字典排序后，根据signmethod加签。
+sign签名需要把以下参数按字典排序后，根据signmethod加签,并将签名结果转成大写。
 
 * content的值为提交给服务器的参数（productKey、deviceKey、timestamp和clientId），按照字母顺序排序, 然后将参数值依次拼接。
 * clientId：表示客户端ID，建议使用设备的MAC地址或SN码，64字符内。需要与mqttClientId中设置的clientId字段一致。
@@ -84,7 +84,7 @@ sign签名需要把以下参数按字典排序后，根据signmethod加签。
 * securemode：表示目前安全模式，当前版本下请填写字段2
 
 例如 clientId = 123，deviceKey = test， productKey = 123， timestamp = 1524448722000，deviceSecret=deviceSecret
-sign= hmacsha1(deviceSecret, clientId123deviceKeytestproductKey123timestamp1524448722000)
+sign= toUpperCase(hmacsha1(clientId123deviceKeytestproductKey123timestamp1524448722000deviceSecret))
 
 > 在构建MqttClient的参数中，product， productKey，deviceKey以及deviceSecret应该从控制台中获取，或者通过[RestfulAPI](http://tapd.oa.com)进行获取。
 
