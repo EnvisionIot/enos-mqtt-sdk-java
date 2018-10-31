@@ -1,25 +1,57 @@
-# Java MQTT SDK使用说明
+# Using EnOS IoT MQTT SDK for Java
 
-----
+This article instructs how to prepare your development environment to use the *EnOS IoT MQTT SDK for Java*.
 
-#### SDK获取
+* [Install Java JDK SE](#installjava)
+* [Install Maven](#installmaven)
+* [Obtain EnOS IoT MQTT SDK for Java](#installiot)
+	* [Build from source](#installiotsource)
+	* [Include using Maven](#installiotmaven)
+* [Feature list](#featurelist)
+* [Sample code](#samplecode)
 
-​​我们按照此[MQTT协议规范](https://dev.envisioncn.com/devportal/index.html#/166/57baab5ed3eb4806104b045d/doccenter/DeviceConnection2.0/ZH/4@%E6%93%8D%E4%BD%9C%E6%8C%87%E5%8D%97/11@%E8%AE%BE%E5%A4%87%E7%AB%AF%E5%BC%80%E5%8F%91%E6%8C%87%E5%8D%97/2@SDK%E8%AE%BE%E5%A4%87%E7%AB%AF%E5%8D%8F%E8%AE%AE.md)，实现了一个Java版本，便于开发者专注于业务开发，无需关注协议细节，可以通过[GitHub](http://https://github.com/EnvisionIot/enos-iot-mqtt-java-sdk)获取源码。
-<br/>
-另外，我们也直接把jar包上传到了maven仓库，开发者只需引入此依赖即可。
+<a name="installjava"></a>
+## Installing Java JDK SE
+To use the EnOS IoT MQTT SDK for Java, you will need **Java SE 8**.
 
+<a name="installmaven"></a>
+## Installing Maven
+EnOS IoT MQTT SDK for Java, we recommend you to use **_Maven 3_**.
+
+<a name="installiot"></a>
+## Obtaining EnOS IoT MQTT SDK for Java
+
+You can obtain the EnOS IoT MQTT SDK through the following methods:
+* Include the project as a dependency in your Maven project.
+* Download the source code by cloning this repo and build on your machine
+
+<a name="installiotmaven"></a>
+### Get EnOS IoT MQTT SDK for Java from Maven (as a dependency)
+_This is the recommended method of including the EnOS IoT SDKs in your project._
+
+* Navigate to http://search.maven.org, search for **com.envisioniot.enos** and take note of the latest version number (or the version number of whichever version of the sdk you desire to use).
+* In your main pom.xml file, add the EnOS IoT MQTT SDK as a dependency as follows:
+```xml
+	<dependency>
+	  <groupId>com.envisioniot.enos</groupId>
+	  <artifactId>iot_mqtt_sdk</artifactId>
+	  <version>0.0.1-SNAPSHOT</version>
+	  <!--You might need to change the version number as you need.-->
+	</dependency>
 ```
-<dependency>
-  <groupId>com.envisioniot.enos</groupId>
-  <artifactId>iot_mqtt_sdk</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
-</dependency>
+
+<a name="installiotsource"></a>
+### Build EnOS IoT MQTT SDK for Java from the source code in this repo
+* Get a copy of the **Azure IoT SDK for Java** from master branch of the GitHub (current repo). You should fetch a copy of the source from the **master** branch of the GitHub repository: <https://github.com/EnvisionIot/enos-iot-mqtt-java-sdk>
 ```
-<br/>
+	git clone https://github.com/Azure/azure-iot-sdk-java.git
+```
+* When you have obtained a copy of the source, you can build the SDKs for Java.
 
-#### 功能说明
+<a name="featurelist"></a>
+## Feature list
 
-目前此预览版只是把基础的功能封装了，功能表如下：
+The EnOS IoT MQTT SDK supports the following functions:
 
 - 支持子设备的身份注册
 - 支持网关设备的拓扑增删改查
@@ -33,9 +65,8 @@
 - 支持设备的启用，禁用，删除的消息通知
 - 支持设备的通用控制指令（RRPC）
 
-<br/>
-
-#### SDK使用
+<a name="samplecode"></a>
+#### Sample code
 
 使用SDK非常简单，只要了解到上述能力后，可以很容易的和服务端进行对接，这里以一个简单的样例来告诉大家如何使用sdk。
 <br/>
@@ -185,10 +216,3 @@ client.setArrivedMsgHandler(DisableDeviceCommand.class, new IMessageHandler<Disa
 
 ----------
 这个预览版本接口还是比较粗糙的，后续版本，我们会根据序列化反序列化，request， response， command，reply对象进行优化。
-
-
-
-
-
-
-
