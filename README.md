@@ -2,13 +2,15 @@
 
 This article instructs how to prepare your development environment to use the *EnOS IoT MQTT SDK for Java*.
 
-* [Install Java JDK SE](#installjava)
-* [Install Maven](#installmaven)
-* [Obtain EnOS IoT MQTT SDK for Java](#installiot)
-	* [Build from source](#installiotsource)
-	* [Include using Maven](#installiotmaven)
+* [Installing Java JDK SE](#installjava)
+* [Installing Maven](#installmaven)
+* [Obtaining EnOS IoT MQTT SDK for Java](#installiot)
+	* [Include dependency in Maven project](#installiotmaven)
+	* [Building from source](#installiotsource)
 * [Feature list](#featurelist)
+* [API reference](#apiref)
 * [Sample code](#samplecode)
+* [Upcoming features](#upcoming)
 
 <a name="installjava"></a>
 ## Installing Java JDK SE
@@ -44,12 +46,12 @@ _This is the recommended method of including the EnOS IoT SDKs in your project._
 ### Build EnOS IoT MQTT SDK for Java from the source code in this repo
 * Get a copy of the **Azure IoT SDK for Java** from master branch of the GitHub (current repo). You should fetch a copy of the source from the **master** branch of the GitHub repository: <https://github.com/EnvisionIot/enos-iot-mqtt-java-sdk>
 ```
-	git clone https://github.com/Azure/azure-iot-sdk-java.git
+	git clone https://github.com/EnvisionIot/enos-iot-mqtt-java-sdk.git
 ```
 * When you have obtained a copy of the source, you can build the SDKs for Java.
 
 <a name="featurelist"></a>
-## Feature list
+## Key features
 
 The EnOS IoT MQTT SDK supports the following functions:
 
@@ -65,47 +67,52 @@ The EnOS IoT MQTT SDK supports the following functions:
 - 支持设备的启用，禁用，删除的消息通知
 - 支持设备的通用控制指令（RRPC）
 
+<a name="apiref"></a>
+## API reference
+Link to Java SDK reference in EnOS Help Center.
+
 <a name="samplecode"></a>
-#### Sample code
+## Sample code
 
-使用SDK非常简单，只要了解到上述能力后，可以很容易的和服务端进行对接，这里以一个简单的样例来告诉大家如何使用sdk。
-<br/>
+The following sample codes instruct how to use the SDK.
 
-首先连接上服务器
+### 连接服务器
 
 ```
 MqttClient client = new MqttClient(prd, productKey, deviceKey, deviceSecret);
 client.connect(new IConnectCallback()
 {
-        @Override
-        public void onConnectSuccess()
-        {
-                System.out.println("onConnectSuccess");
-        }
+	@Override
+	public void onConnectSuccess()
+	{
+		System.out.println("onConnectSuccess");
+	}
 
-        @Override
-         public void onConnectLost()
-        {
-                    System.out.println("onConnectLost");
-        }
+	@Override
+	 public void onConnectLost()
+	{
+		System.out.println("onConnectLost");
+	}
 
-        @Override
-        public void onConnectFailed(int reasonCode)
-        {
-                    System.out.println("onConnectFailed");
-        }
+	@Override
+	public void onConnectFailed(int reasonCode)
+	{
+		System.out.println("onConnectFailed");
+	}
 });
 ```
-> 对于非Java SDK的用户，用户可以根据设备三元组信息自行组织MQTT CONNECT报文参数，进行设备登录：
 
- ```
-  mqtt的Connect报文参数：
+对于非Java SDK的用户，用户可以根据设备三元组信息自行组织MQTT CONNECT报文参数，进行设备登录：
+
+
+mqtt的Connect报文参数如下：
+```
   mqttClientId: clientId+"|securemode=2,signmethod=hmacsha1,timestamp=132323232|"
   mqttUsername: deviceKey+"&"+productKey
   mqttPassword: uppercase(sign_hmac(deviceSecret,content))
  ```
-其中clientId可以用户自行定义，timestamp可以采用当前时间戳，
-sign签名需要把以下参数按字典排序后，根据signmethod加签,并将签名结果转成大写。
+其中`clientId`可以用户自行定义，`timestamp`可以采用当前时间戳，
+sign签名需要把以下参数按字典排序后，根据`signmethod`加签,并将签名结果转成大写。
 
 * content的值为提交给服务器的参数（productKey、deviceKey、timestamp和clientId），按照字母顺序排序, 然后将参数值依次拼接。
 * clientId：表示客户端ID，建议使用设备的MAC地址或SN码，64字符内。需要与mqttClientId中设置的clientId字段一致。
@@ -114,15 +121,20 @@ sign签名需要把以下参数按字典排序后，根据signmethod加签,并�
 * signmethod：表示签名算法类型。当前版本下请使用hmacsha1
 * securemode：表示目前安全模式，当前版本下请填写字段2
 
-例如 clientId = 123，deviceKey = test， productKey = 123， timestamp = 1524448722000，deviceSecret=deviceSecret
+For example:
+
+When clientId = 123, deviceKey = test, productKey = 123, timestamp = 1524448722000, deviceSecret=deviceSecret
+
 sign= toUpperCase(hmacsha1(clientId123deviceKeytestproductKey123timestamp1524448722000deviceSecret))
 
-> 在构建MqttClient的参数中，product， productKey，deviceKey以及deviceSecret应该从控制台中获取，或者通过[RestfulAPI](http://tapd.oa.com)进行获取。
+在构建MqttClient的参数中，product， productKey，deviceKey以及deviceSecret可以从控制台中获取，或者通过EnOS REST API进行获取。
+
+### 发送命令
+
+#### 发送上行命令（从设备到EnOS Cloud）
+当连接成功后，我们就可以发送命令了，比如，以下样例代码在回调函数中让子设备进行login操作。
 
 这里解释下回调函数的意图，由于网关型设备如果断链后，服务端会自动把此网关型设备拓扑结构中的子设备全部自行下线。但是由于MQTT客户端允许自动重连，所以当识别到断线连接后，会主动触发onConnectLost回调。当自动重连生效后，应该把子设备的上线的逻辑放于onConnectSuccess回调方法中。
-
-<br/>
-当连接成功后，我们就可以发送命令了，比如，我这里在回调函数中让子设备进行login操作。
 
 ```
 @Override
@@ -143,7 +155,7 @@ public void onConnectSuccess()
 ```
 
 
-> 注意，子设备的productKey同样需要通过[控制台](http://tapd.oa.com)，或者[RestfulAPI](http://tapd.oa.com)进行获取。关于子设备的deviceKey, deviceSecret, 除了可以通过[控制台](http://tapd.oa.com)或[RestfulAPI](http://tapd.oa.com)外，我们也可以使用MQTT SDK的SubDeviceDynamicRegRequest来进行注册。
+*注意，子设备的productKey同样需要通过[控制台](http://tapd.oa.com)，或者[RestfulAPI](http://tapd.oa.com)进行获取。关于子设备的deviceKey, deviceSecret, 除了可以通过[控制台](http://tapd.oa.com)或[RestfulAPI](http://tapd.oa.com)外，我们也可以使用MQTT SDK的SubDeviceDynamicRegRequest来进行注册。*
 
 接下来我们发送一个子设备的测点数据给到服务端
 
@@ -175,8 +187,9 @@ public <T extends IMqttResponse> T publish(IMqttRequest<T> request) throws Excep
 public <T extends IMqttResponse> void publish(IMqttRequest<T> request, IResponseCallback<T> callback)
 ```
 
-> 两者之间的区别在于：带有回调的publish方法是异步的，带有返回参数的publish方法是同步的，这里还需要注意，如果MeasurepointPostRequest不小心调用了同步的push，那么会一直等待，但是服务端除了错误之外，并没有返回值，所以会一直等到超时。
+两者之间的区别在于：带有回调的publish方法是异步的，带有返回参数的publish方法是同步的，这里还需要注意，如果MeasurepointPostRequest不小心调用了同步的push，那么会一直等待，但是服务端除了错误之外，并没有返回值，所以会一直等到超时。
 
+#### 发送下行命令（从EnOS Cloud到设备）
 下面我介绍下如何处理下行消息，下行消息主要是置数，设备服务调用等，在sdk中是以Command来表示的，比如以下实例，我监听了测点置数的事件以及服务端禁用某个设备的事件。
 
 
@@ -204,15 +217,17 @@ client.setArrivedMsgHandler(DisableDeviceCommand.class, new IMessageHandler<Disa
 ```
 
 如果用户返回一个null的reply，那么sdk会认为客户端不支持这个动作，会自行构造通用的reply的告知服务端。
-<br/>
+
 如果用户返回了一个有效的reply，那么sdk会根据这个reply进行序列化自动发送给服务端。
 
 至此，sdk的大体功能就介绍完了，上下行消息可以再sdk中自行去寻找，用法都大同小异。
-
-<br/>
 
 ![packages](https://github.com/EnvisionIot/enos-iot-mqtt-java-sdk/blob/master/src/main/resources/imgs/tapd_20716331_base64_1534760042_26.png)
 
 
 ----------
-这个预览版本接口还是比较粗糙的，后续版本，我们会根据序列化反序列化，request， response， command，reply对象进行优化。
+
+<a name="upcoming"></a>
+## Upcoming features
+
+后续版本，我们会根据序列化反序列化，request， response， command，reply对象进行优化。
