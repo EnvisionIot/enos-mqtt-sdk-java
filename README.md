@@ -10,7 +10,6 @@ This article instructs how to prepare your development environment to use the *E
 * [Feature list](#featurelist)
 * [API reference](#apiref)
 * [Sample code](#samplecode)
-* [Upcoming features](#upcoming)
 
 <a name="installjava"></a>
 ## Installing Java JDK SE
@@ -44,7 +43,7 @@ _This is the recommended method of including the EnOS IoT SDKs in your project._
 
 <a name="installiotsource"></a>
 ### Build EnOS IoT MQTT SDK for Java from the source code in this repo
-* Get a copy of the **Azure IoT SDK for Java** from master branch of the GitHub (current repo). You should fetch a copy of the source from the **master** branch of the GitHub repository: <https://github.com/EnvisionIot/enos-iot-mqtt-java-sdk>
+* Get a copy of the **EnOS IoT SDK for Java** from master branch of the GitHub (current repo). You should fetch a copy of the source from the **master** branch of the GitHub repository: <https://github.com/EnvisionIot/enos-iot-mqtt-java-sdk>
 ```
 	git clone https://github.com/EnvisionIot/enos-iot-mqtt-java-sdk.git
 ```
@@ -224,10 +223,3 @@ client.setArrivedMsgHandler(DisableDeviceCommand.class, new IMessageHandler<Disa
 
 ![packages](https://github.com/EnvisionIot/enos-iot-mqtt-java-sdk/blob/master/src/main/resources/imgs/tapd_20716331_base64_1534760042_26.png)
 
-
-----------
-
-<a name="upcoming"></a>
-## Upcoming features
-
-后续版本，我们会根据序列化反序列化，request， response， command，reply对象进行优化。
