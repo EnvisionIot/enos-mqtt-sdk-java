@@ -4,13 +4,19 @@
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.envisioniot.enos</groupId>
-    <version>0.0.2-SNAPSHOT</version>
+    <version>0.0.3-SNAPSHOT</version>
     <artifactId>iot_mqtt_sdk</artifactId>
 
     <name>iot_mqtt_sdk</name>
     <url>http://www.envisioniot.com</url>
     <inceptionYear>2018</inceptionYear>
 
+    <description>
+        0.0.3-SNAPSHOT remove command DeleteDeviceCommand DisableDeviceCommand
+                       use these command instead: SubDeviceDelete, SubDeviceDisable SubDeviceEnable commands
+                       remove RrpcCommand, the ServiceInvocationCommand handle the sync service as well
+                       add requests including : QueryDeviceTag,AttributeQuery,AttributeUpdate
+    </description>
 
     <properties>
         <!-- Build args -->

@@ -13,7 +13,14 @@ import java.util.Map;
 
 /**
  * Description: update device tags
- *
+ * {
+ *     "params":[
+ *      {
+ *          "tagKey":"key",
+ *          "tagValue":"value"
+ *      }
+ *     ]
+ * }
  * @author zhonghua.wu
  * @create 2018-07-09 14:42
  */

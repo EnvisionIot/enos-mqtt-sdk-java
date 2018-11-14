@@ -7,8 +7,8 @@ import com.envisioniot.enos.iot_mqtt_sdk.core.IConnectCallback;
 import com.envisioniot.enos.iot_mqtt_sdk.core.MqttClient;
 import com.envisioniot.enos.iot_mqtt_sdk.core.exception.EnvisionException;
 import com.envisioniot.enos.iot_mqtt_sdk.core.msg.IMessageHandler;
-import com.envisioniot.enos.iot_mqtt_sdk.message.downstream.device.DisableDeviceCommand;
-import com.envisioniot.enos.iot_mqtt_sdk.message.downstream.device.DisableDeviceCommandReply;
+import com.envisioniot.enos.iot_mqtt_sdk.message.downstream.device.SubDeviceDisableCommand;
+import com.envisioniot.enos.iot_mqtt_sdk.message.downstream.device.SubDeviceDisableReply;
 import com.envisioniot.enos.iot_mqtt_sdk.message.downstream.tsl.*;
 import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.ResponseCode;
 import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.register.SubDeviceDynamicRegRequest;
@@ -17,6 +17,7 @@ import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.status.SubDeviceLoginR
 import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.status.SubDeviceLoginResponse;
 import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.status.SubDeviceLogoutRequest;
 import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.status.SubDeviceLogoutResponse;
+import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.tag.*;
 import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.topo.*;
 import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.tsl.*;
 import com.envisioniot.enos.iot_mqtt_sdk.util.Pair;
@@ -49,13 +50,13 @@ public class SimpleSendReceive {
 //	public static final String subDeviceSecret = "HUxm8Vcm7sod0v6XV8I3";
 
 	/*alpha*/
-//	private static final String productKey = "8myRluG6";
+//	private static final String productKey = "RApch9OQ";
 //	public static final String deviceKey = "zscai-test-device";
-//	public static final String deviceSecret = "KDZLIqVCn6rU11TKp8XO";
+//	public static final String deviceSecret = "yPiecKw43YOZ1pfZfvZd";
 //
-//	public static final String subProductKey = "iM3Zf8uF";
-//	public static final String subDeviceKey = "zscai-sub-device";
-//	public static final String subDeviceSecret = "ZnH5DJvo3uE9c5fxoXug";
+//	public static final String subProductKey = "0eikh7u3";
+//	public static final String subDeviceKey = "zscai_sub_device";
+//	public static final String subDeviceSecret = "5K1iFLFIQJ4kTyyz8Jga";
 
 
     //beta
@@ -68,15 +69,15 @@ public class SimpleSendReceive {
     public static final String parserProductKey = "WwVF5nKj";
     public static final String parserDevicekey = "device1";
     public static final String parserDeviceSecret = "mOpcSKsxSQsvr0nUHUiK";
-
+    public static final String subProductKey = "E8Fw4uiX";
+    public static final String subDeviceKey = "zscai-sub-device";
+    public static final String subDeviceSecret = "QPrun07hEPeBEwv0faJF";
 
 //	private static final String productKey = "E8Fw4uiX";
 //	public static final String deviceKey = "zscai-test-device2";
 //	public static final String deviceSecret = "ivCESTLGx5nejNQg2EkR";
 
-    public static final String subProductKey = "E8Fw4uiX";
-    public static final String subDeviceKey = "zscai-sub-device";
-    public static final String subDeviceSecret = "QPrun07hEPeBEwv0faJF";
+
 
 
 //	private static final String productKey = "NyDmJcbZ";
@@ -96,26 +97,44 @@ public class SimpleSendReceive {
     public static void main(String[] args) throws Exception {
 
 //		initSSLConnection();
+//		disconnect();
 
         initWithCallback();
-//		disconnect();
-////		init();
-//        addTopo();
-//        getTopo();
-//        postEvent();
-//        subDeviceLogin();
-//        postSubEvent();
-//        subDeviceRegister();
-//        getTslTemplete();
-//        getSubTslTemplate();
-////		subdeviceLogout();
-////		deleteTopo();
-//        measurepointSetHandler();
-//        handleServiceInvocation();
-//        alwaysPostSubMeasurepoint();
+        while(true){
+            if(subDeviceLogined){
+                break;
+            }
+            Thread.sleep(100);
+        }
+        updateTag();
+        updateSubDeviceTag();
+        deleteTag();
+        deleteSubDeviceTag();
+        queryTag();
 
-        downRawHandler();
-        postUpRaw();
+        addTopo();
+        getTopo();
+        postEvent();
+//        subDeviceLogin();
+        postSubEvent();
+        subDeviceRegister();
+        getTslTemplete();
+        getSubTslTemplate();
+//		subdeviceLogout();
+//		deleteTopo();
+        updateAttribute();
+        queryAttribute();
+
+
+        measurepointSetHandler();
+        handleServiceInvocation();
+
+//        fastpostMeasurepoint();
+
+//                alwaysPostSubMeasurepoint();
+//        alwaysPostMeasurepoint();
+//        downRawHandler();
+//        postUpRaw();
 
     }
 
@@ -140,7 +159,7 @@ public class SimpleSendReceive {
                 long ts = System.currentTimeMillis();
                 postSubMeasurepoint();
 //			postSyncMeasurepoint();
-                System.out.println(client.isConnected() + " post  cost " + (System.currentTimeMillis() - ts) + " millis");
+                System.out.println(client.isConnected() + " sub device  post  cost " + (System.currentTimeMillis() - ts) + " millis");
 
             }
             Thread.sleep(1000);
@@ -150,13 +169,13 @@ public class SimpleSendReceive {
     public static void initWithCallback() {
         System.out.println("start connect with callback ... ");
         try {
-//            client = new MqttClient(beta, productKey, deviceKey, deviceSecret); // json device
-            client = new MqttClient(beta, parserProductKey, parserDevicekey, parserDeviceSecret); // 透传device
-            client.getProfile().setConnectionTimeout(10);
+            client = new MqttClient(beta, productKey, deviceKey, deviceSecret); // json device
+//            client = new MqttClient(local, parserProductKey, parserDevicekey, parserDeviceSecret); // 透传device
+            client.getProfile().setConnectionTimeout(60);
             client.connect(new IConnectCallback() {
                 @Override
                 public void onConnectSuccess() {
-//                    subDeviceLogin();
+                    subDeviceLogin();
                     System.out.println("connect success");
                 }
 
@@ -206,6 +225,122 @@ public class SimpleSendReceive {
     }
 
 
+    public static void updateAttribute(){
+        System.out.println("start update attribute (wrong)...");
+        AttributeUpdateRequest request = AttributeUpdateRequest.builder()
+                .addAttribute("attr1", "newvalue" + new Random().nextInt(100))
+                .build();
+        try {
+            AttributeUpdateResponse rsp = client.publish(request);
+            System.out.println("--> " + rsp);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("start update attribute...");
+        AttributeUpdateRequest request2 = AttributeUpdateRequest.builder()
+                .addAttribute("attr1",  new Random().nextInt(100))
+                .build();
+        try {
+            AttributeUpdateResponse rsp2 = client.publish(request2);
+            System.out.println("--> " + rsp2);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void queryAttribute(){
+        System.out.println("start query attribute...");
+        AttributeQueryRequest request = AttributeQueryRequest.builder()
+                .addAttribute("attr1").queryAll().build();
+        try {
+            AttributeQueryResponse rsp = client.publish(request);
+            System.out.println("--> " + rsp);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public static void updateTag(){
+        System.out.println("start update tag... ");
+        UpdateDeviceTagRequest request = UpdateDeviceTagRequest.builder()
+                .addTag("test_tag",
+                        "new_tag" + new Random().nextInt(100))
+//                .addTag("test_tag2",
+//                        "new_tag" + new Random().nextInt(100))
+                .build();
+
+        try {
+            UpdateDeviceTagResponse rsp = client.publish(request);
+            System.out.println("--> " + rsp);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public static void updateSubDeviceTag(){
+        System.out.println("start update tag... ");
+        UpdateDeviceTagRequest request = UpdateDeviceTagRequest.builder()
+                .setProductKey(subProductKey)
+                .setDeviceKey(subDeviceKey)
+                .addTag("test_tag",
+                        "new_tag" + new Random().nextInt(100))
+                .addTag("test_tag2",
+                        "new_tag" + new Random().nextInt(100)).build();
+
+        try {
+            UpdateDeviceTagResponse rsp = client.publish(request);
+            System.out.println("--> " + rsp);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public static void queryTag(){
+        System.out.println("start query tag");
+        QueryDeviceTagRequest request = QueryDeviceTagRequest.builder()
+                .queryAll().build();
+
+        try {
+            QueryDeviceTagResponse rsp = client.publish(request);
+            System.out.println("--> " + rsp);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void deleteTag(){
+        System.out.println("start delete tag...");
+        DeleteDeviceTagRequest request = DeleteDeviceTagRequest.builder().addTagKey("test_tag").build();
+        try {
+            DeleteDeviceTagResponse rsp = client.publish(request);
+            System.out.println("-->" + rsp);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void deleteSubDeviceTag(){
+        System.out.println("start delete tag...");
+        DeleteDeviceTagRequest request = DeleteDeviceTagRequest.builder()
+                .setProductKey(subProductKey)
+                .setDeviceKey(subDeviceKey)
+                .addTagKey("test_tag").build();
+
+        try {
+            DeleteDeviceTagResponse rsp = client.publish(request);
+            System.out.println("-->" + rsp);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
     public static void subDeviceRegister() {
         System.out.println("start register register sub-device , current status : " + client.isConnected());
         SubDeviceDynamicRegRequest request = SubDeviceDynamicRegRequest.builder()
@@ -232,8 +367,9 @@ public class SimpleSendReceive {
 
         try {
             rsp = client.publish(request);
+            System.out.println("sub device login success ");
+
             if (rsp.getCode() == ResponseCode.SUCCESS) {
-                System.out.println("sub device login success ");
                 subDeviceLogined = true;
             }
         } catch (Exception e) {
@@ -362,7 +498,7 @@ public class SimpleSendReceive {
 
     public static void postSubMeasurepoint() {
         Random random = new Random();
-        System.out.println("start post measurepoint ...");
+        System.out.println("start post sub device measurepoint ...");
         MeasurepointPostRequest request = MeasurepointPostRequest.builder()
                 .setProductKey(subProductKey).setDeviceKey(subDeviceKey)
                 .addMeasurePoint("point1", random.nextInt(100)).build();
@@ -390,6 +526,22 @@ public class SimpleSendReceive {
             e.printStackTrace();
         }
     }
+
+    public static void fastpostMeasurepoint() {
+        Random random = new Random();
+        System.out.println("start post measurepoint ...");
+        MeasurepointPostRequest request = MeasurepointPostRequest.builder()
+                .addMeasurePoint("point1", random.nextInt(100)).build();
+        try {
+           client.fastPublish(request);
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
 
 
     public static void postSubEvent() {
@@ -438,30 +590,21 @@ public class SimpleSendReceive {
 
     }
 
-    public static void postMeasurepointV2() {
-        MeasurepointPostRequest request = MeasurepointPostRequest.builder()
-                .addMeasurePoint("a", "b").build();
-
-    }
 
 
     public static void measurepointSetHandler() {
-        client.setArrivedMsgHandler(MeasurepointSetCommand.class, new IMessageHandler<MeasurepointSetCommand, MeasurepointSetReply>() {
-            @Override
-            public MeasurepointSetReply onMessage(MeasurepointSetCommand arrivedMessage, List<String> argList) throws Exception {
-                System.out.println(arrivedMessage);
-                return MeasurepointSetReply.builder().build();
-            }
-
+        client.setArrivedMsgHandler(MeasurepointSetCommand.class, (arrivedMessage, argList) -> {
+            System.out.println(arrivedMessage);
+            return MeasurepointSetReply.builder().build();
         });
 
-        client.setArrivedMsgHandler(DisableDeviceCommand.class, new IMessageHandler<DisableDeviceCommand, DisableDeviceCommandReply>() {
+        client.setArrivedMsgHandler(SubDeviceDisableCommand.class, new IMessageHandler<SubDeviceDisableCommand, SubDeviceDisableReply>() {
 
             @Override
-            public DisableDeviceCommandReply onMessage(DisableDeviceCommand command, List<String> argList) throws Exception {
+            public SubDeviceDisableReply onMessage(SubDeviceDisableCommand command, List<String> argList) throws Exception {
                 // disable device and ret 201 reply
                 System.out.println("rcv disable command -> " + command);
-                return DisableDeviceCommandReply.builder().setCode(201).build();
+                return SubDeviceDisableReply.builder().setCode(201).build();
             }
         });
     }
@@ -507,8 +650,9 @@ public class SimpleSendReceive {
                 byte[] payload = getPayload();
                 ModelUpRawRequest request = ModelUpRawRequest.builder().setPayload(payload).build();
                 System.out.println("payload: " + bytesToHexStr(payload));
-                client.fastPublish(request);
+                ModelUpRawResponse rsp = client.publish(request);
                 Thread.sleep(1000 * 5);
+                System.out.println("raw -->" + rsp);
             }
 
         }catch (Exception e) {

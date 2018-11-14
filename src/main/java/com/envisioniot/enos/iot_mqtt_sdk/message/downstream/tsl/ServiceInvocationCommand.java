@@ -3,6 +3,9 @@ package com.envisioniot.enos.iot_mqtt_sdk.message.downstream.tsl;
 import com.envisioniot.enos.iot_mqtt_sdk.core.internals.constants.ArrivedTopicPattern;
 import com.envisioniot.enos.iot_mqtt_sdk.message.downstream.BaseMqttCommand;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -27,5 +30,26 @@ public class ServiceInvocationCommand extends BaseMqttCommand<ServiceInvocationR
     @Override
     public Pattern getMatchTopicPattern() {
         return pattern;
+    }
+
+    @Override
+    public List<String> match(String topic) {
+        //FIXME  topic match conflict with MeasurepointSet & MeasurepointGet
+        Matcher matcher = this.getMatchTopicPattern().matcher(topic);
+        if (matcher.matches()) {
+            String[] groups = new String[matcher.groupCount()];
+            for (int i = 0; i < matcher.groupCount(); i++) {
+                groups[i] = matcher.group(i + 1);
+            }
+            List<String> topicArgs = Arrays.asList(groups);
+            if (topicArgs.size() == 3 &&
+                    ("measurepoint/set".equals(topicArgs.get(2)) ||
+                            "measurepoint/get".equals(topicArgs.get(2)))) {
+                return null;
+            }
+            return topicArgs;
+        }
+
+        return null;
     }
 }

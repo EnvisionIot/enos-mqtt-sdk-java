@@ -34,10 +34,12 @@ public class Profile {
     private int timeToWait;
     private long timestamp = System.currentTimeMillis();
     private boolean sslSecured = false;
-    private boolean useClientAuth = false;
-    private String jksPath = "cChat.jks";
-    private char[] jksPwd = "cNetty".toCharArray();
-    private String jksAlgorithm = "SunX509";
+    private SSLContext sslContext;
+
+    private String sslKeyPath = "";
+    private String sslTrustPath = "";
+    private String sslAlgorithm = "SunX509";
+    private String sslPassword = "";
 
     public Profile(String regionURL, String productKey, String deviceKey, String deviceSecret) {
         this(regionURL, productKey, deviceKey, deviceSecret, createDefaultExecutorService());
@@ -105,17 +107,22 @@ public class Profile {
         connectOptions.setAutomaticReconnect(true);
         connectOptions.setConnectionTimeout(this.getConnectionTimeout());
         if (sslSecured) {
-            SSLContext ctx;
-            try {
-                ctx = createContext(jksPath, jksPwd, jksAlgorithm, useClientAuth);
-            } catch (Exception e) {
-                throw new RuntimeException("create SSL context failed", e.fillInStackTrace());
+            if(this.sslContext == null ){
+                try {
+                    this.sslContext = createContext(this.sslKeyPath, this.sslTrustPath,
+                            this.sslPassword.toCharArray(), this.sslAlgorithm);
+                } catch (Exception e) {
+                    throw new RuntimeException("create SSL context failed", e.fillInStackTrace());
+                }
             }
-            connectOptions.setSocketFactory(ctx.getSocketFactory());
+            connectOptions.setSocketFactory(this.sslContext.getSocketFactory());
         }
 
         return connectOptions;
     }
+
+
+
 
 
     public int getKeepAlive() {
@@ -164,65 +171,52 @@ public class Profile {
         return deviceKey + "|securemode=2,signmethod=" + SignUtil.hmacsha1 + ",timestamp=" + timestamp + "|";
     }
 
-    public Profile setSSLSecured(boolean flag) {
-        this.sslSecured = flag;
+    public Profile setSSLSecured(boolean sslSecured) {
+        this.sslSecured = sslSecured;
         return this;
     }
 
-    public boolean getSSLSecured() {
-        return this.sslSecured;
-    }
-
-    public String getJksPath() {
-        return jksPath;
-    }
-
-    public Profile setJksPath(String jksPath) {
-        this.jksPath = jksPath;
+    public Profile setSSLContext(SSLContext sslContext) {
+        this.sslContext = sslContext;
         return this;
     }
 
-    public char[] getJksPwd() {
-        return jksPwd;
-    }
-
-    public Profile setJksPwd(char[] jksPwd) {
-        this.jksPwd = jksPwd;
+    public Profile setSSLKeyPath(String sslKeyPath) {
+        this.sslKeyPath = sslKeyPath;
         return this;
     }
 
-    public String getJksAlgorithm() {
-        return jksAlgorithm;
-    }
-
-    public Profile setJksAlgorithm(String jksAlgorithm) {
-        this.jksAlgorithm = jksAlgorithm;
+    public Profile setSSLTrustPath(String sslTrustPath) {
+        this.sslTrustPath = sslTrustPath;
         return this;
     }
 
-    public boolean isUseClientAuth() {
-        return useClientAuth;
-    }
-
-    public Profile setUseClientAuth(boolean useClientAuth) {
-        this.useClientAuth = useClientAuth;
+    public Profile setSSLAlgorithm(String sslAlgorithm) {
+        this.sslAlgorithm = sslAlgorithm;
         return this;
     }
 
-    private SSLContext createContext(String path, char[] pwd, String algorithm, boolean useClientAuth) throws Exception {
+    public Profile setSSLPassword(String sslPassword) {
+        this.sslPassword = sslPassword;
+        return this;
+    }
+
+
+
+    private static SSLContext createContext(String keyPath , String trustPath, char[] pwd, String algorithm) throws Exception {
         SSLContext context = SSLContext.getInstance("TLS");
         KeyStore ks = KeyStore.getInstance("JKS");
-        ks.load(getClass().getClassLoader().getResourceAsStream(path), pwd);
+        ks.load(Class.class.getClass().getClassLoader().getResourceAsStream(keyPath), pwd);
         TrustManagerFactory tmf = TrustManagerFactory.getInstance(algorithm);
         tmf.init(ks);
-        if (useClientAuth) {
-            KeyManagerFactory kmf = KeyManagerFactory.getInstance(algorithm);
-            kmf.init(ks, pwd);
-            context.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
-        } else {
-            context.init(null, tmf.getTrustManagers(), null);
-        }
+
+        KeyStore km = KeyStore.getInstance("JKS");
+        km.load(Class.class.getClass().getClassLoader().getResourceAsStream(trustPath), pwd);
+        KeyManagerFactory kmf = KeyManagerFactory.getInstance(algorithm);
+        kmf.init(km,pwd);
+        context.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
         return context;
     }
+
 
 }

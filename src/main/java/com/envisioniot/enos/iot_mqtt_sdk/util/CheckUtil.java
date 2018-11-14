@@ -85,4 +85,9 @@ public class CheckUtil {
                     "sdk-client exception: " + fieldName + " is invalid, size cannot be large than " + maxSize);
         }
     }
+
+    public static void main(String[] args) {
+        System.out.println("fafc692c-fa9b-40e3-b4d8-0e8b4a53c32b".length());
+
+    }
 }

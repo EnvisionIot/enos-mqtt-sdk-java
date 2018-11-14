@@ -1,5 +1,6 @@
 package com.envisioniot.enos.iot_mqtt_sdk.core.msg;
 
+import com.envisioniot.enos.iot_mqtt_sdk.util.GsonUtil;
 import com.envisioniot.enos.iot_mqtt_sdk.util.MsgDecodeUtil;
 
 import java.util.Arrays;
@@ -46,9 +47,9 @@ public interface IMqttArrivedMessage extends IMqttMessage {
         }
 
         IMqttArrivedMessage arrivedMsg = null;
-
         try {
-            arrivedMsg = MsgDecodeUtil.decode(this, payload);
+            String msg = new String(payload, "UTF-8");
+            arrivedMsg = GsonUtil.fromJson(msg, this.getClass());
         } catch (Exception e) {
             throw new RuntimeException("decode payload err:" + Arrays.toString(payload), e);
         }

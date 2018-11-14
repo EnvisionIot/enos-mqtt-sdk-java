@@ -32,6 +32,11 @@ public class ArrivedTopicPattern {
     public static final String TAG_UPDATE_REPLY = "/sys/(.*)/(.*)/thing/deviceinfo/update_reply";
     public static final String TAG_DELETE_REPLY = "/sys/(.*)/(.*)/thing/deviceinfo/delete_reply";
 
+    public static final String TAG_QUERY_REPLY = "/sys/(.*)/(.*)/thing/deviceinfo/query_reply";
+    public static final String ATTRIBUTE_UPDATE = "/sys/(.*)/(.*)/thing/attribute/update_reply";
+    public static final String ATTRIBUTE_QUERY = "/sys/(.*)/(.*)/thing/attribute/query_reply";
+
+
     /**
      * 下行控制指令
      */
@@ -44,6 +49,11 @@ public class ArrivedTopicPattern {
     public static final String DELETE_DEVICE_COMMAND = "/sys/(.*)/(.*)/thing/delete";
     public static final String ENABLE_DEVICE_COMMAND = "/sys/(.*)/(.*)/thing/enable";
     public static final String DISABLE_DEVICE_COMMAND = "/sys/(.*)/(.*)/thing/disable";
+
+    public static final String SUB_DEVICE_DELETE_COMMAND = "/ext/session/(.*)/(.*)/combine/delete";
+    public static final String SUB_DEVICE_ENABLE_COMMAND = "/ext/session/(.*)/(.*)/combine/enable";
+    public static final String SUB_DEVICE_DISABLE_COMMAND = "/ext/session/(.*)/(.*)/combine/disable";
+
 
     /**
      * OTA

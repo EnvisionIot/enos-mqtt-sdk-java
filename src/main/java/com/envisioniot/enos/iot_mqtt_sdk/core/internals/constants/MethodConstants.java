@@ -35,4 +35,14 @@ public class MethodConstants {
     public static final String SERVICE_INOVKE = "thing.service.%s";
 
     public static final String PROGRESS_REPORT = "progress.report";
+
+
+    public static final String SUB_DEVICE_DISABLE = "combine.disable";
+    public static final String SUB_DEVICE_ENABLE = "combine.enable";
+    public static final String SUB_DEVICE_DELETE = "combine.delete";
+
+    public static final String TAG_QUERY = "thing.deviceinfo.query";
+    public static final String ATTRIBUTE_UPDATE = "thing.attribute.update";
+    public static final String ATTRIBUTE_QUERY = "thing.attribute.query";
+
 }

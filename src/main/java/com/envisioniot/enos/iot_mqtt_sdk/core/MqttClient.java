@@ -13,6 +13,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Envision Mqtt Sdk
+ * documentation {@see https://github.com/EnvisionIot/enos-iot-mqtt-java-sdk}
  *
  * @author zhensheng.cai
  * @date 2018/7/3.
@@ -39,6 +40,7 @@ public class MqttClient {
      * @param profile client config profile
      */
     public MqttClient(Profile profile) {
+        this.profile = profile;
         connection = new MqttConnection(profile);
     }
 

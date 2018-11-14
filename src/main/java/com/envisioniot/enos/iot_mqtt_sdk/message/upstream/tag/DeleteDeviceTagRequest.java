@@ -12,7 +12,13 @@ import java.util.Map;
 
 /**
  * Description: delete device tags
- *
+ * params:[
+ *  {
+ *      "tagKey":key
+ *  },{
+ *      "tagKey":key2
+ *  }
+ * ]
  * @author zhonghua.wu
  * @create 2018-07-09 14:43
  */

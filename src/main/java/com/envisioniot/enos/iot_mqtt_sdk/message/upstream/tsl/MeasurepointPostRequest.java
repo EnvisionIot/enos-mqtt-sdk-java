@@ -32,6 +32,7 @@ import java.util.Map;
 public class MeasurepointPostRequest extends BaseMqttRequest<MeasurepointPostResponse> {
     private static final long serialVersionUID = 4018722889739885894L;
 
+
     public static MeasurepointPostRequest.Builder builder() {
         return new Builder();
     }
@@ -82,6 +83,7 @@ public class MeasurepointPostRequest extends BaseMqttRequest<MeasurepointPostRes
         protected MeasurepointPostRequest createRequestInstance() {
             return new MeasurepointPostRequest();
         }
+
     }
 
     private MeasurepointPostRequest() {

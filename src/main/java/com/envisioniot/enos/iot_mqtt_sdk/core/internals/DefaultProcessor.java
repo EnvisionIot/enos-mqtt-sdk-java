@@ -61,7 +61,7 @@ public class DefaultProcessor implements MqttCallback, MqttCallbackExtended {
             }
 
             DecodeResult result = null;
-            List<IMqttArrivedMessage> decoderList = DecoderRegistry.getDeocderList();
+            List<IMqttArrivedMessage> decoderList = DecoderRegistry.getDecoderList();
             for (IMqttArrivedMessage decoder : decoderList) {
                 result = decoder.decode(topic, mqttMessage.getPayload());
                 if (result != null) {

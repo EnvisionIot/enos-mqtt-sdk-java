@@ -36,7 +36,7 @@ public class DecoderRegistry {
         }
     }
 
-    public static List<IMqttArrivedMessage> getDeocderList() {
+    public static List<IMqttArrivedMessage> getDecoderList() {
         return unmodefiDecoderList;
     }
 }

@@ -12,7 +12,16 @@ import java.util.Map;
 
 /**
  * Description: add topo request
+ * {
+ *     "params":[
+ *      {
+ *          "productKey":
+ *          "deviceKey":
+ *          "sign"
+ *      }
  *
+ *     ]
+ * }
  * @author zhonghua.wu
  * @create 2018-07-04 11:12
  */

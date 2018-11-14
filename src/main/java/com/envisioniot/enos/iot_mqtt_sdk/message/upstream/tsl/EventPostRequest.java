@@ -26,7 +26,7 @@ import java.util.Map;
  * "1.02","2.02","7.93"
  * ]
  * }
- * "time":123456
+ * "time":123456 //optional
  * }
  *
  * @author zhensheng.cai

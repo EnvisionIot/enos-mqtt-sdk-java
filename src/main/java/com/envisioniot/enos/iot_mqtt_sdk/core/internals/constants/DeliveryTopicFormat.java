@@ -29,6 +29,12 @@ public class DeliveryTopicFormat {
     public static final String VERSION_REPORT_TOPIC_FMT = "/sys/%s/%s/ota/device/inform";
     public static final String UPDATE_REQUEST_TOPIC_FMT = "/sys/%s/%s/ota/device/request";
 
+    public static final String ATTRIBUTE_UPDATE = "/sys/%s/%s/thing/attribute/update";
+    public static final String ATTRIBUTE_QUERY = "/sys/%s/%s/thing/attribute/query";
+    public static final String TAG_QUERY = "/sys/%s/%s/thing/deviceinfo/query";
+
+
+
     /**
      * 云端指令的返回Topic格式
      */
@@ -42,6 +48,10 @@ public class DeliveryTopicFormat {
     public static final String DISABLE_DEVICE_REPLY = "/sys/%s/%s/thing/disable_reply";
     public static final String DELETE_DEVICE_REPLY = "/sys/%s/%s/thing/delete_reply";
 
-    public static final String DEVICE_OTA_REPLY = "/sys/(.*)/(.*)/ota/device/upgrade_reply";
+    public static final String SUB_DEVICE_ENABLE_REPLY = "/ext/session/%s/%s/combine/enable_reply";
+    public static final String SUB_DEVICE_DISABLE_REPLY = "/ext/session/%s/%s/combine/disable_reply";
+    public static final String SUB_DEVICE_DELETE_REPLY = "/ext/session/%s/%s/combine/delete_reply";
+
+    public static final String DEVICE_OTA_REPLY = "/sys/%s/%s/ota/device/upgrade_reply";
 
 }

@@ -16,6 +16,7 @@ import java.util.List;
  * @author zhensheng.cai
  * @date 2018/7/13.
  */
+@Deprecated
 public class RrpcInvocationReply extends BaseMqttReply {
     private static final long serialVersionUID = -8875307064989466897L;
     private String rrpcMessageId;

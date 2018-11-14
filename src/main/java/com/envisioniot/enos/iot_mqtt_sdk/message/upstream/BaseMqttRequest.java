@@ -13,6 +13,9 @@ import com.envisioniot.enos.iot_mqtt_sdk.util.StringUtil;
 public abstract class BaseMqttRequest<T extends BaseMqttResponse> extends BaseAnswerableMessage<T>
         implements IMqttRequest<T> {
     private static final long serialVersionUID = -1782194368038165072L;
+
+    private int qos = 0;
+
     private String productKey;
     private String deviceKey;
 
@@ -95,7 +98,14 @@ public abstract class BaseMqttRequest<T extends BaseMqttResponse> extends BaseAn
 
     @Override
     public int getQos() {
-        return 0;
+        return qos;
+    }
+
+    public void setQos(int qos){
+        if(qos < 0 || qos >=2 ){
+            throw new IllegalArgumentException("only qos 0 and 1 is support in current version");
+        }
+        this.qos = qos;
     }
 
     @Override
