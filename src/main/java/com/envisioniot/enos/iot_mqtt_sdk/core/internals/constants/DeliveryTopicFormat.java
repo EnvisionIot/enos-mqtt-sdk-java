@@ -8,7 +8,7 @@ public class DeliveryTopicFormat {
     /**
      * 设备端上行的请求Topic格式
      */
-    public static final String MEASUREPOINT_POST = "/sys/%s/%s/thing/event/measurepoint/post";
+    public static final String MEASUREPOINT_POST = "/sys/%s/%s/thing/measurepoint/post";
     public static final String EVENT_POST = "/sys/%s/%s/thing/event/%s/post";
     public static final String TSL_TEMPLATE_GET = "/sys/%s/%s/thing/tsltemplate/get";
     public static final String MODEL_UP_RAW = "/sys/%s/%s/thing/model/up_raw";
