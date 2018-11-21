@@ -8,7 +8,7 @@ import com.google.gson.reflect.TypeToken;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-public class DeviceOtaCommand extends BaseMqttCommand<DeviceOtaCommandReply> {
+public class DeviceOtaCommand extends BaseMqttCommand<DeviceOtaReply> {
 
     /**
      *
@@ -22,8 +22,8 @@ public class DeviceOtaCommand extends BaseMqttCommand<DeviceOtaCommandReply> {
     }
 
     @Override
-    public Class<DeviceOtaCommandReply> getAnswerType() {
-        return DeviceOtaCommandReply.class;
+    public Class<DeviceOtaReply> getAnswerType() {
+        return DeviceOtaReply.class;
     }
 
     public Map<String, String> getOtaParams() {

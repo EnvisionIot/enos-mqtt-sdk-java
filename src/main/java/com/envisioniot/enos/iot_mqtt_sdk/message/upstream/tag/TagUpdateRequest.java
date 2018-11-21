@@ -21,17 +21,16 @@ import java.util.Map;
  *      }
  *     ]
  * }
- * @author zhonghua.wu
- * @create 2018-07-09 14:42
+ * @author zhensheng.cai
  */
-public class UpdateDeviceTagRequest extends BaseMqttRequest<UpdateDeviceTagResponse> {
+public class TagUpdateRequest extends BaseMqttRequest<TagUpdateResponse> {
     private static final long serialVersionUID = 8472140661039105628L;
 
     public static Builder builder() {
         return new Builder();
     }
 
-    public static class Builder extends BaseMqttRequest.Builder<Builder, UpdateDeviceTagRequest> {
+    public static class Builder extends BaseMqttRequest.Builder<Builder, TagUpdateRequest> {
         private Map<String, String> tags = Maps.newHashMap();
 
         public Builder addTag(String tagKey, String tagValue) {
@@ -62,18 +61,18 @@ public class UpdateDeviceTagRequest extends BaseMqttRequest<UpdateDeviceTagRespo
         }
 
         @Override
-        protected UpdateDeviceTagRequest createRequestInstance() {
-            return new UpdateDeviceTagRequest();
+        protected TagUpdateRequest createRequestInstance() {
+            return new TagUpdateRequest();
         }
     }
 
-    private UpdateDeviceTagRequest() {
+    private TagUpdateRequest() {
     }
 
 
     @Override
-    public Class<UpdateDeviceTagResponse> getAnswerType() {
-        return UpdateDeviceTagResponse.class;
+    public Class<TagUpdateResponse> getAnswerType() {
+        return TagUpdateResponse.class;
     }
 
     @Override

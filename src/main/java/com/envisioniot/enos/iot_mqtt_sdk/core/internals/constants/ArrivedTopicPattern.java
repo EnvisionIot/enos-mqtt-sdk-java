@@ -20,7 +20,7 @@ public class ArrivedTopicPattern {
     public static final String TSL_TEMPLATE_GET_REPLY = "/sys/(.*)/(.*)/thing/tsltemplate/get_reply";
     public static final String MODEL_UP_RAW_REPLY = "/sys/(.*)/(.*)/thing/model/up_raw_reply";
 
-    public static final String SUB_DEVICE_REGISTER_REPLY = "/sys/(.*)/(.*)/thing/sub/register_reply";
+    public static final String SUB_DEVICE_REGISTER_REPLY = "/sys/(.*)/(.*)/thing/device/register_reply";
 
     public static final String TOPO_ADD_REPLY = "/sys/(.*)/(.*)/thing/topo/add_reply";
     public static final String TOPO_DELETE_REPLY = "/sys/(.*)/(.*)/thing/topo/delete_reply";
@@ -29,12 +29,13 @@ public class ArrivedTopicPattern {
     public static final String SUB_DEVICE_LOGIN_REPLY = "/ext/session/(.*)/(.*)/combine/login_reply";
     public static final String SUB_DEVICE_LOGOUT_REPLY = "/ext/session/(.*)/(.*)/combine/logout_reply";
 
-    public static final String TAG_UPDATE_REPLY = "/sys/(.*)/(.*)/thing/deviceinfo/update_reply";
-    public static final String TAG_DELETE_REPLY = "/sys/(.*)/(.*)/thing/deviceinfo/delete_reply";
+    public static final String TAG_UPDATE_REPLY = "/sys/(.*)/(.*)/thing/tag/update_reply";
+    public static final String TAG_DELETE_REPLY = "/sys/(.*)/(.*)/thing/tag/delete_reply";
 
-    public static final String TAG_QUERY_REPLY = "/sys/(.*)/(.*)/thing/deviceinfo/query_reply";
-    public static final String ATTRIBUTE_UPDATE = "/sys/(.*)/(.*)/thing/attribute/update_reply";
-    public static final String ATTRIBUTE_QUERY = "/sys/(.*)/(.*)/thing/attribute/query_reply";
+    public static final String TAG_QUERY_REPLY = "/sys/(.*)/(.*)/thing/tag/query_reply";
+    public static final String ATTRIBUTE_UPDATE_REPLY = "/sys/(.*)/(.*)/thing/attribute/update_reply";
+    public static final String ATTRIBUTE_QUERY_REPLY = "/sys/(.*)/(.*)/thing/attribute/query_reply";
+    public static final String ATTRIBUTE_DELETE_REPLY = "/sys/(.*)/(.*)/thing/attribute/delete_reply";
 
 
     /**

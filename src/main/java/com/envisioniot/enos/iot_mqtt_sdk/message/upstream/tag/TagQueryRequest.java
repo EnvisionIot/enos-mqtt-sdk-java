@@ -16,10 +16,17 @@ import java.util.*;
  …
  }
  ],
+ @update 2018年11月21日
+ ====>
+ "params": [
+ "tags": ["tag1", "tag2"]
+ ],
+
+
  * @author zhensheng.cai
  * @date 2018/11/12.
  */
-public class QueryDeviceTagRequest extends BaseMqttRequest<QueryDeviceTagResponse>{
+public class TagQueryRequest extends BaseMqttRequest<TagQueryResponse>{
 
 
     private static final long serialVersionUID = 5137153537827796184L;
@@ -28,7 +35,7 @@ public class QueryDeviceTagRequest extends BaseMqttRequest<QueryDeviceTagRespons
         return new Builder();
     }
 
-    public static class Builder extends BaseMqttRequest.Builder<Builder, QueryDeviceTagRequest>{
+    public static class Builder extends BaseMqttRequest.Builder<Builder, TagQueryRequest>{
 
         private Set<String> tagKeys;
         public Builder() {
@@ -63,25 +70,19 @@ public class QueryDeviceTagRequest extends BaseMqttRequest<QueryDeviceTagRespons
 
         @Override
         protected Object createParams() {
-            List<Map<String, String>> params = new ArrayList<>();
-            tagKeys.forEach(tagkey->{
-                Map<String, String> value = new HashMap<>();
-                value.put("tagKey", tagkey);
-                params.add(value);
-            });
-            return params;
+            return new ArrayList<>(tagKeys);
         }
 
         @Override
-        protected QueryDeviceTagRequest createRequestInstance() {
-            return new QueryDeviceTagRequest();
+        protected TagQueryRequest createRequestInstance() {
+            return new TagQueryRequest();
         }
 
     }
 
     @Override
-    public Class<QueryDeviceTagResponse> getAnswerType() {
-        return QueryDeviceTagResponse.class;
+    public Class<TagQueryResponse> getAnswerType() {
+        return TagQueryResponse.class;
     }
 
     @Override

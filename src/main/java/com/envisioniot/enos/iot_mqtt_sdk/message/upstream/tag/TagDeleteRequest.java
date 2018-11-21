@@ -5,10 +5,9 @@ import com.envisioniot.enos.iot_mqtt_sdk.core.internals.constants.MethodConstant
 import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.BaseMqttRequest;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Description: delete device tags
@@ -19,18 +18,23 @@ import java.util.Map;
  *      "tagKey":key2
  *  }
  * ]
+ *
+ * ====>
+ * "params": [
+ "tags": ["tag1", "tag2"]
+ * ],
  * @author zhonghua.wu
  * @create 2018-07-09 14:43
  */
-public class DeleteDeviceTagRequest extends BaseMqttRequest<DeleteDeviceTagResponse> {
+public class TagDeleteRequest extends BaseMqttRequest<TagDeleteResponse> {
     private static final long serialVersionUID = 8471360794763108486L;
 
     public static Builder builder() {
         return new Builder();
     }
 
-    public static class Builder extends BaseMqttRequest.Builder<Builder, DeleteDeviceTagRequest> {
-        private List<String> tags = Lists.newArrayList();
+    public static class Builder extends BaseMqttRequest.Builder<Builder, TagDeleteRequest> {
+        private Set<String> tags = new HashSet<>();
 
         @Override
         protected String createMethod() {
@@ -39,13 +43,7 @@ public class DeleteDeviceTagRequest extends BaseMqttRequest<DeleteDeviceTagRespo
 
         @Override
         protected Object createParams() {
-            List<Map<String, String>> params = Lists.newArrayList();
-            for (String tagKey : tags) {
-                Map<String, String> keyMap = Maps.newHashMap();
-                keyMap.put("tagKey", tagKey);
-                params.add(keyMap);
-            }
-            return params;
+            return new ArrayList<>(tags);
         }
 
         public Builder addTagKey(String tagKey) {
@@ -58,25 +56,25 @@ public class DeleteDeviceTagRequest extends BaseMqttRequest<DeleteDeviceTagRespo
             return this;
         }
 
-        public Builder setTags(List<String> tags) {
-            this.tags = tags;
+        public Builder setTags(Collection<String> tags) {
+            this.tags = new HashSet<>(tags);
             return this;
         }
 
 
         @Override
-        protected DeleteDeviceTagRequest createRequestInstance() {
-            return new DeleteDeviceTagRequest();
+        protected TagDeleteRequest createRequestInstance() {
+            return new TagDeleteRequest();
         }
     }
 
 
-    private DeleteDeviceTagRequest() {
+    private TagDeleteRequest() {
     }
 
     @Override
-    public Class<DeleteDeviceTagResponse> getAnswerType() {
-        return DeleteDeviceTagResponse.class;
+    public Class<TagDeleteResponse> getAnswerType() {
+        return TagDeleteResponse.class;
     }
 
     @Override

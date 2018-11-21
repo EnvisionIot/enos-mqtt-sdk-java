@@ -7,6 +7,7 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
+import java.io.FileInputStream;
 import java.security.KeyStore;
 import java.util.HashMap;
 import java.util.Map;
@@ -36,8 +37,7 @@ public class Profile {
     private boolean sslSecured = false;
     private SSLContext sslContext;
 
-    private String sslKeyPath = "";
-    private String sslTrustPath = "";
+    private String sslJksPath = "";
     private String sslAlgorithm = "SunX509";
     private String sslPassword = "";
 
@@ -85,7 +85,7 @@ public class Profile {
     }
 
     public static ExecutorService createDefaultExecutorService() {
-        return new ThreadPoolExecutor(2, 4, 0, TimeUnit.MILLISECONDS,
+        return new ThreadPoolExecutor(10, 20, 0, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<Runnable>(10240),
                 new ThreadFactoryBuilder().setNameFormat("command-pool-%d").build());
     }
@@ -109,8 +109,7 @@ public class Profile {
         if (sslSecured) {
             if(this.sslContext == null ){
                 try {
-                    this.sslContext = createContext(this.sslKeyPath, this.sslTrustPath,
-                            this.sslPassword.toCharArray(), this.sslAlgorithm);
+                    this.sslContext = createContext(this.sslJksPath, this.sslPassword.toCharArray(), this.sslAlgorithm);
                 } catch (Exception e) {
                     throw new RuntimeException("create SSL context failed", e.fillInStackTrace());
                 }
@@ -181,13 +180,9 @@ public class Profile {
         return this;
     }
 
-    public Profile setSSLKeyPath(String sslKeyPath) {
-        this.sslKeyPath = sslKeyPath;
-        return this;
-    }
-
-    public Profile setSSLTrustPath(String sslTrustPath) {
-        this.sslTrustPath = sslTrustPath;
+    public Profile setSSLJksPath(String sslJksPath , String sslPassword) {
+        this.sslJksPath = sslJksPath;
+        this.sslPassword = sslPassword;
         return this;
     }
 
@@ -196,24 +191,15 @@ public class Profile {
         return this;
     }
 
-    public Profile setSSLPassword(String sslPassword) {
-        this.sslPassword = sslPassword;
-        return this;
-    }
 
-
-
-    private static SSLContext createContext(String keyPath , String trustPath, char[] pwd, String algorithm) throws Exception {
+    private static SSLContext createContext(String keyPath , char[] pwd, String algorithm) throws Exception {
         SSLContext context = SSLContext.getInstance("TLS");
         KeyStore ks = KeyStore.getInstance("JKS");
-        ks.load(Class.class.getClass().getClassLoader().getResourceAsStream(keyPath), pwd);
+        ks.load(new FileInputStream(keyPath), pwd);
         TrustManagerFactory tmf = TrustManagerFactory.getInstance(algorithm);
         tmf.init(ks);
-
-        KeyStore km = KeyStore.getInstance("JKS");
-        km.load(Class.class.getClass().getClassLoader().getResourceAsStream(trustPath), pwd);
         KeyManagerFactory kmf = KeyManagerFactory.getInstance(algorithm);
-        kmf.init(km,pwd);
+        kmf.init(ks,pwd);
         context.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
         return context;
     }

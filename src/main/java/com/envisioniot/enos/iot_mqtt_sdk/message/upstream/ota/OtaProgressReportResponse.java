@@ -5,13 +5,16 @@ import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.BaseMqttResponse;
 
 import java.util.regex.Pattern;
 
-public class UpdateRequestResponse extends BaseMqttResponse {
+/**
+ * @author zhensheng.cai
+ */
+public class OtaProgressReportResponse extends BaseMqttResponse {
 
     /**
      *
      */
-    private static final long serialVersionUID = 2639430948817597198L;
-    private static Pattern pattern = Pattern.compile(ArrivedTopicPattern.UPDATE_REQUEST_TOPIC_REPLY);
+    private static final long serialVersionUID = -5564903543466716658L;
+    private static Pattern pattern = Pattern.compile(ArrivedTopicPattern.PROGRESS_REPORT_TOPIC_REPLY);
 
     @Override
     public Pattern getMatchTopicPattern() {

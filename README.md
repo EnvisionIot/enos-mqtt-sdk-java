@@ -119,13 +119,13 @@ public void onConnectSuccess()
 ```
 public static void postMeasurepoint()
 {
-	    MeasurepointPostRequest request = MeasurepointPostRequest.builder()
-	    .setProductKey(subProductKey).setDeviceKey(subDeviceKey)
-	    .addMeasurePoint("p1", "string")
-	    .addMeasurePoint("p2", "{'value':123.4,  'quality':2}")
-	    .addMeasurePoint("p3", 100.2)
-	    .build();
-	    client.fastPublish(request);
+      MeasurepointPostRequest request = MeasurepointPostRequest.builder()
+      .setProductKey(subProductKey).setDeviceKey(subDeviceKey)
+      .addMeasurePoint("p1", "string")
+      .addMeasurePoint("p2", "{'value':123.4,  'quality':2}")
+      .addMeasurePoint("p3", 100.2)
+      .build();
+      client.fastPublish(request);
 }
 ```
 > 这里看见，我们用了一个fastPublish方法了，此方法是不用关注返回值，做为测点，我们也不会提供返回值，client里面还有如下两个pulish的方法：
@@ -166,8 +166,8 @@ client.setArrivedMsgHandler(DisableDeviceCommand.class, new IMessageHandler<Disa
     public DisableDeviceCommandReply onMessage(DisableDeviceCommand command, List<String> argList) throws Exception
     {
         // disable device and ret 200 reply
-      	return DisableDeviceCommandReply.builder()
-				.setCode(200).build();
+        return DisableDeviceCommandReply.builder()
+        .setCode(200).build();
     }
 });
 ```

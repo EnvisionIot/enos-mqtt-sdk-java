@@ -71,6 +71,9 @@ public class AttributeQueryRequest extends BaseMqttRequest<AttributeQueryRespons
 
     }
 
+    private AttributeQueryRequest() {
+    }
+
     @Override
     public Class<AttributeQueryResponse> getAnswerType() {
         return AttributeQueryResponse.class;

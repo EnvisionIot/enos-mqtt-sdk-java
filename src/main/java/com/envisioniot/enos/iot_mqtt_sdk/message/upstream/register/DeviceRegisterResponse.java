@@ -14,8 +14,10 @@ import java.util.regex.Pattern;
  * @author zhonghua.wu
  * @create 2018-07-09 14:09
  */
-public class SubDeviceDynamicRegResponse extends BaseMqttResponse {
+public class DeviceRegisterResponse extends BaseMqttResponse {
 
+
+    private static final long serialVersionUID = -6750111299164581512L;
     private static Pattern pattern = Pattern.compile(ArrivedTopicPattern.SUB_DEVICE_REGISTER_REPLY);
 
     public List<DeviceBasicInfo> getDeviceBasicInfoList() {

@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
  */
 public class AttributeUpdateResponse extends BaseMqttResponse{
 
-    private static final Pattern pattern = Pattern.compile(ArrivedTopicPattern.ATTRIBUTE_UPDATE);
+    private static final Pattern pattern = Pattern.compile(ArrivedTopicPattern.ATTRIBUTE_UPDATE_REPLY);
 
 
     @Override

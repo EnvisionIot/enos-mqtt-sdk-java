@@ -7,24 +7,35 @@ import com.google.common.collect.Maps;
 
 import java.util.Map;
 
-public class VersionReportRequest extends BaseMqttRequest<VersionReportResponse> {
-
+public class OtaProgressReportRequest extends BaseMqttRequest<OtaProgressReportResponse> {
 
     /**
      *
      */
-    private static final long serialVersionUID = 234410161857671987L;
+    private static final long serialVersionUID = 1342670380317469907L;
 
     public static Builder builder() {
         return new Builder();
     }
 
-    public static class Builder extends BaseMqttRequest.Builder<Builder, VersionReportRequest> {
+    public static class Builder extends BaseMqttRequest.Builder<Builder, OtaProgressReportRequest> {
         private String deviceId;
+        private int status;
+        private String statusDesp;
         private String firmwareId;
 
         public Builder setDeviceId(String iotId) {
             this.deviceId = iotId;
+            return this;
+        }
+
+        public Builder setStatus(int status) {
+            this.status = status;
+            return this;
+        }
+
+        public Builder setStatusDesp(String desp) {
+            this.statusDesp = desp;
             return this;
         }
 
@@ -35,33 +46,35 @@ public class VersionReportRequest extends BaseMqttRequest<VersionReportResponse>
 
         @Override
         protected String createMethod() {
-            return MethodConstants.PROGRESS_REPORT;
+            return MethodConstants.OTA_PROGRESS;
         }
 
         @Override
         protected Object createParams() {
             Map<String, String> map = Maps.newHashMap();
             map.put("deviceId", deviceId);
+            map.put("status", status + "");
+            map.put("statusDesp", statusDesp);
             map.put("firmwareId", firmwareId);
             return map;
         }
 
         @Override
-        protected VersionReportRequest createRequestInstance() {
-            return new VersionReportRequest();
+        protected OtaProgressReportRequest createRequestInstance() {
+            return new OtaProgressReportRequest();
         }
     }
 
     @Override
-    public Class<VersionReportResponse> getAnswerType() {
-        return VersionReportResponse.class;
+    public Class<OtaProgressReportResponse> getAnswerType() {
+        return OtaProgressReportResponse.class;
     }
 
     @Override
     protected String _getPK_DK_FormatTopic() {
-        return DeliveryTopicFormat.VERSION_REPORT_TOPIC_FMT;
+        return DeliveryTopicFormat.PROGRESS_REPORT_TOPIC_FMT;
     }
 
-    private VersionReportRequest() {
+    private OtaProgressReportRequest() {
     }
 }

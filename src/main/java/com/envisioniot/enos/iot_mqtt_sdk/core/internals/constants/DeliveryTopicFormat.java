@@ -13,7 +13,7 @@ public class DeliveryTopicFormat {
     public static final String TSL_TEMPLATE_GET = "/sys/%s/%s/thing/tsltemplate/get";
     public static final String MODEL_UP_RAW = "/sys/%s/%s/thing/model/up_raw";
 
-    public static final String SUB_DEVICE_REGISTER_TOPIC_FMT = "/sys/%s/%s/thing/sub/register";
+    public static final String SUB_DEVICE_REGISTER_TOPIC_FMT = "/sys/%s/%s/thing/device/register";
 
     public static final String TOPO_GET_TOPIC_FMT = "/sys/%s/%s/thing/topo/get";
     public static final String TOPO_DELETE_TOPIC_FMT = "/sys/%s/%s/thing/topo/delete";
@@ -22,8 +22,8 @@ public class DeliveryTopicFormat {
     public static final String SUB_DEVICE_LOGIN_TOPIC_FMT = "/ext/session/%s/%s/combine/login";
     public static final String SUB_DEVICE_LOGOUT_TOPIC_FMT = "/ext/session/%s/%s/combine/logout";
 
-    public static final String TAG_DELETE_TOPIC_FMT = "/sys/%s/%s/thing/deviceinfo/delete";
-    public static final String TAG_UPDATE_TOPIC_FMT = "/sys/%s/%s/thing/deviceinfo/update";
+    public static final String TAG_DELETE_TOPIC_FMT = "/sys/%s/%s/thing/tag/delete";
+    public static final String TAG_UPDATE_TOPIC_FMT = "/sys/%s/%s/thing/tag/update";
 
     public static final String PROGRESS_REPORT_TOPIC_FMT = "/sys/%s/%s/ota/device/progress";
     public static final String VERSION_REPORT_TOPIC_FMT = "/sys/%s/%s/ota/device/inform";
@@ -31,7 +31,9 @@ public class DeliveryTopicFormat {
 
     public static final String ATTRIBUTE_UPDATE = "/sys/%s/%s/thing/attribute/update";
     public static final String ATTRIBUTE_QUERY = "/sys/%s/%s/thing/attribute/query";
-    public static final String TAG_QUERY = "/sys/%s/%s/thing/deviceinfo/query";
+    public static final String ATTRIBUTE_DELETE = "/sys/%s/%s/thing/attribute/delete";
+
+    public static final String TAG_QUERY = "/sys/%s/%s/thing/tag/query";
 
 
 

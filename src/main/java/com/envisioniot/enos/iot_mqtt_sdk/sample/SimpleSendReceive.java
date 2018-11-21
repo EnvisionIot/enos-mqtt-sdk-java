@@ -7,12 +7,14 @@ import com.envisioniot.enos.iot_mqtt_sdk.core.IConnectCallback;
 import com.envisioniot.enos.iot_mqtt_sdk.core.MqttClient;
 import com.envisioniot.enos.iot_mqtt_sdk.core.exception.EnvisionException;
 import com.envisioniot.enos.iot_mqtt_sdk.core.msg.IMessageHandler;
+import com.envisioniot.enos.iot_mqtt_sdk.message.downstream.device.SubDeviceDeleteCommand;
 import com.envisioniot.enos.iot_mqtt_sdk.message.downstream.device.SubDeviceDisableCommand;
 import com.envisioniot.enos.iot_mqtt_sdk.message.downstream.device.SubDeviceDisableReply;
+import com.envisioniot.enos.iot_mqtt_sdk.message.downstream.device.SubDeviceEnableCommand;
 import com.envisioniot.enos.iot_mqtt_sdk.message.downstream.tsl.*;
 import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.ResponseCode;
-import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.register.SubDeviceDynamicRegRequest;
-import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.register.SubDeviceDynamicRegResponse;
+import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.register.DeviceRegisterRequest;
+import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.register.DeviceRegisterResponse;
 import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.status.SubDeviceLoginRequest;
 import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.status.SubDeviceLoginResponse;
 import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.status.SubDeviceLogoutRequest;
@@ -31,7 +33,7 @@ import com.google.common.collect.Lists;
 public class SimpleSendReceive {
     public static final String local = "tcp://localhost:11883";
     public static final String alpha = "tcp://10.24.10.56:11883";
-    public static final String beta = "tcp://10.24.101.51:11883";
+    public static final String beta = "tcp://10.27.20.142:11883";
     public static final String prd = "tcp://10.24.8.76:11883";
 
     private static final String localSSL = "ssl://localhost:18883";
@@ -50,28 +52,22 @@ public class SimpleSendReceive {
 //	public static final String subDeviceSecret = "HUxm8Vcm7sod0v6XV8I3";
 
 	/*alpha*/
-//	private static final String productKey = "RApch9OQ";
-//	public static final String deviceKey = "zscai-test-device";
-//	public static final String deviceSecret = "yPiecKw43YOZ1pfZfvZd";
-//
-//	public static final String subProductKey = "0eikh7u3";
-//	public static final String subDeviceKey = "zscai_sub_device";
-//	public static final String subDeviceSecret = "5K1iFLFIQJ4kTyyz8Jga";
+
 
 
     //beta
     // json device
-    public static final String productKey = "E8Fw4uiX";
-    public static final String deviceKey = "zscai-test-device";
-    public static final String deviceSecret = "0FztEAMUeBgxq1qRzSYH";
+    public static final String productKey = "RNMWw2rV";
+    public static final String deviceKey = "zscai_test_device";
+    public static final String deviceSecret = "9oRqACRCSyrHP14sUukl";
 
     // 透传 device
     public static final String parserProductKey = "WwVF5nKj";
     public static final String parserDevicekey = "device1";
     public static final String parserDeviceSecret = "mOpcSKsxSQsvr0nUHUiK";
-    public static final String subProductKey = "E8Fw4uiX";
-    public static final String subDeviceKey = "zscai-sub-device";
-    public static final String subDeviceSecret = "QPrun07hEPeBEwv0faJF";
+    public static final String subProductKey = "Cb5bjujA";
+    public static final String subDeviceKey = "zscai_sub_device";
+    public static final String subDeviceSecret = "6F3ssoWPBAxTfMeKD71A";
 
 //	private static final String productKey = "E8Fw4uiX";
 //	public static final String deviceKey = "zscai-test-device2";
@@ -100,38 +96,34 @@ public class SimpleSendReceive {
 //		disconnect();
 
         initWithCallback();
-        while(true){
-            if(subDeviceLogined){
-                break;
-            }
-            Thread.sleep(100);
-        }
-        updateTag();
-        updateSubDeviceTag();
-        deleteTag();
-        deleteSubDeviceTag();
-        queryTag();
 
-        addTopo();
-        getTopo();
-        postEvent();
-//        subDeviceLogin();
-        postSubEvent();
-        subDeviceRegister();
-        getTslTemplete();
-        getSubTslTemplate();
-//		subdeviceLogout();
-//		deleteTopo();
+//        updateTag();
+//        updateSubDeviceTag();
+//        deleteTag();
+//        deleteSubDeviceTag();
+//        queryTag();
+//
+//        addTopo();
+//        getTop    o();
+//        postEvent();
+////        subDeviceLogin();
+//        postSubEvent();
+//        subDeviceRegister();
+//        getTslTemplete();
+//        getSubTslTemplate();
+////		subdeviceLogout();
+////		deleteTopo();
         updateAttribute();
         queryAttribute();
 
-
+//
         measurepointSetHandler();
         handleServiceInvocation();
+        handleSubDeviceNotification();
 
 //        fastpostMeasurepoint();
 
-//                alwaysPostSubMeasurepoint();
+//         alwaysPostSubMeasurepoint();
 //        alwaysPostMeasurepoint();
 //        downRawHandler();
 //        postUpRaw();
@@ -170,12 +162,13 @@ public class SimpleSendReceive {
         System.out.println("start connect with callback ... ");
         try {
             client = new MqttClient(beta, productKey, deviceKey, deviceSecret); // json device
+
 //            client = new MqttClient(local, parserProductKey, parserDevicekey, parserDeviceSecret); // 透传device
             client.getProfile().setConnectionTimeout(60);
             client.connect(new IConnectCallback() {
                 @Override
                 public void onConnectSuccess() {
-                    subDeviceLogin();
+//                    subDeviceLogin();
                     System.out.println("connect success");
                 }
 
@@ -226,20 +219,20 @@ public class SimpleSendReceive {
 
 
     public static void updateAttribute(){
-        System.out.println("start update attribute (wrong)...");
-        AttributeUpdateRequest request = AttributeUpdateRequest.builder()
-                .addAttribute("attr1", "newvalue" + new Random().nextInt(100))
-                .build();
-        try {
-            AttributeUpdateResponse rsp = client.publish(request);
-            System.out.println("--> " + rsp);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+//        System.out.println("start update attribute (wrong)...");
+//        AttributeUpdateRequest request = AttributeUpdateRequest.builder()
+//                .addAttribute("attribute1", "newvalue fixed" )
+//                .build();
+//        try {
+//            AttributeUpdateResponse rsp = client.publish(request);
+//            System.out.println("--> " + rsp);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
 
         System.out.println("start update attribute...");
         AttributeUpdateRequest request2 = AttributeUpdateRequest.builder()
-                .addAttribute("attr1",  new Random().nextInt(100))
+                .addAttribute("attribute1",  11)
                 .build();
         try {
             AttributeUpdateResponse rsp2 = client.publish(request2);
@@ -252,7 +245,7 @@ public class SimpleSendReceive {
     public static void queryAttribute(){
         System.out.println("start query attribute...");
         AttributeQueryRequest request = AttributeQueryRequest.builder()
-                .addAttribute("attr1").queryAll().build();
+                .addAttribute("attribute1").queryAll().build();
         try {
             AttributeQueryResponse rsp = client.publish(request);
             System.out.println("--> " + rsp);
@@ -264,16 +257,18 @@ public class SimpleSendReceive {
 
 
     public static void updateTag(){
-        System.out.println("start update tag... ");
-        UpdateDeviceTagRequest request = UpdateDeviceTagRequest.builder()
+
+        TagUpdateRequest request = TagUpdateRequest.builder()
                 .addTag("test_tag",
                         "new_tag" + new Random().nextInt(100))
 //                .addTag("test_tag2",
 //                        "new_tag" + new Random().nextInt(100))
                 .build();
+        request.setMessageId("test" + new Random().nextInt(1000));
+        System.out.println("start update tag ... " + request.getMessageId());
 
         try {
-            UpdateDeviceTagResponse rsp = client.publish(request);
+            TagUpdateResponse rsp = client.publish(request);
             System.out.println("--> " + rsp);
         } catch (Exception e) {
             e.printStackTrace();
@@ -283,7 +278,7 @@ public class SimpleSendReceive {
 
     public static void updateSubDeviceTag(){
         System.out.println("start update tag... ");
-        UpdateDeviceTagRequest request = UpdateDeviceTagRequest.builder()
+        TagUpdateRequest request = TagUpdateRequest.builder()
                 .setProductKey(subProductKey)
                 .setDeviceKey(subDeviceKey)
                 .addTag("test_tag",
@@ -292,7 +287,7 @@ public class SimpleSendReceive {
                         "new_tag" + new Random().nextInt(100)).build();
 
         try {
-            UpdateDeviceTagResponse rsp = client.publish(request);
+            TagUpdateResponse rsp = client.publish(request);
             System.out.println("--> " + rsp);
         } catch (Exception e) {
             e.printStackTrace();
@@ -302,11 +297,11 @@ public class SimpleSendReceive {
 
     public static void queryTag(){
         System.out.println("start query tag");
-        QueryDeviceTagRequest request = QueryDeviceTagRequest.builder()
+        TagQueryRequest request = TagQueryRequest.builder()
                 .queryAll().build();
 
         try {
-            QueryDeviceTagResponse rsp = client.publish(request);
+            TagQueryResponse rsp = client.publish(request);
             System.out.println("--> " + rsp);
 
         } catch (Exception e) {
@@ -316,9 +311,9 @@ public class SimpleSendReceive {
 
     public static void deleteTag(){
         System.out.println("start delete tag...");
-        DeleteDeviceTagRequest request = DeleteDeviceTagRequest.builder().addTagKey("test_tag").build();
+        TagDeleteRequest request = TagDeleteRequest.builder().addTagKey("test_tag").build();
         try {
-            DeleteDeviceTagResponse rsp = client.publish(request);
+            TagDeleteResponse rsp = client.publish(request);
             System.out.println("-->" + rsp);
         } catch (Exception e) {
             e.printStackTrace();
@@ -327,13 +322,13 @@ public class SimpleSendReceive {
 
     public static void deleteSubDeviceTag(){
         System.out.println("start delete tag...");
-        DeleteDeviceTagRequest request = DeleteDeviceTagRequest.builder()
+        TagDeleteRequest request = TagDeleteRequest.builder()
                 .setProductKey(subProductKey)
                 .setDeviceKey(subDeviceKey)
                 .addTagKey("test_tag").build();
 
         try {
-            DeleteDeviceTagResponse rsp = client.publish(request);
+            TagDeleteResponse rsp = client.publish(request);
             System.out.println("-->" + rsp);
         } catch (Exception e) {
             e.printStackTrace();
@@ -343,13 +338,13 @@ public class SimpleSendReceive {
 
     public static void subDeviceRegister() {
         System.out.println("start register register sub-device , current status : " + client.isConnected());
-        SubDeviceDynamicRegRequest request = SubDeviceDynamicRegRequest.builder()
+        DeviceRegisterRequest request = DeviceRegisterRequest.builder()
                 .addSubRegisterInfo(subProductKey, "zscai-sub-device-1", "zscai-sub-device-1", "zscai-sub-device-1")
                 .addSubRegisterInfo(subProductKey, "zscai-sub-device-2", "zscai-sub-device-2", "zscai-sub-device-2")
                 .addSubRegisterInfo(subProductKey, "zscai-sub-device-3", "zscai-sub-device-3", "zscai-sub-device-3")
                 .build();
 //		request.setRegProductKey("eb27piAg");
-        SubDeviceDynamicRegResponse rsp = null;
+        DeviceRegisterResponse rsp = null;
         try {
 
             rsp = client.publish(request);
@@ -360,10 +355,12 @@ public class SimpleSendReceive {
     }
 
     public static void subDeviceLogin() {
-        System.out.println("start login sub-device , current status : " + client.isConnected());
         SubDeviceLoginRequest request = SubDeviceLoginRequest.builder()
                 .setSubDeviceInfo(subProductKey, subDeviceKey, subDeviceSecret).build();
         SubDeviceLoginResponse rsp = null;
+
+        request.setMessageId("test"+ new Random().nextInt(1000));
+        System.out.println("start login sub-device "+ request.getQos()+"+"+request.getMessageId() +" , current status : " + client.isConnected());
 
         try {
             rsp = client.publish(request);
@@ -400,9 +397,9 @@ public class SimpleSendReceive {
 
     public static void addTopo() throws Exception {
         System.out.println("start add topo ...");
-        AddTopoRequest request = AddTopoRequest.builder().
+        TopoAddRequest request = TopoAddRequest.builder().
                 addSubDevice(new SubDeviceInfo(subProductKey, subDeviceKey, subDeviceSecret)).build();
-        AddTopoResponse rsp = client.publish(request);
+        TopoAddResponse rsp = client.publish(request);
         System.out.println("-->" + rsp);
         getTopo();
 //		subDeviceLogin();
@@ -412,9 +409,9 @@ public class SimpleSendReceive {
 
     public static void deleteTopo() throws Exception {
         System.out.println("start delete topo...");
-        DeleteTopoRequest request = DeleteTopoRequest.builder()
+        TopoDeleteRequest request = TopoDeleteRequest.builder()
                 .setSubDevices(Lists.newArrayList(Pair.makePair(subProductKey, subDeviceKey))).build();
-        DeleteTopoResponse rsp = client.publish(request);
+        TopoDeleteResponse rsp = client.publish(request);
         System.out.println("-->" + rsp);
         getTopo();
 //		subDeviceLogin();
@@ -423,9 +420,9 @@ public class SimpleSendReceive {
 
     public static void getTopo() throws Exception {
         System.out.println("start get topo...");
-        GetTopoRequest request = GetTopoRequest.builder().build();
+        TopoGetRequest request = TopoGetRequest.builder().build();
 
-        GetTopoResponse rsp = client.publish(request);
+        TopoGetResponse rsp = client.publish(request);
         System.out.println("-->" + rsp);
 
     }
@@ -563,6 +560,25 @@ public class SimpleSendReceive {
         System.out.println("post finish");
     }
 
+    public static void handleSubDeviceNotification(){
+
+        client.setArrivedMsgHandler(SubDeviceDisableCommand.class, (arrivedMessage, argList) -> {
+            System.out.println("rcv subDeviceDisableCommand");
+            System.out.println(arrivedMessage);
+            return null;
+        });
+
+        client.setArrivedMsgHandler(SubDeviceEnableCommand.class, (arrivedMessage, argList) -> {
+            System.out.println("rcv subDeviceEnableCommand");
+            System.out.println(arrivedMessage);
+            return null;
+        });
+        client.setArrivedMsgHandler(SubDeviceDeleteCommand.class, (arrivedMessage, argList) -> {
+            System.out.println("rcv subDeviceDeleteCommand");
+            System.out.println(arrivedMessage);
+            return null;
+        });
+    }
 
     public static void handleServiceInvocation() {
         IMessageHandler<ServiceInvocationCommand, ServiceInvocationReply> handler = new IMessageHandler<ServiceInvocationCommand, ServiceInvocationReply>() {
@@ -574,8 +590,6 @@ public class SimpleSendReceive {
             }
 
         };
-
-
         client.setArrivedMsgHandler(ServiceInvocationCommand.class, handler);
         client.setArrivedMsgHandler(RrpcInvocationCommand.class, new IMessageHandler<RrpcInvocationCommand, RrpcInvocationReply>() {
             @Override
@@ -598,14 +612,10 @@ public class SimpleSendReceive {
             return MeasurepointSetReply.builder().build();
         });
 
-        client.setArrivedMsgHandler(SubDeviceDisableCommand.class, new IMessageHandler<SubDeviceDisableCommand, SubDeviceDisableReply>() {
-
-            @Override
-            public SubDeviceDisableReply onMessage(SubDeviceDisableCommand command, List<String> argList) throws Exception {
-                // disable device and ret 201 reply
-                System.out.println("rcv disable command -> " + command);
-                return SubDeviceDisableReply.builder().setCode(201).build();
-            }
+        client.setArrivedMsgHandler(SubDeviceDisableCommand.class, (command, argList) -> {
+            // disable device and ret 201 reply
+            System.out.println("rcv disable command -> " + command);
+            return SubDeviceDisableReply.builder().setCode(201).build();
         });
     }
 

@@ -1,4 +1,4 @@
-package com.envisioniot.enos.iot_mqtt_sdk.message.upstream.tag;
+package com.envisioniot.enos.iot_mqtt_sdk.message.upstream.tsl;
 
 import com.envisioniot.enos.iot_mqtt_sdk.core.internals.constants.ArrivedTopicPattern;
 import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.BaseMqttResponse;
@@ -7,11 +7,11 @@ import java.util.regex.Pattern;
 
 /**
  * @author zhensheng.cai
- * @date 2018/11/12.
+ * @date 2018/11/21.
  */
-public class QueryDeviceTagResponse extends BaseMqttResponse{
-    private static final long serialVersionUID = 5045978808520644002L;
-    private static final Pattern pattern = Pattern.compile(ArrivedTopicPattern.TAG_QUERY_REPLY);
+public class AttributeDeleteResponse extends BaseMqttResponse {
+
+    public static final Pattern pattern = Pattern.compile(ArrivedTopicPattern.ATTRIBUTE_DELETE_REPLY);
 
     @Override
     public Pattern getMatchTopicPattern() {

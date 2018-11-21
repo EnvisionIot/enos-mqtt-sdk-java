@@ -161,8 +161,8 @@ public class DefaultProcessor implements MqttCallback, MqttCallbackExtended {
                     futureTask.cancel(false);
                 }
             });
-            timeoutScheduler.schedule(futureTask, timeout, TimeUnit.MILLISECONDS);
             rspTaskMap.put(key, task);
+            timeoutScheduler.schedule(futureTask, timeout, TimeUnit.MILLISECONDS);
         }
 
         this.doFastPublish(request);

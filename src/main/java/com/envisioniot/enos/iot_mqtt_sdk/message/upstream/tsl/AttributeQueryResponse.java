@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
  */
 public class AttributeQueryResponse extends BaseMqttResponse{
 
-    private static final Pattern pattern = Pattern.compile(ArrivedTopicPattern.ATTRIBUTE_QUERY);
+    private static final Pattern pattern = Pattern.compile(ArrivedTopicPattern.ATTRIBUTE_QUERY_REPLY);
 
     @Override
     public Pattern getMatchTopicPattern() {

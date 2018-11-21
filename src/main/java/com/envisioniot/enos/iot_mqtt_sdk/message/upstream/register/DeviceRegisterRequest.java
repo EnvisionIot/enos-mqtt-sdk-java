@@ -18,7 +18,7 @@ import java.util.Map;
  * @author zhonghua.wu
  * @create 2018-07-20 10:33
  */
-public class SubDeviceDynamicRegRequest extends BaseMqttRequest<SubDeviceDynamicRegResponse> {
+public class DeviceRegisterRequest extends BaseMqttRequest<DeviceRegisterResponse> {
     private static final long serialVersionUID = -5164903941570526819L;
     private static final int MAX_DEVICE_SIZE = 1000;
 
@@ -26,12 +26,12 @@ public class SubDeviceDynamicRegRequest extends BaseMqttRequest<SubDeviceDynamic
         return new Builder();
     }
 
-    public static class Builder extends BaseMqttRequest.Builder<Builder, SubDeviceDynamicRegRequest> {
+    public static class Builder extends BaseMqttRequest.Builder<Builder, DeviceRegisterRequest> {
         private List<Map<String, Object>> params = new ArrayList<>();
 
         @Override
         protected String createMethod() {
-            return MethodConstants.SUB_DEVICE_REGISTER;
+            return MethodConstants.DEVICE_REGISTER;
         }
 
         @Override
@@ -40,8 +40,8 @@ public class SubDeviceDynamicRegRequest extends BaseMqttRequest<SubDeviceDynamic
         }
 
         @Override
-        protected SubDeviceDynamicRegRequest createRequestInstance() {
-            return new SubDeviceDynamicRegRequest();
+        protected DeviceRegisterRequest createRequestInstance() {
+            return new DeviceRegisterRequest();
         }
 
         public Builder addSubBatchRegisterInfo(String subProductKey, List<DeviceRegOption> regOptions) {
@@ -72,7 +72,7 @@ public class SubDeviceDynamicRegRequest extends BaseMqttRequest<SubDeviceDynamic
 
     }
 
-    private SubDeviceDynamicRegRequest() {
+    private DeviceRegisterRequest() {
     }
 
     private static List<Map<String, Object>> createBatchRegInfoMap(String subProductKey, List<DeviceRegOption> regOptions) {
@@ -104,8 +104,8 @@ public class SubDeviceDynamicRegRequest extends BaseMqttRequest<SubDeviceDynamic
 
 
     @Override
-    public Class<SubDeviceDynamicRegResponse> getAnswerType() {
-        return SubDeviceDynamicRegResponse.class;
+    public Class<DeviceRegisterResponse> getAnswerType() {
+        return DeviceRegisterResponse.class;
     }
 
     @Override

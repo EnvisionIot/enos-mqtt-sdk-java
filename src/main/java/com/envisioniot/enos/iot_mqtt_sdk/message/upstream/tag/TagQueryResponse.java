@@ -6,17 +6,16 @@ import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.BaseMqttResponse;
 import java.util.regex.Pattern;
 
 /**
- * Description: update device tags
- *
- * @author zhonghua.wu
- * @create 2018-07-09 14:41
+ * @author zhensheng.cai
+ * @date 2018/11/12.
  */
-public class UpdateDeviceTagResponse extends BaseMqttResponse {
-    private static final long serialVersionUID = -7551738482591675818L;
-    private static Pattern pattern = Pattern.compile(ArrivedTopicPattern.TAG_UPDATE_REPLY);
+public class TagQueryResponse extends BaseMqttResponse{
+    private static final long serialVersionUID = 5045978808520644002L;
+    private static final Pattern pattern = Pattern.compile(ArrivedTopicPattern.TAG_QUERY_REPLY);
 
     @Override
     public Pattern getMatchTopicPattern() {
         return pattern;
     }
+
 }

@@ -3,7 +3,7 @@ package com.envisioniot.enos.iot_mqtt_sdk.message.downstream.ota;
 import com.envisioniot.enos.iot_mqtt_sdk.core.internals.constants.DeliveryTopicFormat;
 import com.envisioniot.enos.iot_mqtt_sdk.message.downstream.BaseMqttReply;
 
-public class DeviceOtaCommandReply extends BaseMqttReply {
+public class DeviceOtaReply extends BaseMqttReply {
 
     private static final long serialVersionUID = 3221664283192647376L;
 
@@ -12,7 +12,7 @@ public class DeviceOtaCommandReply extends BaseMqttReply {
         return DeliveryTopicFormat.DEVICE_OTA_REPLY;
     }
 
-    public static class Builder extends BaseMqttReply.Builder<Builder, DeviceOtaCommandReply> {
+    public static class Builder extends BaseMqttReply.Builder<Builder, DeviceOtaReply> {
 
         @Override
         protected Object createData() {
@@ -20,8 +20,8 @@ public class DeviceOtaCommandReply extends BaseMqttReply {
         }
 
         @Override
-        protected DeviceOtaCommandReply createRequestInstance() {
-            return new DeviceOtaCommandReply();
+        protected DeviceOtaReply createRequestInstance() {
+            return new DeviceOtaReply();
         }
     }
 }

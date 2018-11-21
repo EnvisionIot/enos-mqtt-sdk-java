@@ -7,7 +7,7 @@ import com.google.common.collect.Maps;
 
 import java.util.Map;
 
-public class UpdateRequest extends BaseMqttRequest<UpdateRequestResponse> {
+public class OtaUpdateRequest extends BaseMqttRequest<OtaUpdateResponse> {
 
     /**
      *
@@ -18,11 +18,11 @@ public class UpdateRequest extends BaseMqttRequest<UpdateRequestResponse> {
         return new Builder();
     }
 
-    public static class Builder extends BaseMqttRequest.Builder<Builder, UpdateRequest> {
+    public static class Builder extends BaseMqttRequest.Builder<Builder, OtaUpdateRequest> {
 
         @Override
         protected String createMethod() {
-            return MethodConstants.PROGRESS_REPORT;
+            return MethodConstants.OTA_REQUEST;
         }
 
         @Override
@@ -32,14 +32,14 @@ public class UpdateRequest extends BaseMqttRequest<UpdateRequestResponse> {
         }
 
         @Override
-        protected UpdateRequest createRequestInstance() {
-            return new UpdateRequest();
+        protected OtaUpdateRequest createRequestInstance() {
+            return new OtaUpdateRequest();
         }
     }
 
     @Override
-    public Class<UpdateRequestResponse> getAnswerType() {
-        return UpdateRequestResponse.class;
+    public Class<OtaUpdateResponse> getAnswerType() {
+        return OtaUpdateResponse.class;
     }
 
     @Override
@@ -47,6 +47,6 @@ public class UpdateRequest extends BaseMqttRequest<UpdateRequestResponse> {
         return DeliveryTopicFormat.UPDATE_REQUEST_TOPIC_FMT;
     }
 
-    private UpdateRequest() {
+    private OtaUpdateRequest() {
     }
 }
