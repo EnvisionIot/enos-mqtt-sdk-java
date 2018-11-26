@@ -168,7 +168,7 @@ public class SimpleSendReceive {
             client.connect(new IConnectCallback() {
                 @Override
                 public void onConnectSuccess() {
-//                    subDeviceLogin();
+                    subDeviceLogin();
                     System.out.println("connect success");
                 }
 
@@ -585,7 +585,11 @@ public class SimpleSendReceive {
             @Override
             public ServiceInvocationReply onMessage(ServiceInvocationCommand request, List<String> argList) throws Exception {
                 System.out.println("rcvn async serevice invocation command" + request + " topic " + argList);
-                return ServiceInvocationReply.builder().addOutputData("pointA", "valueA")
+                return ServiceInvocationReply.builder()
+                        .setCode(2000)
+                        /**/.setMessage("user defined err msg")
+                        .addOutputData("pointA", "11")
+                        .addOutputData("point2", 11)
                         .build();
             }
 

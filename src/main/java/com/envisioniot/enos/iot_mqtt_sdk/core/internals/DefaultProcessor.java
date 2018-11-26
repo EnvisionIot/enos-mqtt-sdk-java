@@ -7,7 +7,9 @@ import com.envisioniot.enos.iot_mqtt_sdk.core.exception.EnvisionException;
 import com.envisioniot.enos.iot_mqtt_sdk.core.msg.*;
 import com.envisioniot.enos.iot_mqtt_sdk.core.msg.IMqttArrivedMessage.DecodeResult;
 import com.envisioniot.enos.iot_mqtt_sdk.core.profile.Profile;
+import com.envisioniot.enos.iot_mqtt_sdk.message.downstream.BaseMqttCommand;
 import com.envisioniot.enos.iot_mqtt_sdk.message.downstream.BaseMqttReply;
+import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.ResponseCode;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.eclipse.paho.client.mqttv3.*;
 import org.slf4j.Logger;
@@ -98,6 +100,8 @@ public class DefaultProcessor implements MqttCallback, MqttCallbackExtended {
 
             @SuppressWarnings("unchecked") final IMessageHandler<IMqttArrivedMessage, IMqttDeliveryMessage> handler = (IMessageHandler<IMqttArrivedMessage, IMqttDeliveryMessage>) arrivedMsgHandlerMap.get(msg.getClass());
             final List<String> pathList = result.getPathList();
+
+
             if (handler != null) {
                 executor.execute(() -> {
                     try {
@@ -109,6 +113,11 @@ public class DefaultProcessor implements MqttCallback, MqttCallbackExtended {
                             /*set the reply topic*/
                             if (deliveryMsg instanceof BaseMqttReply) {
                                 ((BaseMqttReply) deliveryMsg).setTopicArgs(pathList);
+                                /*if user code is below 2000 and not equal to 200  */
+                                if (((BaseMqttReply) deliveryMsg).getCode() < ResponseCode.USER_DEFINED_ERR_CODE &&
+                                        ((BaseMqttReply) deliveryMsg).getCode() != ResponseCode.SUCCESS) {
+                                    logger.warn("errCode of reply message is not allowed , " + ((BaseMqttReply) deliveryMsg).getCode());
+                                }
                                 try {
                                     mqttClient.publish(deliveryMsg.getMessageTopic(), deliveryMsg.encode(), deliveryMsg.getQos(), false);
                                 } catch (Exception e) {
@@ -120,17 +129,49 @@ public class DefaultProcessor implements MqttCallback, MqttCallbackExtended {
                         }
 
                     } catch (Exception e) {
-                        logger.error(
-                                "handle the arrived msg err , may because of registered arrived msg callback ,  ",
-                                e);
+                        logger.error("handle the arrived msg err , may because of registered arrived msg callback ,", e);
+                        executor.execute(()->{
+                            try{
+                                BaseMqttReply reply = buildMqttReply((BaseMqttCommand) msg, pathList,
+                                        ResponseCode.COMMAND_HANDLER_EXECUTION_FAILED,
+                                        String.format("command handler execution failed, %s", e.getMessage()));
+                                mqttClient.publish(reply.getMessageTopic(), reply.encode(), reply.getQos(), false);
+                            }
+                            catch (Exception ex){
+                                logger.error("UGLY INTERNAL ERR ! send the err reply failed ", ex);
+                            }
+                        });
                     }
                 });
             } else {
+                if(msg instanceof BaseMqttCommand){
+                    executor.execute(() -> {
+                        try {
+                            BaseMqttReply reply = buildMqttReply((BaseMqttCommand) msg, pathList,
+                                    ResponseCode.COMMAND_HANDLER_NOT_REGISTERED,
+                                    "downstream command handler not registered");
+                            mqttClient.publish(reply.getMessageTopic(), reply.encode(), reply.getQos(), false);
+                        }catch (Exception e) {
+                            logger.error("handle the msg  {} with no handler failed ,  ", msg, e);
+                        }
+                    });
+                }
             }
         } catch (Exception e) {
             logger.error("UGLY INTERNAL ERR!! , processing the arrived  msg err , topic {}  uncaught exception : ",
                     topic, e);
         }
+    }
+
+    private BaseMqttReply buildMqttReply(BaseMqttCommand msg, List<String> pathList, int code, String message) throws IllegalAccessException, InstantiationException {
+        BaseMqttReply reply = (BaseMqttReply) msg.getAnswerType().newInstance();
+        reply.setMessageId(msg.getMessageId());
+        reply.setProductKey(msg.getProductKey());
+        reply.setDeviceKey(msg.getDeviceKey());
+        reply.setCode(code);
+        reply.setMessage(message);
+        reply.setTopicArgs(pathList);
+        return reply;
     }
 
 
