@@ -161,12 +161,15 @@ public void onConnectSuccess()
 ```
 public static void postMeasurepoint()
 {
+      Map<String, String> struct = new HashMap<>();
+      struct.put("structKey", "structValue");
       MeasurepointPostRequest request = MeasurepointPostRequest.builder()
-      .setProductKey(subProductKey).setDeviceKey(subDeviceKey)
-      .addMeasurePoint("p1", "string")
-      .addMeasurePoint("p2", "{'value':123.4,  'quality':2}")
-      .addMeasurePoint("p3", 100.2)
-      .build();
+                     .setProductKey(subProductKey).setDeviceKey(subDeviceKey)
+                     .addMeasurePoint("p1", "string")
+                     .addMeasreuPointWithQuality("p2", "value", 2)
+                     .addMeasurePoint("p3", 100.2)
+                     .addMeasurePoint("p4", struct)
+                     .build();
       client.fastPublish(request);
 }
 ```
@@ -188,38 +191,420 @@ public <T extends IMqttResponse> void publish(IMqttRequest<T> request, IResponse
 
 两者之间的区别在于：带有回调的publish方法是异步的，带有返回参数的publish方法是同步的，这里还需要注意，如果MeasurepointPostRequest不小心调用了同步的push，那么会一直等待，但是服务端除了错误之外，并没有返回值，所以会一直等到超时。
 
+> 同时设备端提供了上报测点数据质量位的接口，用户通过该接口发送带有质量位的测点数据
 #### 发送下行命令（从EnOS Cloud到设备）
-下面我介绍下如何处理下行消息，下行消息主要是置数，设备服务调用等，在sdk中是以Command来表示的，比如以下实例，我监听了测点置数的事件以及服务端禁用某个设备的事件。
+下面我介绍下如何处理下行消息，下行消息主要是置数，设备服务调用等，在sdk中是以Command来表示的，设备端可以在onMessage回调函数中，设置响应消息，sdk会返回响应的响应消息给云端。
+用户可以主动设置响应消息的错误码及错误信息，表示设备端响应该下行指令失败，云端会受到并返回该错误信息及错误码。对于用户自定义的错误码及错误信息。我们开放了2000及以上的错误码，作为设备端的错误码响应。
 
+比如以下实例，我监听了测点置数的事件以及服务端禁用某个设备的事件。
 
 ```
-client.setArrivedMsgHandler(MeasurepointSetCommand.class, new IMessageHandler<MeasurepointSetCommand, MeasurepointSetReply>()
-{
-    @Override
-    public MeasurepointSetReply onMessage(MeasurepointSetCommand arrivedMessage, List<String> argList) throws Exception
-    {
-        return null;
+ client.setArrivedMsgHandler(MeasurepointSetCommand.class, (MeasurepointSetCommand command, List<String> argList)->{
+    boolean success = true;
+    if(success){
+        return MeasurepointSetReply.builder().build();
+    }
+    else {
+        return MeasurepointSetReply.builder()
+                .setCode(2000)
+                .setMessage("handle the measurepoint set command failed")
+                .build();
     }
 });
 
-client.setArrivedMsgHandler(DisableDeviceCommand.class, new IMessageHandler<DisableDeviceCommand, DisableDeviceCommandReply>()
-{
-
-    @Override
-    public DisableDeviceCommandReply onMessage(DisableDeviceCommand command, List<String> argList) throws Exception
-    {
-        // disable device and ret 200 reply
-        return DisableDeviceCommandReply.builder()
-        .setCode(200).build();
-    }
+client.setArrivedMsgHandler(SubDeviceDisableCommand.class, (SubDeviceDisableCommand command, List<String> argList)->{
+    //if you donnt want to reply the message ,  just return null
+    System.out.println(command);
+    return null;
 });
 ```
 
-如果用户返回一个null的reply，那么sdk会认为客户端不支持这个动作，会自行构造通用的reply的告知服务端。
-
-如果用户返回了一个有效的reply，那么sdk会根据这个reply进行序列化自动发送给服务端。
+> 说明：
+> 如果用户返回一个null的reply 那么设备端执行完成回调方法后，不作任何响应，不会返回reply消息给云端。
+> 如果用户返回了一个有效的reply，那么sdk会根据这个reply进行序列化自动发送给服务端。
+> 如果用户执行回调方法成功，用户设置返回码为200或者无需设置返回码；对于执行失败，用户需要设置2000及以上的用户自定义错误码及错误消息，返回给云端。
 
 至此，sdk的大体功能就介绍完了，上下行消息可以再sdk中自行去寻找，用法都大同小异。
+
+### 完整示例代码
+
+```java
+
+import com.envisioniot.enos.iot_mqtt_sdk.core.IConnectCallback;
+import com.envisioniot.enos.iot_mqtt_sdk.core.MqttClient;
+import com.envisioniot.enos.iot_mqtt_sdk.core.exception.EnvisionException;
+import com.envisioniot.enos.iot_mqtt_sdk.core.msg.IMessageHandler;
+import com.envisioniot.enos.iot_mqtt_sdk.message.downstream.device.SubDeviceDisableCommand;
+import com.envisioniot.enos.iot_mqtt_sdk.message.downstream.tsl.MeasurepointSetCommand;
+import com.envisioniot.enos.iot_mqtt_sdk.message.downstream.tsl.MeasurepointSetReply;
+import com.envisioniot.enos.iot_mqtt_sdk.message.downstream.tsl.ServiceInvocationCommand;
+import com.envisioniot.enos.iot_mqtt_sdk.message.downstream.tsl.ServiceInvocationReply;
+import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.register.DeviceRegisterRequest;
+import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.register.DeviceRegisterResponse;
+import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.status.SubDeviceLoginRequest;
+import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.status.SubDeviceLoginResponse;
+import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.status.SubDeviceLogoutRequest;
+import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.status.SubDeviceLogoutResponse;
+import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.topo.*;
+import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.tsl.EventPostRequest;
+import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.tsl.MeasurepointPostRequest;
+import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.tsl.TslTemplateGetRequest;
+import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.tsl.TslTemplateGetResponse;
+import com.envisioniot.enos.iot_mqtt_sdk.util.Pair;
+import com.google.common.collect.Lists;
+
+import java.util.List;
+
+/**
+ * @author zhensheng.cai
+ * @date 2018/8/3.
+ */
+public class SimpleSendReceive {
+    private static final String local = "tcp://localhost:11883";
+    private static final String alpha = "tcp://10.24.10.56:11883";
+    private static final String prd = "tcp://10.24.8.76:11883";
+
+
+    //alpha环境网关设备三元组
+    private static final String productKey = "invu9zyT";
+    public static final String deviceKey = "m7plCgtarp";
+    public static final String deviceSecret = "t3O5bRTfTYJ9UMS2wCrb";
+
+    //alpha环境子设备三元组
+    public static final String subProductKey = "ybuO63Oe";
+    public static final String subDeviceKey = "96Iy2aWmv7";
+    public static final String subDeviceSecret = "HUxm8Vcm7sod0v6XV8I3";
+
+
+    //alpha环境直连设备三元组
+    private static final String productKey2 = "ybuO63Oe";
+    public static final String deviceKey2 = "NnSM8B1Wrk";
+    public static final String deviceSecret2 = "jQmd3jgukTt7fMXmNF8i";
+
+
+    //prd环境设备三元组
+//    private static final String productKey = "NyDmJcbZ";
+//    public static final String deviceKey = "xCPLxZtLKg";
+//    public static final String deviceSecret = "0sfmTw2c9gY5JcopMrvd";
+
+    //prd环境子设备三元组
+//    public static final String subProductKey = "muB7helV";
+//    public static final String subDeviceKey = "UKaQFBAemf";
+//    public static final String subDeviceSecret = "MEwVRDFptW6YctnS2GlF";
+
+
+    private static MqttClient client;
+
+
+    public static void init() {
+        try {
+            client = new MqttClient(alpha, productKey, deviceKey, deviceSecret);
+            client.connect(new IConnectCallback() {
+                @Override
+                public void onConnectSuccess() {
+                    try {
+                        System.out.println("start register login sub-device , current status : " + client.isConnected());
+                        SubDeviceLoginRequest request = SubDeviceLoginRequest.builder()
+                                .setSubDeviceInfo(subProductKey, subDeviceKey, subDeviceSecret)
+                                .build();
+                        SubDeviceLoginResponse rsp = client.publish(request);
+                        ;
+                        System.out.println(rsp);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                @Override
+                public void onConnectLost() {
+
+                }
+
+                @Override
+                public void onConnectFailed(int reasonCode) {
+
+                }
+            });
+        } catch (EnvisionException e) {
+            e.printStackTrace();
+        }
+        System.out.println("connect:" + client.isConnected());
+    }
+
+    public static void initWithCallback() {
+        System.out.println("start connect with callback ... ");
+        try {
+            client = new MqttClient(alpha, productKey, deviceKey, deviceSecret);
+            client.getProfile().setConnectionTimeout(10);
+            client.connect(new IConnectCallback() {
+                @Override
+                public void onConnectSuccess() {
+                    System.out.println("connect success");
+                }
+
+                @Override
+                public void onConnectLost() {
+                    System.out.println("onConnectLost");
+                }
+
+                @Override
+                public void onConnectFailed(int reasonCode) {
+                    System.out.println("onConnectFailed : " + reasonCode);
+                }
+
+            });
+        } catch (EnvisionException e) {
+            //e.printStackTrace();
+        }
+        System.out.println("connect result :" + client.isConnected());
+    }
+
+    public static void initWithCallback(String env, String productKey, String deviceKey, String deviceSecret) {
+        System.out.println("start connect with callback ... ");
+        try {
+            client = new MqttClient(env, productKey, deviceKey, deviceSecret);
+            client.getProfile().setConnectionTimeout(10);
+            client.connect(new IConnectCallback() {
+                @Override
+                public void onConnectSuccess() {
+                    System.out.println("connect success");
+                }
+
+                @Override
+                public void onConnectLost() {
+                    System.out.println("onConnectLost");
+                }
+
+                @Override
+                public void onConnectFailed(int reasonCode) {
+                    System.out.println("onConnectFailed : " + reasonCode);
+                }
+
+            });
+        } catch (EnvisionException e) {
+            //e.printStackTrace();
+        }
+        System.out.println("connect result :" + client.isConnected());
+    }
+
+    public static void subDeviceRegister() {
+        System.out.println("start register register sub-device , current status : " + client.isConnected());
+        DeviceRegisterRequest request = DeviceRegisterRequest.builder()
+                .addSubRegisterInfo("ybuO63Oe", "NB101", "NB101", "NB101")
+                .addSubRegisterInfo("ybuO63Oe", "NB102", "NB102", "NB102")
+                .addSubRegisterInfo("ybuO63Oe", "NB103", "NB103", "NB103")
+                .build();
+        DeviceRegisterResponse rsp = null;
+        try {
+
+            rsp = client.publish(request);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        System.out.println("--->" + rsp);
+    }
+
+
+    public static void subDeviceLogin() {
+        System.out.println("start register login sub-device , current status : " + client.isConnected());
+        SubDeviceLoginRequest request = SubDeviceLoginRequest.builder()
+                .setSubDeviceInfo(subProductKey, subDeviceKey, subDeviceSecret).build();
+        SubDeviceLoginResponse rsp = null;
+
+        try {
+            rsp = client.publish(request);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        System.out.println(rsp);
+    }
+
+    public static void subdeviceLogout() throws InterruptedException {
+        System.out.println("start logout sub device...");
+        SubDeviceLogoutRequest request = SubDeviceLogoutRequest.builder()
+                .setSubProductKey(subProductKey)
+                .setSubDeviceKey(subDeviceKey).build();
+        SubDeviceLogoutResponse rsp = null;
+        try {
+            rsp = client.publish(request);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        System.out.println(rsp);
+    }
+
+
+    public static void addTopo() throws Exception {
+        System.out.println("start add topo ...");
+        AddTopoRequest request = AddTopoRequest.builder().
+                addSubDevice(new SubDeviceInfo(subProductKey, subDeviceKey, subDeviceSecret)).build();
+        AddTopoResponse rsp = client.publish(request);
+        System.out.println("-->" + rsp);
+        getTopo();
+
+    }
+
+    public static void deleteTopo() throws Exception {
+        System.out.println("start delete topo...");
+        DeleteTopoRequest request = DeleteTopoRequest.builder()
+                .setSubDevices(Lists.newArrayList(Pair.makePair(subProductKey, subDeviceKey))).build();
+        DeleteTopoResponse rsp = client.publish(request);
+        System.out.println("-->" + rsp);
+        getTopo();
+    }
+
+
+    public static void getTopo() throws Exception {
+        System.out.println("start get topo...");
+        GetTopoRequest request = GetTopoRequest.builder().build();
+
+        GetTopoResponse rsp = client.publish(request);
+        System.out.println("-->" + rsp);
+
+    }
+
+    public static void getTslTemplete() {
+        System.out.println("start get tsl template... ");
+        TslTemplateGetRequest request = TslTemplateGetRequest.builder().setProductKey(productKey).setDeviceKey(deviceKey).build();
+        TslTemplateGetResponse rsp = null;
+        try {
+            rsp = client.publish(request);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        System.out.println(rsp);
+    }
+
+    public static void postEvent() throws InterruptedException {
+        System.out.println("start post event ");
+        EventPostRequest postRequest = EventPostRequest.builder()
+                .setEventIdentifier("PowerTooHigh")
+                .addValue("PowerAlarm", 60)
+                .build();
+        try {
+            /*
+             * 当前版本Post消息没有对应的reply
+             */
+            client.fastPublish(postRequest);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        System.out.println("post finish");
+
+    }
+
+
+    public static void postMeasurepoint() {
+        System.out.println("start post measurepoint ...");
+        MeasurepointPostRequest.Builder builder = MeasurepointPostRequest.builder().setProductKey(subProductKey).setDeviceKey(subDeviceKey);
+        builder.addMeasurePoint("INV.PVPowIn", "11.50");
+        builder.addMeasurePoint("INV.GenActivePW", "100.20");
+        MeasurepointPostRequest request = builder.build();
+        try {
+            client.fastPublish(request);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public static void postSubEvent() {
+        System.out.println("start post sub device event ");
+        EventPostRequest postRequest = EventPostRequest.builder()
+                .setEventIdentifier("PowerTooHigh")
+                .addValue("PowerAlarm", 60)
+                .setDeviceKey(subDeviceKey)
+                .setProductKey(subProductKey)
+                .build();
+        try {
+            /**
+             * 当前版本Post消息没有对应的reply
+             */
+            client.fastPublish(postRequest);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        System.out.println("post finish");
+    }
+
+
+    public static void handleDisableDevice() {
+        client.setArrivedMsgHandler(SubDeviceDisableCommand.class, (arrivedMessage, argList) -> {
+            System.out.println(argList);
+            return null;
+        });
+    }
+
+
+    public static void handleServiceInvocation() {
+        IMessageHandler<ServiceInvocationCommand, ServiceInvocationReply> handler = new IMessageHandler<ServiceInvocationCommand, ServiceInvocationReply>() {
+            @Override
+            public ServiceInvocationReply onMessage(ServiceInvocationCommand request, List<String> argList) throws Exception {
+                System.out.println("rcvn async serevice invocation command" + request + " topic " + argList);
+                return ServiceInvocationReply.builder().addOutputData("pointA", "valueA")
+                        .build();
+            }
+        };
+
+
+        client.setArrivedMsgHandler(ServiceInvocationCommand.class, handler);
+    }
+
+
+    public static void measurepointSetHandler() {
+        client.setArrivedMsgHandler(MeasurepointSetCommand.class, new IMessageHandler<MeasurepointSetCommand, MeasurepointSetReply>() {
+            @Override
+            public MeasurepointSetReply onMessage(MeasurepointSetCommand arrivedMessage, List<String> argList) throws Exception {
+                boolean success = true;
+                if (success) {
+                    return MeasurepointSetReply.builder().build();
+                } else {
+                    return MeasurepointSetReply.builder()
+                            .setCode(2000)
+                            .setMessage("handle the measurepoint set command failed")
+                            .build();
+                }
+            }
+        });
+
+        client.setArrivedMsgHandler(SubDeviceDisableCommand.class, (arrivedMessage, argList) -> {
+            System.out.println(argList);
+            return null;
+        });
+    }
+
+
+    public static void main(String[] args) throws Exception {
+
+//demo1：网关+子设备，设备拓扑操作，发送测点数据，设备上线、下线
+//        initWithCallback();
+//        addTopo();
+//        subDeviceLogin();
+//        postMeasurepoint();
+//        getTslTemplete();
+//        getTslTemplete(subProductKey, subDeviceKey);
+//        subdeviceLogout();
+
+//demo2：测试直连设备
+//        initWithCallback(alpha, productKey2, deviceKey2, deviceSecret2);
+//        postMeasurepoint(productKey2, deviceKey2);
+//        getTslTemplete(productKey2, deviceKey2);
+
+//demo3：网关+子设备的动态注册
+//        initWithCallback();
+//        subDeviceRegister("WbfKpbjl", "NB101", "NB101", "NB101");
+
+//demo4：下行发送消息-设备禁用
+//        initWithCallback();
+//        handleDisableDevice();
+    }
+
+
+}
+
+```
+
+
 
 ![packages](https://github.com/EnvisionIot/enos-iot-mqtt-java-sdk/blob/master/src/main/resources/imgs/tapd_20716331_base64_1534760042_26.png)
 

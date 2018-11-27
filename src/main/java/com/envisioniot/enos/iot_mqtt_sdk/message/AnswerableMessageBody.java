@@ -1,5 +1,6 @@
 package com.envisioniot.enos.iot_mqtt_sdk.message;
 
+import com.envisioniot.enos.iot_mqtt_sdk.util.ExactValue;
 import com.envisioniot.enos.iot_mqtt_sdk.util.GsonUtil;
 
 import java.io.Serializable;
@@ -12,10 +13,11 @@ import java.util.Map;
  */
 public class AnswerableMessageBody implements Serializable {
 
+    private static final long serialVersionUID = -565677564353008496L;
     private String id;
     private String method;
     private String version;
-    private Object params;
+    private ExactValue params;
 
 
     public byte[] encode() {
@@ -60,12 +62,13 @@ public class AnswerableMessageBody implements Serializable {
         this.version = version;
     }
 
+    @SuppressWarnings("unchecked")
     public <T> T getParams() {
-        return (T) params;
+        return params == null ? null : (T) params.get();
     }
 
     public void setParams(Object params) {
-        this.params = params;
+        this.params = new ExactValue(params);
     }
 
     @Override

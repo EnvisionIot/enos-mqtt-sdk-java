@@ -57,9 +57,9 @@ public class SimpleSendReceive {
 
     //beta
     // json device
-    public static final String productKey = "RNMWw2rV";
+    public static final String productKey = "dZjlcsgY";
     public static final String deviceKey = "zscai_test_device";
-    public static final String deviceSecret = "9oRqACRCSyrHP14sUukl";
+    public static final String deviceSecret = "wsyeV09kL8r76lRQi1xt";
 
     // 透传 device
     public static final String parserProductKey = "WwVF5nKj";
@@ -573,11 +573,6 @@ public class SimpleSendReceive {
             System.out.println(arrivedMessage);
             return null;
         });
-        client.setArrivedMsgHandler(SubDeviceDeleteCommand.class, (arrivedMessage, argList) -> {
-            System.out.println("rcv subDeviceDeleteCommand");
-            System.out.println(arrivedMessage);
-            return null;
-        });
     }
 
     public static void handleServiceInvocation() {
@@ -586,26 +581,15 @@ public class SimpleSendReceive {
             public ServiceInvocationReply onMessage(ServiceInvocationCommand request, List<String> argList) throws Exception {
                 System.out.println("rcvn async serevice invocation command" + request + " topic " + argList);
                 return ServiceInvocationReply.builder()
-                        .setCode(2000)
-                        /**/.setMessage("user defined err msg")
+//                        .setCode(2000)
+//                        /**/.setMessage("user defined err msg")
                         .addOutputData("pointA", "11")
-                        .addOutputData("point2", 11)
+                        .addOutputData("point1", 11)
                         .build();
             }
 
         };
         client.setArrivedMsgHandler(ServiceInvocationCommand.class, handler);
-        client.setArrivedMsgHandler(RrpcInvocationCommand.class, new IMessageHandler<RrpcInvocationCommand, RrpcInvocationReply>() {
-            @Override
-            public RrpcInvocationReply onMessage(RrpcInvocationCommand arrivedMessage, List<String> argList)
-                    throws Exception {
-                System.out.println("rcv rrpc commadnd " + arrivedMessage + "topic " + argList);
-
-                return RrpcInvocationReply.builder()
-                        .setData(ImmutableMap.of("pointA", 10)).build();
-            }
-        });
-
     }
 
 
@@ -613,7 +597,8 @@ public class SimpleSendReceive {
     public static void measurepointSetHandler() {
         client.setArrivedMsgHandler(MeasurepointSetCommand.class, (arrivedMessage, argList) -> {
             System.out.println(arrivedMessage);
-            return MeasurepointSetReply.builder().build();
+            return null;
+//            return MeasurepointSetReply.builder().build();
         });
 
         client.setArrivedMsgHandler(SubDeviceDisableCommand.class, (command, argList) -> {

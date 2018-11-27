@@ -1,6 +1,7 @@
 package com.envisioniot.enos.iot_mqtt_sdk.message;
 
 import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.ResponseCode;
+import com.envisioniot.enos.iot_mqtt_sdk.util.ExactValue;
 import com.envisioniot.enos.iot_mqtt_sdk.util.GsonUtil;
 
 import java.io.Serializable;
@@ -15,7 +16,7 @@ public class AckMessageBody implements Serializable {
     private static final long serialVersionUID = -2367357179961511079L;
     private String id;
     private int code;
-    private Object data;
+    private ExactValue data;
     private String message;
 
     public byte[] encode() {
@@ -52,11 +53,11 @@ public class AckMessageBody implements Serializable {
 
     @SuppressWarnings("unchecked")
     public <T> T getData() {
-        return (T) data;
+        return data == null ? null : (T) data.get();
     }
 
     public void setData(Object data) {
-        this.data = data;
+        this.data = new ExactValue(data);
     }
 
     public String getMessage() {

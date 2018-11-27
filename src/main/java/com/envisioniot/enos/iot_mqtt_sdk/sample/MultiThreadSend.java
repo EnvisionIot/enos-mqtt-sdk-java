@@ -19,7 +19,7 @@ public class MultiThreadSend {
 
     private static MqttClient client;
 
-    public static final String region = SimpleSendReceive.alpha;
+    public static final String region = SimpleSendReceive.beta;
 
     private static  ExecutorService executor = Executors.newFixedThreadPool(10);
 
@@ -38,7 +38,6 @@ public class MultiThreadSend {
 //                    } catch (InterruptedException e) {
 //                        e.printStackTrace();
 //                    }
-
                 }
             });
         }
@@ -60,7 +59,6 @@ public class MultiThreadSend {
 
     public static void postSyncMeasurepoint() {
         Random random = new Random();
-        System.out.println("start post measurepoint ...");
         MeasurepointPostRequest request = MeasurepointPostRequest.builder()
                 .addMeasurePoint("point1", random.nextInt(100)).build();
         request.setQos(1);

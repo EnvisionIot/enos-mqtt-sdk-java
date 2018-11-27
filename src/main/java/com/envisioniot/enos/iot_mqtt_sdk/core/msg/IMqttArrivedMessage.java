@@ -1,7 +1,6 @@
 package com.envisioniot.enos.iot_mqtt_sdk.core.msg;
 
 import com.envisioniot.enos.iot_mqtt_sdk.util.GsonUtil;
-import com.envisioniot.enos.iot_mqtt_sdk.util.MsgDecodeUtil;
 
 import java.util.Arrays;
 import java.util.List;
@@ -17,9 +16,9 @@ import java.util.regex.Pattern;
  * @date 2018/7/6.
  */
 public interface IMqttArrivedMessage extends IMqttMessage {
-    public Pattern getMatchTopicPattern();
+    Pattern getMatchTopicPattern();
 
-    public default List<String> match(String topic) {
+    default List<String> match(String topic) {
         Matcher matcher = this.getMatchTopicPattern().matcher(topic);
         if (matcher.matches()) {
             String[] groups = new String[matcher.groupCount()];
@@ -34,9 +33,9 @@ public interface IMqttArrivedMessage extends IMqttMessage {
 
 
     /**
-     * @param topic
-     * @param payload
-     * @return
+     * @param topic mqtt topic of arrived message
+     * @param payload byte array of message payload
+     * @return arrivedMessage & path
      * @throws Exception
      */
     public default DecodeResult decode(String topic, byte[] payload) throws Exception {

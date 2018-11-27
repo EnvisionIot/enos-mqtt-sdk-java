@@ -52,6 +52,24 @@ public class MeasurepointPostRequest extends BaseMqttRequest<MeasurepointPostRes
             return this;
         }
 
+        /**
+         * @param key measurepoint identifier
+         * @param value value of measurepoint
+         * @param quality quality of measurepoint
+         * @return builder
+         */
+        @SuppressWarnings("unchecked")
+        public Builder addMeasreuPointWithQuality(String key, Object value, Object quality) {
+            Map<String, Object> values = (Map<String, Object>) params.get("measurepoints");
+            Map<String, Object> valueWithQuality = new HashMap<>();
+            valueWithQuality.put("value", value);
+            valueWithQuality.put("quality", quality);
+            values.put(key, valueWithQuality);
+            return this;
+        }
+
+
+
         @SuppressWarnings("unchecked")
         public Builder addMeasurePoints(Map<String, Object> value) {
             Map<String, Object> values = (Map<String, Object>) params.get("measurepoints");
