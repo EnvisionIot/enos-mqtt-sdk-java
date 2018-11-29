@@ -229,7 +229,6 @@ client.setArrivedMsgHandler(SubDeviceDisableCommand.class, (SubDeviceDisableComm
 ### 完整示例代码
 
 ```java
-
 import com.envisioniot.enos.iot_mqtt_sdk.core.IConnectCallback;
 import com.envisioniot.enos.iot_mqtt_sdk.core.MqttClient;
 import com.envisioniot.enos.iot_mqtt_sdk.core.exception.EnvisionException;
@@ -436,9 +435,9 @@ public class SimpleSendReceive {
 
     public static void addTopo() throws Exception {
         System.out.println("start add topo ...");
-        AddTopoRequest request = AddTopoRequest.builder().
+        TopoAddRequest request = TopoAddRequest.builder().
                 addSubDevice(new SubDeviceInfo(subProductKey, subDeviceKey, subDeviceSecret)).build();
-        AddTopoResponse rsp = client.publish(request);
+        TopoAddResponse rsp = client.publish(request);
         System.out.println("-->" + rsp);
         getTopo();
 
@@ -446,9 +445,9 @@ public class SimpleSendReceive {
 
     public static void deleteTopo() throws Exception {
         System.out.println("start delete topo...");
-        DeleteTopoRequest request = DeleteTopoRequest.builder()
+        TopoDeleteRequest request = TopoDeleteRequest.builder()
                 .setSubDevices(Lists.newArrayList(Pair.makePair(subProductKey, subDeviceKey))).build();
-        DeleteTopoResponse rsp = client.publish(request);
+        TopoDeleteResponse rsp = client.publish(request);
         System.out.println("-->" + rsp);
         getTopo();
     }
@@ -456,9 +455,9 @@ public class SimpleSendReceive {
 
     public static void getTopo() throws Exception {
         System.out.println("start get topo...");
-        GetTopoRequest request = GetTopoRequest.builder().build();
+        TopoGetRequest request = TopoGetRequest.builder().build();
 
-        GetTopoResponse rsp = client.publish(request);
+        TopoGetResponse rsp = client.publish(request);
         System.out.println("-->" + rsp);
 
     }

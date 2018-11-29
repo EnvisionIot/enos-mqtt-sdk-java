@@ -28,13 +28,18 @@ public class MultiThreadSend {
         initWithCallback();
 
         long begin = System.currentTimeMillis();
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 100; i++) {
             executor.execute(()->{
                 while(true){
                     //tps : 50.76029449850161
-                    postSyncMeasurepoint();
+                    fastPostMeasurepoint();
 //                    try {
 //                        Thread.sleep();
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                    }
+//                    try {
+//                        Thread.sleep(1000);
 //                    } catch (InterruptedException e) {
 //                        e.printStackTrace();
 //                    }
@@ -56,6 +61,22 @@ public class MultiThreadSend {
         }).start();
 
     }
+
+
+    public static void fastPostMeasurepoint(){
+        Random random = new Random();
+        MeasurepointPostRequest request = MeasurepointPostRequest.builder()
+                .addMeasurePoint("point1", random.nextInt(100)).build();
+        request.setQos(1);
+
+        try {
+             client.fastPublish(request);
+            counter.incrementAndGet();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 
     public static void postSyncMeasurepoint() {
         Random random = new Random();

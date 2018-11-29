@@ -19,7 +19,7 @@ public class MeasurepointSetReply extends BaseMqttReply {
 
         @Override
         protected Object createData() {
-            return "";
+            return null;
         }
 
         @Override

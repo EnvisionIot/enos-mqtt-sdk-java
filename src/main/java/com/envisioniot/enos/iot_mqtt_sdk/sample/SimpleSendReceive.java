@@ -7,7 +7,6 @@ import com.envisioniot.enos.iot_mqtt_sdk.core.IConnectCallback;
 import com.envisioniot.enos.iot_mqtt_sdk.core.MqttClient;
 import com.envisioniot.enos.iot_mqtt_sdk.core.exception.EnvisionException;
 import com.envisioniot.enos.iot_mqtt_sdk.core.msg.IMessageHandler;
-import com.envisioniot.enos.iot_mqtt_sdk.message.downstream.device.SubDeviceDeleteCommand;
 import com.envisioniot.enos.iot_mqtt_sdk.message.downstream.device.SubDeviceDisableCommand;
 import com.envisioniot.enos.iot_mqtt_sdk.message.downstream.device.SubDeviceDisableReply;
 import com.envisioniot.enos.iot_mqtt_sdk.message.downstream.device.SubDeviceEnableCommand;
@@ -58,8 +57,8 @@ public class SimpleSendReceive {
     //beta
     // json device
     public static final String productKey = "dZjlcsgY";
-    public static final String deviceKey = "zscai_test_device";
-    public static final String deviceSecret = "wsyeV09kL8r76lRQi1xt";
+    public static final String deviceKey = "zscai_test";
+    public static final String deviceSecret = "WyKN6UEG5VQ2dKm7SuLV";
 
     // 透传 device
     public static final String parserProductKey = "WwVF5nKj";
@@ -164,7 +163,7 @@ public class SimpleSendReceive {
             client = new MqttClient(beta, productKey, deviceKey, deviceSecret); // json device
 
 //            client = new MqttClient(local, parserProductKey, parserDevicekey, parserDeviceSecret); // 透传device
-            client.getProfile().setConnectionTimeout(60);
+            client.getProfile().setConnectionTimeout(60).setAutoReconnect(false);
             client.connect(new IConnectCallback() {
                 @Override
                 public void onConnectSuccess() {
@@ -230,9 +229,13 @@ public class SimpleSendReceive {
 //            e.printStackTrace();
 //        }
 
+
         System.out.println("start update attribute...");
         AttributeUpdateRequest request2 = AttributeUpdateRequest.builder()
-                .addAttribute("attribute1",  11)
+                .addAttribute("attribute1", 1)
+                .addAttribute("attribute3", Lists.newArrayList(random.nextFloat()* 2 , random.nextFloat()* 3 ))
+                .addAttribute("attribute2" , "hello" + random.nextInt(100))
+                .addAttribute("attribute4" , "email@emai.com")
                 .build();
         try {
             AttributeUpdateResponse rsp2 = client.publish(request2);
@@ -583,7 +586,7 @@ public class SimpleSendReceive {
                 return ServiceInvocationReply.builder()
 //                        .setCode(2000)
 //                        /**/.setMessage("user defined err msg")
-                        .addOutputData("pointA", "11")
+//                        .addOutputData("pointA", "11")
                         .addOutputData("point1", 11)
                         .build();
             }
@@ -597,8 +600,8 @@ public class SimpleSendReceive {
     public static void measurepointSetHandler() {
         client.setArrivedMsgHandler(MeasurepointSetCommand.class, (arrivedMessage, argList) -> {
             System.out.println(arrivedMessage);
-            return null;
-//            return MeasurepointSetReply.builder().build();
+//            return null;
+            return MeasurepointSetReply.builder().build();
         });
 
         client.setArrivedMsgHandler(SubDeviceDisableCommand.class, (command, argList) -> {

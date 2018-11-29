@@ -21,6 +21,7 @@ public class Profile {
     private static final int DEFAULT_KEEP_ALIVE_INTERVAL = 60;
     private static final int DEFAULT_CONNECTION_TIMEOUT = 30;
     private static final int DEFAULT_OPERATION_TIMEOUT = 60;
+    private static final int DEFAUT_MAX_INFLIGHT = 10000;
     private String regionURL;
 
     private String productKey;
@@ -33,6 +34,8 @@ public class Profile {
     private int keepAlive;
     private int connectionTimeout;
     private int timeToWait;
+    private int maxInFlight;
+    private boolean autoReconnect = true;
     private long timestamp = System.currentTimeMillis();
     private boolean sslSecured = false;
     private SSLContext sslContext;
@@ -57,6 +60,7 @@ public class Profile {
         this.connectionTimeout = DEFAULT_CONNECTION_TIMEOUT;
         this.timeToWait = DEFAULT_OPERATION_TIMEOUT;
         this.executorService = executorService;
+        this.maxInFlight = DEFAUT_MAX_INFLIGHT;
     }
 
     public ExecutorService getExecutorService() {
@@ -104,8 +108,10 @@ public class Profile {
         connectOptions.setUserName(mqttUsername);
         connectOptions.setPassword(mqttPassword.toCharArray());
         connectOptions.setKeepAliveInterval(this.getKeepAlive());
-        connectOptions.setAutomaticReconnect(true);
+        connectOptions.setAutomaticReconnect(autoReconnect);
         connectOptions.setConnectionTimeout(this.getConnectionTimeout());
+        connectOptions.setMaxInflight(maxInFlight);
+
         if (sslSecured) {
             if(this.sslContext == null ){
                 try {
@@ -170,15 +176,27 @@ public class Profile {
         return deviceKey + "|securemode=2,signmethod=" + SignUtil.hmacsha1 + ",timestamp=" + timestamp + "|";
     }
 
+    public Profile setMaxInFlight(int maxInFlight){
+        this.maxInFlight = maxInFlight;
+        return this;
+    }
+
+    public Profile setAutoReconnect(boolean autoReconnect) {
+        this.autoReconnect = autoReconnect;
+        return this;
+    }
+
     public Profile setSSLSecured(boolean sslSecured) {
         this.sslSecured = sslSecured;
         return this;
     }
 
+
     public Profile setSSLContext(SSLContext sslContext) {
         this.sslContext = sslContext;
         return this;
     }
+
 
     public Profile setSSLJksPath(String sslJksPath , String sslPassword) {
         this.sslJksPath = sslJksPath;
