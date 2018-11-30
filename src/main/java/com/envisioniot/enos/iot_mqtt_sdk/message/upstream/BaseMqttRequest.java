@@ -26,8 +26,15 @@ public abstract class BaseMqttRequest<T extends BaseMqttResponse> extends BaseAn
     }
 
     protected abstract static class Builder<B extends Builder, R extends BaseMqttRequest> {
+        protected int qos = 1;
         protected String productKey;
         protected String deviceKey;
+
+        @SuppressWarnings("unchecked")
+        public B setQos(int qos){
+            this.qos = qos;
+            return (B) this;
+        }
 
         @SuppressWarnings("unchecked")
         public B setProductKey(String productKey) {
@@ -57,6 +64,7 @@ public abstract class BaseMqttRequest<T extends BaseMqttResponse> extends BaseAn
             }
             request.setMethod(createMethod());
             request.setParams(createParams());
+            request.setQos(qos);
             return request;
         }
     }

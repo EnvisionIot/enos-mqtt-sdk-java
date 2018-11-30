@@ -3,6 +3,7 @@ package com.envisioniot.enos.iot_mqtt_sdk.message.upstream.tag;
 import com.envisioniot.enos.iot_mqtt_sdk.core.internals.constants.DeliveryTopicFormat;
 import com.envisioniot.enos.iot_mqtt_sdk.core.internals.constants.MethodConstants;
 import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.BaseMqttRequest;
+import com.google.common.collect.ImmutableMap;
 
 import java.util.*;
 
@@ -70,7 +71,7 @@ public class TagQueryRequest extends BaseMqttRequest<TagQueryResponse>{
 
         @Override
         protected Object createParams() {
-            return new ArrayList<>(tagKeys);
+            return ImmutableMap.of("tags", new ArrayList<>(tagKeys));
         }
 
         @Override

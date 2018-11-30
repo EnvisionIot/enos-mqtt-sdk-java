@@ -64,9 +64,9 @@ public class SimpleSendReceive {
     public static final String parserProductKey = "WwVF5nKj";
     public static final String parserDevicekey = "device1";
     public static final String parserDeviceSecret = "mOpcSKsxSQsvr0nUHUiK";
-    public static final String subProductKey = "Cb5bjujA";
+    public static final String subProductKey = "f8F5hjsS";
     public static final String subDeviceKey = "zscai_sub_device";
-    public static final String subDeviceSecret = "6F3ssoWPBAxTfMeKD71A";
+    public static final String subDeviceSecret = "3bvQHli93B8qn3UXhaVA";
 
 //	private static final String productKey = "E8Fw4uiX";
 //	public static final String deviceKey = "zscai-test-device2";
@@ -232,6 +232,7 @@ public class SimpleSendReceive {
 
         System.out.println("start update attribute...");
         AttributeUpdateRequest request2 = AttributeUpdateRequest.builder()
+                .setQos(0)
                 .addAttribute("attribute1", 1)
                 .addAttribute("attribute3", Lists.newArrayList(random.nextFloat()* 2 , random.nextFloat()* 3 ))
                 .addAttribute("attribute2" , "hello" + random.nextInt(100))
@@ -342,9 +343,9 @@ public class SimpleSendReceive {
     public static void subDeviceRegister() {
         System.out.println("start register register sub-device , current status : " + client.isConnected());
         DeviceRegisterRequest request = DeviceRegisterRequest.builder()
-                .addSubRegisterInfo(subProductKey, "zscai-sub-device-1", "zscai-sub-device-1", "zscai-sub-device-1")
-                .addSubRegisterInfo(subProductKey, "zscai-sub-device-2", "zscai-sub-device-2", "zscai-sub-device-2")
-                .addSubRegisterInfo(subProductKey, "zscai-sub-device-3", "zscai-sub-device-3", "zscai-sub-device-3")
+                .addRegisterInfo(subProductKey, "zscai-sub-device-1", "zscai-sub-device-1", "zscai-sub-device-1")
+                .addRegisterInfo(subProductKey, "zscai-sub-device-2", "zscai-sub-device-2", "zscai-sub-device-2")
+                .addRegisterInfo(subProductKey, "zscai-sub-device-3", "zscai-sub-device-3", "zscai-sub-device-3")
                 .build();
 //		request.setRegProductKey("eb27piAg");
         DeviceRegisterResponse rsp = null;
@@ -359,6 +360,7 @@ public class SimpleSendReceive {
 
     public static void subDeviceLogin() {
         SubDeviceLoginRequest request = SubDeviceLoginRequest.builder()
+                .setQos(0)
                 .setSubDeviceInfo(subProductKey, subDeviceKey, subDeviceSecret).build();
         SubDeviceLoginResponse rsp = null;
 

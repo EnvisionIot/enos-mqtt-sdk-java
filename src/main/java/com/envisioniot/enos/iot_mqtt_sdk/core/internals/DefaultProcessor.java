@@ -178,7 +178,21 @@ public class DefaultProcessor implements MqttCallback, MqttCallbackExtended {
     public <T extends IMqttResponse> void doFastPublish(IMqttRequest<T> request) throws EnvisionException {
         try {
             request.check();
-            mqttClient.publish(request.getMessageTopic(), request.encode(), request.getQos(), false);
+            if(request.getQos() == 1 ) {
+                mqttClient.publish(request.getMessageTopic(), request.encode(), request.getQos(), false);
+            }
+            /**
+             * issue: https://github.com/eclipse/paho.mqtt.java/issues/421
+             */
+            else if(request.getQos() == 0 ){
+                synchronized (mqttClient){
+                    mqttClient.publish(request.getMessageTopic(), request.encode(), request.getQos(), false);
+                }
+            }
+            else {
+                throw new EnvisionException(EnvisionError.QOS_2_NOT_ALLOWED);
+            }
+
         } catch (MqttException e) {
             logger.error("publish message failed messageRequestId {} ", request.getMessageTopic());
             throw new EnvisionException(e.getMessage(), e.getCause(), EnvisionError.MQTT_CLIENT_PUBLISH_FAILED);
@@ -190,20 +204,18 @@ public class DefaultProcessor implements MqttCallback, MqttCallbackExtended {
         if (callback != null) {
             final Task<T> task = new Task<T>();
             String key = request.getAnswerTopic() + "_" + request.getMessageId();
-            Boolean isTimeout = true;
 
-            FutureTask<Boolean> futureTask = new FutureTask<Boolean>(() -> {
+            Runnable timeoutTask = () -> {
                 logger.warn("callback task timeout {} ", key);
                 rspTaskMap.remove(key);
-            }, isTimeout);
+            };
+            ScheduledFuture<?> future = timeoutScheduler.schedule(timeoutTask, timeout, TimeUnit.MILLISECONDS);
             task.setRunable(() -> {
                 callback.onResponse(task.rsp);
-                if (!futureTask.isDone()) {
-                    futureTask.cancel(false);
-                }
+                future.cancel(false);
             });
             rspTaskMap.put(key, task);
-            timeoutScheduler.schedule(futureTask, timeout, TimeUnit.MILLISECONDS);
+
         }
 
         this.doFastPublish(request);

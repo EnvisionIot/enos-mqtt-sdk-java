@@ -20,10 +20,18 @@ public abstract class BaseMqttReply extends BaseAckMessage implements IMqttReply
     private static final long serialVersionUID = -5315349562529412528L;
     private String productKey;
     private String deviceKey;
+    private int qos = 1;
 
     protected abstract static class Builder<B extends Builder, R extends BaseMqttReply> {
+        private int qos = 1;
         private Integer code;
         private String message;
+
+        @SuppressWarnings("unchecked")
+        public B setQos(int qos) {
+            this.qos = qos;
+            return ((B) this);
+        }
 
         @SuppressWarnings("unchecked")
         public B setCode(int code) {
@@ -48,6 +56,7 @@ public abstract class BaseMqttReply extends BaseAckMessage implements IMqttReply
                 reply.setMessage(message);
             }
             reply.setData(createData());
+            reply.setQos(qos);
             return reply;
         }
     }
@@ -113,6 +122,10 @@ public abstract class BaseMqttReply extends BaseAckMessage implements IMqttReply
     @Override
     public void setDeviceKey(String deviceKey) {
         this.deviceKey = deviceKey;
+    }
+
+    public void setQos(int qos) {
+        this.qos = qos;
     }
 
     @Override

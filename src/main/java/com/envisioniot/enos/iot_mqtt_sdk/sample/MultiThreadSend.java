@@ -28,11 +28,18 @@ public class MultiThreadSend {
         initWithCallback();
 
         long begin = System.currentTimeMillis();
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 10; i++) {
             executor.execute(()->{
                 while(true){
                     //tps : 50.76029449850161
-                    fastPostMeasurepoint();
+//                    fastPostMeasurepoint();
+//                    postSyncMeasurepoint();
+//                    postWithCallbackMeasurepoint();
+
+//                    fastPostMeasurepointQos0();
+                    postSyncMeasurepointQos0();
+
+
 //                    try {
 //                        Thread.sleep();
 //                    } catch (InterruptedException e) {
@@ -63,14 +70,16 @@ public class MultiThreadSend {
     }
 
 
-    public static void fastPostMeasurepoint(){
+    public static void postWithCallbackMeasurepoint(){
         Random random = new Random();
         MeasurepointPostRequest request = MeasurepointPostRequest.builder()
                 .addMeasurePoint("point1", random.nextInt(100)).build();
         request.setQos(1);
 
         try {
-             client.fastPublish(request);
+            client.publish(request, (response)->{
+
+            });
             counter.incrementAndGet();
         } catch (Exception e) {
             e.printStackTrace();
@@ -78,11 +87,58 @@ public class MultiThreadSend {
     }
 
 
+    public static void fastPostMeasurepoint(){
+        Random random = new Random();
+        MeasurepointPostRequest request = MeasurepointPostRequest.builder()
+                .addMeasurePoint("point1", random.nextInt(100)).build();
+        request.setQos(1);
+
+        try {
+            client.fastPublish(request);
+            counter.incrementAndGet();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void fastPostMeasurepointQos0(){
+        Random random = new Random();
+        MeasurepointPostRequest request = MeasurepointPostRequest.builder()
+                .addMeasurePoint("point1", random.nextInt(100))
+                .setQos(0).build();
+
+        try {
+            client.fastPublish(request);
+            counter.incrementAndGet();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
+
     public static void postSyncMeasurepoint() {
         Random random = new Random();
         MeasurepointPostRequest request = MeasurepointPostRequest.builder()
                 .addMeasurePoint("point1", random.nextInt(100)).build();
         request.setQos(1);
+
+        try {
+            MeasurepointPostResponse rsp = client.publish(request);
+//            System.out.println("-->" + rsp);
+            counter.incrementAndGet();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public static void postSyncMeasurepointQos0() {
+        Random random = new Random();
+        MeasurepointPostRequest request = MeasurepointPostRequest.builder()
+                .addMeasurePoint("point1", random.nextInt(100))
+                .setQos(0).build();
 
         try {
             MeasurepointPostResponse rsp = client.publish(request);
@@ -102,7 +158,7 @@ public class MultiThreadSend {
                     SimpleSendReceive.deviceSecret); // json device
 
 //            client = new MqttClient(local, parserProductKey, parserDevicekey, parserDeviceSecret); // 透传device
-            client.getProfile().setConnectionTimeout(60);
+            client.getProfile().setConnectionTimeout(60).setMaxInFlight(10000);
             client.connect(new IConnectCallback() {
                 @Override
                 public void onConnectSuccess() {
@@ -125,4 +181,7 @@ public class MultiThreadSend {
         }
         System.out.println("connect result :" + client.isConnected());
     }
+
+
+
 }

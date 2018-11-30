@@ -44,29 +44,29 @@ public class DeviceRegisterRequest extends BaseMqttRequest<DeviceRegisterRespons
             return new DeviceRegisterRequest();
         }
 
-        public Builder addSubBatchRegisterInfo(String subProductKey, List<DeviceRegOption> regOptions) {
+        public Builder addBatchRegisterInfo(String subProductKey, List<DeviceRegOption> regOptions) {
             params.addAll(createBatchRegInfoMap(subProductKey, regOptions));
             return this;
         }
 
-        public Builder setSubBatchRegisterInfo(String subProductKey, List<DeviceRegOption> regOptions) {
+        public Builder setBatchRegisterInfo(String subProductKey, List<DeviceRegOption> regOptions) {
             params = createBatchRegInfoMap(subProductKey, regOptions);
             return this;
         }
 
-        public Builder addSubRegisterInfo(String subProductKey, DeviceRegOption regOption) {
+        public Builder addRegisterInfo(String subProductKey, DeviceRegOption regOption) {
             params.add(createRegInfoMap(subProductKey, regOption));
             return this;
         }
 
-        public Builder addSubRegisterInfo(String subProductKey, String deviceKey, String deviceName, String deviceDesc) {
-            addSubRegisterInfo(subProductKey, new DeviceRegOption(deviceKey, deviceName, deviceDesc));
+        public Builder addRegisterInfo(String subProductKey, String deviceKey, String deviceName, String deviceDesc) {
+            addRegisterInfo(subProductKey, new DeviceRegOption(deviceKey, deviceName, deviceDesc));
             return this;
         }
 
-        public Builder addSubRegisterInfo(String subProductkey, String deviceKey, String deviceName, String deviceDesc,
+        public Builder addRegisterInfo(String subProductkey, String deviceKey, String deviceName, String deviceDesc,
                                           Map<String, Object> deviceAttrs) {
-            addSubRegisterInfo(subProductkey, new DeviceRegOption(deviceKey, deviceName, deviceDesc, deviceAttrs));
+            addRegisterInfo(subProductkey, new DeviceRegOption(deviceKey, deviceName, deviceDesc, deviceAttrs));
             return this;
         }
 

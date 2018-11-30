@@ -98,8 +98,8 @@ public class MqttConnection {
 
     public <T extends IMqttResponse> void publish(IMqttRequest<T> request, IResponseCallback<T> callback) throws Exception {
         String topic = request.getAnswerTopic();
-        if (subTopicCache.exists(topic) == false) {
-            this.transport.subscribe(topic);
+        if (!subTopicCache.exists(topic)) {
+            this.transport.subscribe(topic , request.getQos());
             subTopicCache.put(topic);
         }
 
@@ -108,8 +108,8 @@ public class MqttConnection {
 
     public <T extends IMqttResponse> T publish(IMqttRequest<T> request) throws Exception {
         String topic = request.getAnswerTopic();
-        if (subTopicCache.exists(topic) == false) {
-            this.transport.subscribe(topic);
+        if (!subTopicCache.exists(topic)) {
+            this.transport.subscribe(topic , request.getQos());
             subTopicCache.put(topic);
         }
 

@@ -35,7 +35,7 @@ public enum EnvisionError {
     STATUS_NOT_ALLOW_LOGOUT(-124, "status not allow logout"),
     FUTURE_TASK_TIME_OUT(-125, "sync request timeout"),
 
-    SUCCESS(0, "success");
+    SUCCESS(0, "success"), QOS_2_NOT_ALLOWED(-126, "qos 2 not allowed"),;
     private int errorCode;
     private String errorMessage;
 

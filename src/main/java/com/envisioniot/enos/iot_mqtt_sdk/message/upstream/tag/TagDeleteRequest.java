@@ -3,6 +3,7 @@ package com.envisioniot.enos.iot_mqtt_sdk.message.upstream.tag;
 import com.envisioniot.enos.iot_mqtt_sdk.core.internals.constants.DeliveryTopicFormat;
 import com.envisioniot.enos.iot_mqtt_sdk.core.internals.constants.MethodConstants;
 import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.BaseMqttRequest;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -43,7 +44,7 @@ public class TagDeleteRequest extends BaseMqttRequest<TagDeleteResponse> {
 
         @Override
         protected Object createParams() {
-            return new ArrayList<>(tags);
+            return ImmutableMap.of("tags", new ArrayList<>(tags));
         }
 
         public Builder addTagKey(String tagKey) {
