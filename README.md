@@ -34,10 +34,10 @@ _This is the recommended method of including the EnOS IoT SDKs in your project._
 * In your main pom.xml file, add the EnOS IoT MQTT SDK as a dependency as follows:
 ```xml
 	<dependency>
-	    <groupId>com.envisioniot.enos</groupId>
-        <version>2.1.0</version>
-        <artifactId>enos-mqtt</artifactId>
-	  <!--You might need to change the version number as you need.-->
+		<groupId>com.envisioniot.enos</groupId>
+		<version>2.1.0</version>
+		<artifactId>enos-mqtt</artifactId>
+		<!--You might need to change the version number as you need.-->
 	</dependency>
 ```
 
@@ -154,7 +154,7 @@ public void onConnectSuccess()
 ```
 
 
-*注意，子设备的productKey同样需要通过[控制台](http://tapd.oa.com)，或者[RestfulAPI](http://tapd.oa.com)进行获取。关于子设备的deviceKey, deviceSecret, 除了可以通过[控制台](http://tapd.oa.com)或[RestfulAPI](http://tapd.oa.com)外，我们也可以使用MQTT SDK的SubDeviceDynamicRegRequest来进行注册。*
+*注意，子设备的productKey同样需要通过[控制台](http://tapd.oa.com)，或者[RestfulAPI](http://tapd.oa.com)进行获取。关于子设备的deviceKey, deviceSecret, 除了可以通过[控制台](http://tapd.oa.com)或[RestfulAPI](http://tapd.oa.com)外，我们也可以使用MQTT SDK的DeviceRegisterRequest来进行注册。*
 
 接下来我们发送一个子设备的测点数据给到服务端
 
