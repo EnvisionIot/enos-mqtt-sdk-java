@@ -54,7 +54,7 @@ _This is the recommended method of including the EnOS IoT SDKs in your project._
 
 The EnOS IoT MQTT SDK supports the following functions:
 
-- 支持子设备的身份注册
+- 支持设备的身份注册
 - 支持网关设备的拓扑增删改查
 - 支持子设备的上下线能力
 - 支持设备标签的上报删除
@@ -64,7 +64,6 @@ The EnOS IoT MQTT SDK supports the following functions:
 - 支持设备置数（测点设置）及测点主动获取的能力
 - 支持设备服务的触发（俗称的控）
 - 支持设备的启用，禁用，删除的消息通知
-- 支持设备的通用控制指令（RRPC）
 
 <a name="apiref"></a>
 ## API reference
@@ -78,7 +77,7 @@ The following sample codes instruct how to use the SDK.
 ### 连接服务器
 
 ```
-MqttClient client = new MqttClient(prd, productKey, deviceKey, deviceSecret);
+MqttClient client = new MqttClient(serverUrl, productKey, deviceKey, deviceSecret);
 client.connect(new IConnectCallback()
 {
 	@Override
@@ -101,9 +100,9 @@ client.connect(new IConnectCallback()
 });
 ```
 
+其中serverUrl是用户连接服务器地址，如果使用TCP连接则可以连接对应的域名tcp://{regionUrl}:11883;productKey, deviceKey, deviceSecret表示设备的三元组信息。 
+
 对于非Java SDK的用户，用户可以根据设备三元组信息自行组织MQTT CONNECT报文参数，进行设备登录：
-
-
 mqtt的Connect报文参数如下：
 ```
   mqttClientId: clientId+"|securemode=2,signmethod=hmacsha1,timestamp=132323232|"
@@ -127,6 +126,33 @@ When clientId = 123, deviceKey = test, productKey = 123, timestamp = 15244487220
 sign= toUpperCase(hmacsha1(clientId123deviceKeytestproductKey123timestamp1524448722000deviceSecret))
 
 在构建MqttClient的参数中，product， productKey，deviceKey以及deviceSecret可以从控制台中获取，或者通过EnOS REST API进行获取。
+
+#### 通过SSL/TLS连接云端
+
+当用于对于设备安全性的要求，用于可以使用基于证书的双向认证，使用SSL/TLS加密通信。用户需要通过云端API申请到对应的设备证书，并将其加载至SDK路径。然后用户可以通过SSL端口连接服务器。
+对应的serverUrl为 ssl://{regionUrl}:18883, 示例代码如下
+
+```
+client = new MqttClient(betaSSL, productKey, deviceKey, deviceSecret);
+client.getProfile().setSSLSecured(true).setSSLJksPath("path.jks", "password");
+client.connect(new IConnectCallback() {
+    @Override
+    public void onConnectSuccess() {
+        System.out.println("connect success");
+    }
+
+    @Override
+    public void onConnectLost() {
+        System.out.println("onConnectLost");
+    }
+
+    @Override
+    public void onConnectFailed(int reasonCode) {
+        System.out.println("onConnectFailed : " + reasonCode);
+    }
+});
+```
+> 当然用户也可是直接使用setSSLContext()方法来直接设置SSL内容，完成证书内容的加载，完成证书双向认证的mqtt客户端的初始化过程。
 
 ### 发送命令
 
