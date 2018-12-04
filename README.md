@@ -34,9 +34,9 @@ _This is the recommended method of including the EnOS IoT SDKs in your project._
 * In your main pom.xml file, add the EnOS IoT MQTT SDK as a dependency as follows:
 ```xml
 	<dependency>
-	  <groupId>com.envisioniot.enos</groupId>
-	  <artifactId>iot_mqtt_sdk</artifactId>
-	  <version>0.0.1-SNAPSHOT</version>
+	    <groupId>com.envisioniot.enos</groupId>
+        <version>2.1.0</version>
+        <artifactId>enos-mqtt</artifactId>
 	  <!--You might need to change the version number as you need.-->
 	</dependency>
 ```
