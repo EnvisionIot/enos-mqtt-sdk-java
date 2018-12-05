@@ -1,59 +1,60 @@
 # Using EnOS Device SDK for MQTT for Java
 
-This article instructs how to prepare your development environment to use the *EnOS Device SDK for MQTT*.
+This article instructs how to prepare your development environment to use the *EnOS Device SDK for MQTT for Java*.
 
 - [Installing Java JDK SE](https://github.com/EnvisionIot/enos-mqtt-sdk-java#installjava)
 - [Installing Maven](https://github.com/EnvisionIot/enos-mqtt-sdk-java#installmaven)
-- Obtaining EnOS Device SDK for MQTT
-  - [Include dependency in Maven project](https://github.com/EnvisionIot/enos-mqtt-sdk-java#installiotmaven)
-  - [Building from source](https://github.com/EnvisionIot/enos-mqtt-sdk-java#installiotsource)
-- [Feature list](https://github.com/EnvisionIot/enos-mqtt-sdk-java#featurelist)
-- [Sample code](https://github.com/EnvisionIot/enos-mqtt-sdk-java#samplecode)
+- Obtaining EnOS Device SDK for MQTT for Java
+  - [Including Dependency in Maven Project](https://github.com/EnvisionIot/enos-mqtt-sdk-java#installiotmaven)
+  - [Building from Source Code](https://github.com/EnvisionIot/enos-mqtt-sdk-java#installiotsource)
+- [Feature List](https://github.com/EnvisionIot/enos-mqtt-sdk-java#featurelist)
+- [Sample Code](https://github.com/EnvisionIot/enos-mqtt-sdk-java#samplecode)
 
 ## Installing Java JDK SE
 
-To use the EnOS Device SDK for MQTT, you will need to install **Java SE 8**.
+To use the EnOS Device SDK for MQTT for Java, you will need to install **Java SE 8**.
 
 ## Installing Maven
 
-To use EnOS Device SDK for MQTT, we recommend you use **Maven 3**.
+To use EnOS Device SDK for MQTT for Java, we recommend you use **Maven 3**.
 
-## Obtaining EnOS Device SDK for MQTT
+## Obtaining EnOS Device SDK for MQTT for Java
 
-You can obtain the EnOS Device SDK for MQTT through the following methods:
+You can obtain the EnOS Device SDK for MQTT for Java through the following methods:
 
-- Include the project as a dependency in your Maven project.
-- Download the source code by cloning this repo and build on your machine.
+- Include the project as a dependency in your Maven project
+- Download the source code by cloning this repo and build on your machine
 
-### Get EnOS Device SDK for MQTT from Maven (as a dependency)
+### Including Dependency in Maven Project
 
 *This is the recommended method of including the EnOS IoT SDKs in your project.*
 
 - Navigate to [http://search.maven.org](http://search.maven.org/), search for **com.envisioniot.enos** and take note of the latest version number (or the version number of whichever version of the sdk you desire to use).
-- In your main pom.xml file, add the EnOS Device SDK for MQTT as a dependency as follows:
 
-```
-<dependency>
-    <groupId>com.envisioniot</groupId>
-    <artifactId>enos-mqtt</artifactId>
-    <version>2.1.0</version>
-    <!--You might need to change the version number as you need.-->
-</dependency>
-```
+- In your main pom.xml file, add the EnOS Device SDK for MQTT for Java as a dependency as follows:
 
-### Build EnOS Device SDK for MQTT from the source code in this repo
+  ```
+  <dependency>
+      <groupId>com.envisioniot</groupId>
+      <artifactId>enos-mqtt</artifactId>
+      <version>2.1.0</version>
+      <!--You might need to change the version number as you need.-->
+  </dependency>
+  ```
 
-- Get a copy of the **EnOS Device SDK for MQTT** from master branch of the GitHub (current repo). You should fetch a copy of the source from the **master** branch of the GitHub repository: <https://github.com/EnvisionIot/enos-iot-mqtt-java-sdk>
+### Building from Source Code
 
-```
-	git clone https://github.com/EnvisionIot/enos-iot-mqtt-java-sdk.git
-```
+- Get a copy of the **EnOS Device SDK for MQTT for Java** from master branch of the GitHub (current repo). You should fetch a copy of the source from the **master** branch of the GitHub repository: <https://github.com/EnvisionIot/enos-iot-mqtt-java-sdk>
+
+  ```
+  git clone https://github.com/EnvisionIot/enos-iot-mqtt-java-sdk.git
+  ```
 
 - When you have obtained a copy of the source, you can build the SDK for Java.
 
-## Key features
+## Key Features
 
-The EnOS Device SDK for MQTT supports the following functions:
+The EnOS Device SDK for MQTT for Java supports the following functions:
 
 - Registration of devices
 - Add, update, query, or delete of gateway devices
@@ -66,11 +67,11 @@ The EnOS Device SDK for MQTT supports the following functions:
 - Enable device services
 - Send messages on device startup, stop, and delete
 
-## Sample code
+## Sample Code
 
-The following sample codes instruct how to use the EnOS Device SDK for MQTT.
+The following sample codes instruct how to use the EnOS Device SDK for MQTT for Java.
 
-### Connecting to server
+### Connecting to Server
 
 ```
 MqttClient client = new MqttClient(serverUrl, productKey, deviceKey, deviceSecret);
@@ -126,7 +127,7 @@ sign= toUpperCase(hmacsha1(clientId123deviceKeytestproductKey123timestamp1524448
 
 In the above sample, the product, productKey, deviceKey, and deviceSecret can be retrieved from EnOS platform or through EnOS REST API.
 
-#### Connecting to cloud through SSL/TLS
+#### Connecting to Cloud through SSL/TLS
 
 To ensure device security, users can enable the certificate-based bi-directional authentication method through the SSL/TLS protocol. Users can apply device certificate by calling the EnOS certificate service API, load the certificate to the SDK directory, and then connect to the server through the SSL port. The server URL format is `ssl://{regionUrl}:18883`. See the code sample below.
 
@@ -153,9 +154,9 @@ client.connect(new IConnectCallback() {
 
 > Users can also use the `setSSLContext()` method to directly set the SSL context, load the certificate content, and complete initializing the MQTT client with certificate-base bi-directional authentication. 
 
-### Sending commands
+### Sending Commands
 
-#### From device to EnOS Cloud
+#### From Device to EnOS Cloud
 
 When connection is successful, commands can be sent from device to EnOS Cloud. For example, the following code is for login operation of a sub-device in a callback function.  
 
@@ -219,7 +220,7 @@ The difference is: the publish method with callback is asynchronous, but the pub
 
 > The device side provides an API for uploading measurepoint data with quality. Users can call this API to send measurepoint data with quality.
 
-#### From EnOS Cloud to device
+#### From EnOS Cloud to Device
 
 The following section introduces how to handle the downstream commands sent from EnOS cloud to device. On the device side, response messages can be configured in the `onMessage` callback function, so that the SDK can respond the messages to the cloud. Users can configure the error codes and error messages to indicate failure of commands to the device. Users can choose to use 2000 and above numbers for this kind of customized error codes and error messages.
 
@@ -248,7 +249,7 @@ client.setArrivedMsgHandler(SubDeviceDisableCommand.class, (SubDeviceDisableComm
 
 > Note: If the user responds a null reply, the device side does not respond after executing the callback method. If the user responds an effective reply, the SDK will serialize the reply and send it to the cloud automatically. If the callback method is executed successfully, the user can set a response code 200 or not. For failed execution, the user can set a customized error code 2000 or above to be sent to the cloud. 
 
-### Complete sample code
+### End-to-End Sample Code
 
 ```
 import com.envisioniot.enos.iot_mqtt_sdk.core.IConnectCallback;
