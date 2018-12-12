@@ -38,7 +38,7 @@ public class Profile {
     private boolean autoReconnect = true;
     private long timestamp = System.currentTimeMillis();
     private boolean sslSecured = false;
-    private SSLContext sslContext;
+    private SSLContext sslContext = null;
 
     private String sslJksPath = "";
     private String sslAlgorithm = "SunX509";

@@ -40,6 +40,11 @@ public class TopoAddRequest extends BaseMqttRequest<TopoAddResponse> {
             return this;
         }
 
+        public Builder addSubDevice(String subProductKey, String subDeviceKey, String subDeviceSecret) {
+            subDeviceInfoList.add(new SubDeviceInfo(subProductKey, subDeviceKey, subDeviceSecret));
+            return this;
+        }
+
         public Builder addSubDevice(SubDeviceInfo deviceInfo) {
             subDeviceInfoList.add(deviceInfo);
             return this;

@@ -14,6 +14,9 @@ public class AttributeDeleteRequest extends BaseMqttRequest<AttributeDeleteRespo
 
     private static final long serialVersionUID = -5215445403149087915L;
 
+    public static Builder builder(){
+        return new Builder();
+    }
 
     public static class Builder extends BaseMqttRequest.Builder<Builder,AttributeDeleteRequest>{
 

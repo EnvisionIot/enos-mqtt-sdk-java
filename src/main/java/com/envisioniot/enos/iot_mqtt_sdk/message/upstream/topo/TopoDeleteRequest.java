@@ -12,6 +12,16 @@ import java.util.Map;
 
 /**
  * Description: delete topotaxy request
+ * {
+ * "params":[{
+ * "productKey" :"xxxx",
+ * "deviceKey" :"yyyy"
+ * },{
+ * "productKey" :"xxxx",
+ * "deviceKey" :"yyyy"
+ * }
+ * ]
+ * }
  *
  * @author zhonghua.wu
  * @create 2018-07-09 14:28

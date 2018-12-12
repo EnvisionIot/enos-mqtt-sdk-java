@@ -113,13 +113,13 @@ public class DefaultProcessor implements MqttCallback, MqttCallbackExtended {
                             /*set the reply topic*/
                             if (deliveryMsg instanceof BaseMqttReply) {
                                 ((BaseMqttReply) deliveryMsg).setTopicArgs(pathList);
-                                /*if user code is below 2000 and not equal to 200  */
+                                /*user code is below 2000 and not equal to 200  */
                                 if (((BaseMqttReply) deliveryMsg).getCode() < ResponseCode.USER_DEFINED_ERR_CODE &&
                                         ((BaseMqttReply) deliveryMsg).getCode() != ResponseCode.SUCCESS) {
                                     logger.warn("errCode of reply message is not allowed , " + ((BaseMqttReply) deliveryMsg).getCode());
                                 }
                                 try {
-                                    mqttClient.publish(deliveryMsg.getMessageTopic(), deliveryMsg.encode(), deliveryMsg.getQos(), false);
+                                    mqttClient.publish(deliveryMsg.getMessageTopic(), deliveryMsg.encode(), mqttMessage.getQos(), false);
                                 } catch (Exception e) {
                                     logger.error(
                                             "mqtt client publish reply msg to cloud failed ,arrived msg {}  msg to send {} ,  ",
@@ -130,17 +130,15 @@ public class DefaultProcessor implements MqttCallback, MqttCallbackExtended {
 
                     } catch (Exception e) {
                         logger.error("handle the arrived msg err , may because of registered arrived msg callback ,", e);
-                        executor.execute(()->{
-                            try{
-                                BaseMqttReply reply = buildMqttReply((BaseMqttCommand) msg, pathList,
-                                        ResponseCode.COMMAND_HANDLER_EXECUTION_FAILED,
-                                        String.format("command handler execution failed, %s", e.getMessage()));
-                                mqttClient.publish(reply.getMessageTopic(), reply.encode(), reply.getQos(), false);
-                            }
-                            catch (Exception ex){
-                                logger.error("UGLY INTERNAL ERR ! send the err reply failed ", ex);
-                            }
-                        });
+                        try{
+                            BaseMqttReply reply = buildMqttReply((BaseMqttCommand) msg, pathList,
+                                    ResponseCode.COMMAND_HANDLER_EXECUTION_FAILED,
+                                    String.format("command handler execution failed, %s", e.getMessage()));
+                            mqttClient.publish(reply.getMessageTopic(), reply.encode(), mqttMessage.getQos(), false);
+                        }
+                        catch (Exception ex){
+                            logger.error("UGLY INTERNAL ERR ! send the err reply failed ", ex);
+                        }
                     }
                 });
             } else {
