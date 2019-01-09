@@ -1,6 +1,7 @@
 package com.envisioniot.enos.iot_mqtt_sdk.core.profile;
 
 import com.envisioniot.enos.iot_mqtt_sdk.core.internals.SignUtil;
+import com.envisioniot.enos.iot_mqtt_sdk.util.StringUtil;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 
@@ -16,25 +17,28 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-public class Profile {
-    public static final String VERSION = "1.0";
+public abstract class AbstractProfile {
+
+    public static final String VERSION = "1.1";
+
     private static final int DEFAULT_KEEP_ALIVE_INTERVAL = 60;
     private static final int DEFAULT_CONNECTION_TIMEOUT = 30;
     private static final int DEFAULT_OPERATION_TIMEOUT = 60;
-    private static final int DEFAUT_MAX_INFLIGHT = 10000;
-    private String regionURL;
-
-    private String productKey;
-    private String deviceKey;
-    private String deviceSecret;
+    private static final int DEFAULT_MAX_INFLIGHT = 10000;
+    protected String serverUrl;
+    protected String productKey;
+    protected String productSecret;
+    protected String deviceKey;
+    protected String deviceSecret;
     /**/
     private ExecutorService executorService;
-    //    private MqttConnectOptions connectOptions;
 
-    private int keepAlive;
-    private int connectionTimeout;
-    private int timeToWait;
-    private int maxInFlight;
+
+
+    private int keepAlive = DEFAULT_KEEP_ALIVE_INTERVAL;
+    private int connectionTimeout = DEFAULT_CONNECTION_TIMEOUT;
+    private int timeToWait = DEFAULT_OPERATION_TIMEOUT;
+    private int maxInFlight = DEFAULT_MAX_INFLIGHT;
     private boolean autoReconnect = true;
     private long timestamp = System.currentTimeMillis();
     private boolean sslSecured = false;
@@ -44,36 +48,23 @@ public class Profile {
     private String sslAlgorithm = "SunX509";
     private String sslPassword = "";
 
-    public Profile(String regionURL, String productKey, String deviceKey, String deviceSecret) {
-        this(regionURL, productKey, deviceKey, deviceSecret, createDefaultExecutorService());
-    }
+    /**
+     * reload the profile, when properties of the profiles is changed
+     */
+    public abstract void reload();
 
-
-    public Profile(String regionURL, String productKey, String deviceKey, String deviceSecret,
-                   ExecutorService executorService) {
-        super();
-        this.regionURL = regionURL;
-        this.productKey = productKey;
-        this.deviceKey = deviceKey;
-        this.deviceSecret = deviceSecret;
-        this.keepAlive = DEFAULT_KEEP_ALIVE_INTERVAL;
-        this.connectionTimeout = DEFAULT_CONNECTION_TIMEOUT;
-        this.timeToWait = DEFAULT_OPERATION_TIMEOUT;
-        this.executorService = executorService;
-        this.maxInFlight = DEFAUT_MAX_INFLIGHT;
-    }
 
     public ExecutorService getExecutorService() {
         return executorService;
     }
 
-    public Profile setExecutorService(ExecutorService executorService) {
+    public AbstractProfile setExecutorService(ExecutorService executorService) {
         this.executorService = executorService;
         return this;
     }
 
-    public String getRegionURL() {
-        return regionURL;
+    public String getServerUrl() {
+        return serverUrl;
     }
 
     public String getProductKey() {
@@ -86,6 +77,26 @@ public class Profile {
 
     public String getDeviceSecret() {
         return deviceSecret;
+    }
+
+    public AbstractProfile setProductKey(String productKey) {
+        this.productKey = productKey;
+        return this;
+    }
+
+    public AbstractProfile setProductSecret(String productSecret) {
+        this.productSecret = productSecret;
+        return this;
+    }
+
+    public AbstractProfile setDeviceKey(String deviceKey) {
+        this.deviceKey = deviceKey;
+        return this;
+    }
+
+    public AbstractProfile setDeviceSecret(String deviceSecret) {
+        this.deviceSecret = deviceSecret;
+        return this;
     }
 
     public static ExecutorService createDefaultExecutorService() {
@@ -102,8 +113,14 @@ public class Profile {
         params.put("deviceKey", getDeviceKey());
         params.put("clientId", deviceKey);
         params.put("timestamp", timestamp + "");
-        String mqttPassword = SignUtil.sign(deviceSecret, params);
-
+        int securemode = getSecureMode();
+        String mqttPassword = "";
+        if(securemode == 2 ){
+            mqttPassword = SignUtil.sign(deviceSecret, params);
+        }
+        else if(securemode ==3 ) {
+            mqttPassword = SignUtil.sign(productSecret, params);
+        }
         MqttConnectOptions connectOptions = new MqttConnectOptions();
         connectOptions.setUserName(mqttUsername);
         connectOptions.setPassword(mqttPassword.toCharArray());
@@ -140,7 +157,7 @@ public class Profile {
      * @param keepAlive seconds
      * @return
      */
-    public Profile setKeepAlive(int keepAlive) {
+    public AbstractProfile setKeepAlive(int keepAlive) {
         this.keepAlive = keepAlive;
         return this;
     }
@@ -155,7 +172,7 @@ public class Profile {
      * @param connectionTimeout seconds
      * @return
      */
-    public Profile setConnectionTimeout(int connectionTimeout) {
+    public AbstractProfile setConnectionTimeout(int connectionTimeout) {
         this.connectionTimeout = connectionTimeout;
         return this;
     }
@@ -167,44 +184,55 @@ public class Profile {
     /**
      * @param timeToWait SECONDS to wait for the response message
      */
-    public Profile setTimeToWait(int timeToWait) {
+    public AbstractProfile setTimeToWait(int timeToWait) {
         this.timeToWait = timeToWait;
         return this;
     }
 
     public String getClientId() {
-        return deviceKey + "|securemode=2,signmethod=" + SignUtil.hmacsha1 + ",timestamp=" + timestamp + "|";
+        return deviceKey + "|securemode="+ getSecureMode()+",signmethod=" + SignUtil.hmacsha1 + ",timestamp=" + timestamp + "|";
     }
 
-    public Profile setMaxInFlight(int maxInFlight){
+
+    public AbstractProfile setMaxInFlight(int maxInFlight){
         this.maxInFlight = maxInFlight;
         return this;
     }
 
-    public Profile setAutoReconnect(boolean autoReconnect) {
+    public AbstractProfile setAutoReconnect(boolean autoReconnect) {
         this.autoReconnect = autoReconnect;
         return this;
     }
 
-    public Profile setSSLSecured(boolean sslSecured) {
+    public AbstractProfile setSSLSecured(boolean sslSecured) {
         this.sslSecured = sslSecured;
         return this;
     }
 
 
-    public Profile setSSLContext(SSLContext sslContext) {
+    public AbstractProfile setSSLContext(SSLContext sslContext) {
         this.sslContext = sslContext;
         return this;
     }
 
+    public int getSecureMode(){
+        if (StringUtil.isNotEmpty(this.deviceSecret)) {
+            return 2;
+        }
+        if(StringUtil.isNotEmpty(this.productSecret)){
+            return 3;
+        }
+        throw new IllegalArgumentException("deviceSecret or productSecret should be provided");
+    }
 
-    public Profile setSSLJksPath(String sslJksPath , String sslPassword) {
+
+    public AbstractProfile setSSLJksPath(String sslJksPath , String sslPassword) {
         this.sslJksPath = sslJksPath;
         this.sslPassword = sslPassword;
         return this;
     }
 
-    public Profile setSSLAlgorithm(String sslAlgorithm) {
+    public AbstractProfile setSSLAlgorithm(String sslAlgorithm) {
         this.sslAlgorithm = sslAlgorithm;
         return this;
     }

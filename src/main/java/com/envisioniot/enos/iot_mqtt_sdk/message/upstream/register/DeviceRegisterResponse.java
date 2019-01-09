@@ -1,6 +1,7 @@
 package com.envisioniot.enos.iot_mqtt_sdk.message.upstream.register;
 
 import com.envisioniot.enos.iot_mqtt_sdk.core.internals.constants.ArrivedTopicPattern;
+import com.envisioniot.enos.iot_mqtt_sdk.core.internals.constants.FieldConstants;
 import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.BaseMqttResponse;
 import com.google.common.collect.Lists;
 
@@ -25,10 +26,10 @@ public class DeviceRegisterResponse extends BaseMqttResponse {
         List<DeviceBasicInfo> results = Lists.newArrayList();
         for (Map<String, String> data : dataList) {
             DeviceBasicInfo dbi = new DeviceBasicInfo();
-            dbi.productKey = data.get("productKey");
-            dbi.deviceKey = data.get("deviceKey");
-            dbi.deviceSecret = data.get("deviceSecret");
-            dbi.iotId = data.get("iotId");
+            dbi.productKey = data.get(FieldConstants.PRODUCT_KEY);
+            dbi.deviceKey = data.get(FieldConstants.DEVICE_KEY);
+            dbi.deviceSecret = data.get(FieldConstants.DEVICE_SECRET);
+            dbi.assetId = data.get(FieldConstants.ASSET_ID);
             results.add(dbi);
         }
         return results;

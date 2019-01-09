@@ -97,12 +97,13 @@ client.connect(new IConnectCallback()
 });
 ```
 
-In the above sample, `serverUrl` is the address of the server. If using TCP connection, the format of the server URL can be `tcp://{regionUrl}:11883`. The `productKey`, `deviceKey`, and `deviceSecret` are the 3 major elements of the device information.
+In the above sample, `serverUrl` is the address of the server. If using TCP connection, the format of the server URL can be `tcp://{regionUrl}:11883`. The <`productKey`, `deviceKey`,`deviceSecret`> or <`productKey`, `deviceKey`,  `productSecret`> are the 3 major elements of the device information.
+
 
 If you are not using Java SDK, you can create MQTT CONNECT parameters with the 3 major elements of device information for other programming languages. See the following example: 
 
 ```
-  mqttClientId: clientId+"|securemode=2,signmethod=hmacsha1,timestamp=132323232|"
+  mqttClientId: clientId+"|securemode=<securemode>,signmethod=hmacsha1,timestamp=132323232|"
   mqttUsername: deviceKey+"&"+productKey
   mqttPassword: uppercase(sign_hmac(deviceSecret,content))
 ```
@@ -115,17 +116,51 @@ In which:
 
 - The value of the `content` parameter is the collection of parameters (productKe, deviceKey, timestamp, and clientId) sent to the server.  The parameters and their values should be listed concatenated by ASCII order.
 - `signmethod`: The signature generating algorithm. Supported algorithm is `hmacsha1`.
-- `securemode`：The current security mode. Supported value is `2`.
+- `securemode`：The current security mode. When `deviceSecret` is provided the value is `2` , otherwise the `productSecret` is provided  the value is `3`.
 
-For example:
+For example 1:
 
 ```
-clientId = 123, deviceKey = test, productKey = 123, timestamp = 1524448722000, deviceSecret = deviceSecret
+clientId = 123, deviceKey = test, productKey = 123, timestamp = 1524448722000, deviceSecret = deviceSecretxxx
+sign= toUpperCase(hmacsha1(clientId123deviceKeytestproductKey123timestamp1524448722000deviceSecretxxx))
+```
+For example 2:
 
-sign= toUpperCase(hmacsha1(clientId123deviceKeytestproductKey123timestamp1524448722000deviceSecret))
+```
+clientId = 123, deviceKey = test, productKey = 123, timestamp = 1524448722000, productSecret = productSecretxxx
+sign= toUpperCase(hmacsha1(clientId123deviceKeytestproductKey123timestamp1524448722000productSecretxxx))
 ```
 
-In the above sample, the product, productKey, deviceKey, and deviceSecret can be retrieved from EnOS platform or through EnOS REST API.
+针对使用deviceSecret方式进行签名认证的方式，需要在设备端烧录三要素productKey，productSecrt，deviceKey。只有未激活的设备能够使用productSecret方式进行签名认证，当完成登录后设备完成激活，同时向设备端返回设备的三元组信息。
+也就是说（1）未激活设备只有在第一次登录的时候，(2)且产品product支持动态激活才能使用productSecret进行登录。设备sdk 的开发者需要将返回的设备三元组信息进行持久化。在完成激活后，设备需要通过deviceSecret进行签名认证。若需重新激活设备，请在控制台删除该设备后，再重新注册设备。
+同时使用针对使用productSecret进行认证并动态激活的设备，云端会返回设备的秘钥至设备端，返回方式是在登录成功后，发送设备三元组信息至topic：
+动态激活topic:/ext/session/{productKey}/{deviceKey}/thing/activated/info
+```
+{
+    "id": "1",
+    "version": "1.0",
+    "method": "thing.activate.info",
+    "params":{
+        "assetId": "12344",
+        "productKey": "1234556554",
+        "deviceKey": "deviceKey1234",
+        "deviceSecret": "xxxxxx"
+    }
+}
+```
+如果使用java sdk 那么可以使用下面的代码来处理动态激活的设备信息返回
+```
+ client.setArrivedMsgHandler(DeviceActivateInfoCommand.class, (DeviceActivateInfoCommand msg,  List<String> args) -> {
+            //try persist the reply device info and then rebuild the mqttClient
+            System.out.println(msg.getDeviceInfo());
+            return null;
+        });
+```
+当然如果使用配置文件的方式FileProfile的方式连接服务器，那么SDK封装了持久化返回结果和重新使用返回结果中的deviceSecret重新连接的过程。
+
+In the above sample, the product, productKey, deviceKey, and deviceSecret , productSecret can be retrieved from EnOS platform or through EnOS REST API.
+
+
 
 #### Connecting to Cloud through SSL/TLS
 
@@ -153,6 +188,68 @@ client.connect(new IConnectCallback() {
 ```
 
 > Users can also use the `setSSLContext()` method to directly set the SSL context, load the certificate content, and complete initializing the MQTT client with certificate-base bi-directional authentication. 
+
+
+#### 使用配置文件连接至服务器
+
+除了使用动态代码的方式连接至服务器，SDK还提供了配置文件的方式进行连接，用户只需要提前配置一下的配置文件，提供必要的参数信息
+```properties
+regionURL=tcp\://10.27.21.6\:11883
+deviceKey=zscai_test_activate
+deviceSecret=DrihKncQARUwVXUvRH6k
+productKey=fKInRgVP
+#timeout seconds of each operation
+operationTimeout=60
+#maxInFlight mqtt requests
+maxInFlight=10000
+#needed when login by securemode=3
+productSecret=c3PW03srd6c
+#connect timeout seconds
+connectionTimeout=30
+#conneciton keepAlive  seconds
+keepAlive=60
+#auto reconnect the mqtt client when connect lost
+autoReconnect=true
+#ssl algorithm
+sslAlgorithm=SunX509
+#path of jks file
+sslJksPath=
+#password of jks file
+sslPassword=
+#optional ,it will auto filled when device dynamic activated
+assetId=FgEWZ6Fz
+```
+其中regionURL,productKey,deviceKey是必填参数，deviceSecret和productSecret必须提供一个参数，用于完成必要的参数签名校验。
+当配置文件中提供了参数deviceSecret则采用securemode=2进行登录，如果没有提供deviceSecret，而提供了productSecret那么采用securemode=3进行登录。
+用于可以使用如下的代码，使用配置文件的方式完成连接过程
+
+```
+    public void connect() {
+        MqttClient client = new MqttClient(new FileProfile(".config"));
+        System.out.println("start connect with callback ... ");
+        try {
+            client.connect(new IConnectCallback() {
+                @Override
+                public void onConnectSuccess() {
+                    System.out.println("connect success");
+                }
+                @Override
+                public void onConnectLost() {
+                    System.out.println("onConnectLost");
+                }
+
+                @Override
+                public void onConnectFailed(int reasonCode) {
+                    System.out.println("onConnectFailed : " + reasonCode);
+                }
+
+            });
+        } catch (EnvisionException e) {
+            //e.printStackTrace();
+        }
+        System.out.println("connect result :" + client.isConnected());
+    }
+```
 
 ### Sending Commands
 

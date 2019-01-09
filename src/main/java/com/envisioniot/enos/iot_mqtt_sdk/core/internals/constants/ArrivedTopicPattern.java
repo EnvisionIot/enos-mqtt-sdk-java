@@ -37,6 +37,10 @@ public class ArrivedTopicPattern {
     public static final String ATTRIBUTE_QUERY_REPLY = "/sys/(.*)/(.*)/thing/attribute/query_reply";
     public static final String ATTRIBUTE_DELETE_REPLY = "/sys/(.*)/(.*)/thing/attribute/delete_reply";
 
+    /**
+     * 动态激活返回密码
+     */
+    public static final String ACTIVATE_INFO = "/ext/session/(.*)/(.*)/thing/activate/info";
 
     /**
      * 下行控制指令

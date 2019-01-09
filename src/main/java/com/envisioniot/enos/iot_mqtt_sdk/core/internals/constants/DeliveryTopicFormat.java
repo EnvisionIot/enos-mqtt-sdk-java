@@ -56,4 +56,7 @@ public class DeliveryTopicFormat {
 
     public static final String DEVICE_OTA_REPLY = "/sys/%s/%s/ota/device/upgrade_reply";
 
+
+    public static final String ACTIVATE_INFO_REPLY = "/ext/session/%s/%s/thing/activate/info_reply";
+
 }

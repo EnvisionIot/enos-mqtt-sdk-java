@@ -12,7 +12,7 @@ import java.io.Serializable;
 public class DeviceBasicInfo implements Serializable {
     private static final long serialVersionUID = -3092183058672019646L;
 
-    public String iotId;
+    public String assetId;
     public String productKey;
     public String deviceKey;
     public String deviceSecret;

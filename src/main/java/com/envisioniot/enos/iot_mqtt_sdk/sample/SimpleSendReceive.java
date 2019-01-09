@@ -31,25 +31,23 @@ import com.google.common.collect.Lists;
  */
 public class SimpleSendReceive {
     public static final String local = "tcp://localhost:11883";
-    public static final String alpha = "tcp://10.24.10.56:11883";
+    public static final String alpha = "tcp://10.27.21.6:11883";
     public static final String beta = "tcp://10.27.20.142:11883";
     public static final String prd = "tcp://10.24.8.76:11883";
 
     private static final String localSSL = "ssl://localhost:18883";
-    private static final String alphaSSL = "ssl://10.24.10.56:18883";
+    private static final String alphaSSL = "ssl://10.27.21.6:18883";
     private static final String betaSSL = "ssl://10.24.101.51:18883";
 
 
     //alpha环境网关设备三元组
-//	private static final String productKey = "invu9zyT";
-//	public static final String deviceKey = "m7plCgtarp";
-//	public static final String deviceSecret = "t3O5bRTfTYJ9UMS2wCrb";
+//    public static final String productKey = "fKInRgVP";
+//    public static final String deviceKey = "zscai_test_edge";
+//    public static final String deviceSecret = "npGe2Z4HFBbBB2cyTfeg";
 //
-//	//alpha环境子设备三元组
-//	public static final String subProductKey = "ybuO63Oe";
-//	public static final String subDeviceKey = "96Iy2aWmv7";
-//	public static final String subDeviceSecret = "HUxm8Vcm7sod0v6XV8I3";
-
+//    public static final String subProductKey = "ShmY4q9h";
+//    public static final String subDeviceKey = "zscai_sub_device";
+//    public static final String subDeviceSecret = "iVkJmo0bUjzZj0e3J5lD";
 	/*alpha*/
 
 

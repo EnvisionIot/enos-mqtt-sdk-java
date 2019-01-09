@@ -26,7 +26,21 @@ public abstract class BaseMqttReply extends BaseAckMessage implements IMqttReply
         private int qos = 1;
         private Integer code;
         private String message;
+        private String productKey;
+        private String deviceKey;
 
+
+        @SuppressWarnings("unchecked")
+        public B setProductKey(String productKey) {
+            this.productKey = productKey;
+            return (B) this;
+        }
+
+        @SuppressWarnings("unchecked")
+        public B setDeviceKey(String deviceKey) {
+            this.deviceKey = deviceKey;
+            return (B) this;
+        }
         @SuppressWarnings("unchecked")
         public B setQos(int qos) {
             this.qos = qos;
@@ -54,6 +68,12 @@ public abstract class BaseMqttReply extends BaseAckMessage implements IMqttReply
             reply.setCode(code != null ? code : ResponseCode.SUCCESS);
             if (StringUtil.isNotEmpty(message)) {
                 reply.setMessage(message);
+            }
+            if(StringUtil.isNotEmpty(productKey)){
+                reply.setProductKey(productKey);
+            }
+            if(StringUtil.isNotEmpty(deviceKey)){
+                reply.setDeviceKey(deviceKey);
             }
             reply.setData(createData());
             reply.setQos(qos);

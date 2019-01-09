@@ -1,13 +1,17 @@
 package com.envisioniot.enos.iot_mqtt_sdk.core;
 
 import com.envisioniot.enos.iot_mqtt_sdk.core.exception.EnvisionException;
+import com.envisioniot.enos.iot_mqtt_sdk.core.internals.MessageBuffer;
 import com.envisioniot.enos.iot_mqtt_sdk.core.internals.MqttConnection;
-import com.envisioniot.enos.iot_mqtt_sdk.core.msg.IMessageHandler;
-import com.envisioniot.enos.iot_mqtt_sdk.core.msg.IMqttArrivedMessage;
-import com.envisioniot.enos.iot_mqtt_sdk.core.msg.IMqttRequest;
-import com.envisioniot.enos.iot_mqtt_sdk.core.msg.IMqttResponse;
-import com.envisioniot.enos.iot_mqtt_sdk.core.profile.Profile;
+import com.envisioniot.enos.iot_mqtt_sdk.core.msg.*;
+import com.envisioniot.enos.iot_mqtt_sdk.core.profile.AbstractProfile;
+import com.envisioniot.enos.iot_mqtt_sdk.core.profile.DefaultActivateResponseHandler;
+import com.envisioniot.enos.iot_mqtt_sdk.core.profile.DefaultProfile;
+import com.envisioniot.enos.iot_mqtt_sdk.core.profile.FileProfile;
+import com.envisioniot.enos.iot_mqtt_sdk.message.downstream.activate.DeviceActivateInfoCommand;
 import com.envisioniot.enos.iot_mqtt_sdk.util.StringUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -19,9 +23,15 @@ import java.util.concurrent.atomic.AtomicLong;
  * @date 2018/7/3.
  */
 public class MqttClient {
+
+    private static Logger logger = LoggerFactory.getLogger(MqttClient.class);
+
     private AtomicLong requestId = new AtomicLong(0);
-    private final MqttConnection connection;
-    private Profile profile;
+    private MqttConnection connection;
+    private AbstractProfile profile;
+    private MessageBuffer buffer = new MessageBuffer();
+
+
 
     /**
      * @param uri          mqtt broker server uri
@@ -30,8 +40,7 @@ public class MqttClient {
      * @param deviceSecret deviceSecret
      */
     public MqttClient(String uri, String productKey, String deviceKey, String deviceSecret) {
-        profile = new Profile(uri, productKey, deviceKey, deviceSecret);
-        connection = new MqttConnection(profile);
+        this(new DefaultProfile(uri, productKey, deviceKey, deviceSecret));
     }
 
     /**
@@ -39,12 +48,24 @@ public class MqttClient {
      *
      * @param profile client config profile
      */
-    public MqttClient(Profile profile) {
+    public MqttClient(AbstractProfile profile) {
         this.profile = profile;
-        connection = new MqttConnection(profile);
+        connection = new MqttConnection(profile, buffer);
+        this.buffer.setConnection(connection);
+        if(profile.getSecureMode()== 3 ){
+            //register dynamic acvtivated response handler
+            if(this.profile instanceof FileProfile) {
+                this.setArrivedMsgHandler(DeviceActivateInfoCommand.class,
+                        new DefaultActivateResponseHandler((FileProfile) this.profile , this));
+            }
+            else {
+                logger.warn("mqtt client dynamic activate device ,please handle the reply message [{}]",
+                        DeviceActivateInfoCommand.class.getSimpleName());
+            }
+        }
     }
 
-    public Profile getProfile() {
+    public AbstractProfile getProfile() {
         return this.profile;
     }
 
@@ -53,7 +74,7 @@ public class MqttClient {
      *
      * @throws Exception
      */
-    public <T extends IMqttResponse> void fastPublish(IMqttRequest<T> request) throws Exception {
+    public void fastPublish(IMqttDeliveryMessage request) throws Exception {
         fillRequest(request);
         request.check();
         this.connection.fastPublish(request);
@@ -88,10 +109,35 @@ public class MqttClient {
     /**
      * set the msg handler for specific arrived msg
      */
-    public void setArrivedMsgHandler(Class<? extends IMqttArrivedMessage> arrivedMsgCls, IMessageHandler<?, ?> handler) {
+    public <T extends IMqttArrivedMessage , D extends IMqttDeliveryMessage> void setArrivedMsgHandler(Class<T> arrivedMsgCls, IMessageHandler<T, D> handler) {
         connection.getProcessor().setArrivedMsgHandler(arrivedMsgCls, handler);
     }
 
+//    public MqttConnection getTransportConnection(){
+//        return connection;
+//    }
+//
+//    public void setTransportConnection(MqttConnection mqttConnection){
+//        this.connection = mqttConnection;
+//    }
+//
+
+    public void rebuildConnection() throws EnvisionException {
+        MqttConnection newConnnection = this.connection.recreate();
+        this.buffer.setConnection(newConnnection);
+        MqttConnection old = this.connection;
+        this.connection = newConnnection;
+        //try reconnect
+        if(old.isConnected()){
+            try {
+                old.disconnect();
+            }
+            finally {
+                old.close();
+            }
+            this.connect(old.getProcessor().getConnectCallback());
+        }
+    }
 
     /**
      * connect with the callback
@@ -115,15 +161,15 @@ public class MqttClient {
         return this.connection.isConnected();
     }
 
-    private void fillRequest(IMqttRequest<?> request) {
+    private void fillRequest(IMqttDeliveryMessage request) {
         if (StringUtil.isEmpty(request.getMessageId())) {
             request.setMessageId(String.valueOf(requestId.incrementAndGet()));
         }
-
-        if (StringUtil.isEmpty(request.getVersion())) {
-            request.setVersion(Profile.VERSION);
+        if(request instanceof IMqttRequest) {
+            if (StringUtil.isEmpty(((IMqttRequest) request).getVersion())) {
+                ((IMqttRequest) request).setVersion(AbstractProfile.VERSION);
+            }
         }
-
         if (StringUtil.isEmpty(request.getProductKey()) && StringUtil.isEmpty(request.getDeviceKey())) {
             request.setProductKey(profile.getProductKey());
             request.setDeviceKey(profile.getDeviceKey());

@@ -6,7 +6,7 @@ import com.envisioniot.enos.iot_mqtt_sdk.core.exception.EnvisionError;
 import com.envisioniot.enos.iot_mqtt_sdk.core.exception.EnvisionException;
 import com.envisioniot.enos.iot_mqtt_sdk.core.msg.*;
 import com.envisioniot.enos.iot_mqtt_sdk.core.msg.IMqttArrivedMessage.DecodeResult;
-import com.envisioniot.enos.iot_mqtt_sdk.core.profile.Profile;
+import com.envisioniot.enos.iot_mqtt_sdk.core.profile.AbstractProfile;
 import com.envisioniot.enos.iot_mqtt_sdk.message.downstream.BaseMqttCommand;
 import com.envisioniot.enos.iot_mqtt_sdk.message.downstream.BaseMqttReply;
 import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.ResponseCode;
@@ -25,12 +25,13 @@ import java.util.concurrent.*;
  */
 public class DefaultProcessor implements MqttCallback, MqttCallbackExtended {
     private static Logger logger = LoggerFactory.getLogger(DefaultProcessor.class);
-    private MqttClient mqttClient;
-    private SubTopicCache subTopicCache;
+    private final SubTopicCache subTopicCache;
     /**
      * response execution pool
      */
-    private ExecutorService executor;
+    private ExecutorService userExecutor;
+
+    private final MqttConnection connection;
 
     /**
      * callback timeout pool
@@ -39,10 +40,10 @@ public class DefaultProcessor implements MqttCallback, MqttCallbackExtended {
             new ThreadFactoryBuilder().setNameFormat("callback-timeout-pool-%d").build());
 
 
-    public DefaultProcessor(MqttClient mqttClient, Profile profile, SubTopicCache subTopicCache) {
-        this.mqttClient = mqttClient;
-        this.executor = profile.getExecutorService();
+    public DefaultProcessor(MqttClient mqttClient, AbstractProfile profile, SubTopicCache subTopicCache, MqttConnection connection) {
+        this.userExecutor = profile.getExecutorService();
         this.subTopicCache = subTopicCache;
+        this.connection = connection;
     }
 
     private final Map<String, Task<? extends IMqttResponse>> rspTaskMap = new ConcurrentHashMap<>();
@@ -51,7 +52,7 @@ public class DefaultProcessor implements MqttCallback, MqttCallbackExtended {
 
     public void onConnectFailed(int reasonCode) {
         if (connectCallback != null) {
-            this.executor.execute(() -> connectCallback.onConnectFailed(reasonCode));
+            this.userExecutor.execute(() -> connectCallback.onConnectFailed(reasonCode));
         }
     }
 
@@ -103,7 +104,7 @@ public class DefaultProcessor implements MqttCallback, MqttCallbackExtended {
 
 
             if (handler != null) {
-                executor.execute(() -> {
+                userExecutor.execute(() -> {
                     try {
                         IMqttDeliveryMessage deliveryMsg = handler.onMessage(msg, pathList);
                         if (deliveryMsg != null) {
@@ -119,7 +120,7 @@ public class DefaultProcessor implements MqttCallback, MqttCallbackExtended {
                                     logger.warn("errCode of reply message is not allowed , " + ((BaseMqttReply) deliveryMsg).getCode());
                                 }
                                 try {
-                                    mqttClient.publish(deliveryMsg.getMessageTopic(), deliveryMsg.encode(), mqttMessage.getQos(), false);
+                                    connection.fastPublish(deliveryMsg);
                                 } catch (Exception e) {
                                     logger.error(
                                             "mqtt client publish reply msg to cloud failed ,arrived msg {}  msg to send {} ,  ",
@@ -134,7 +135,7 @@ public class DefaultProcessor implements MqttCallback, MqttCallbackExtended {
                             BaseMqttReply reply = buildMqttReply((BaseMqttCommand) msg, pathList,
                                     ResponseCode.COMMAND_HANDLER_EXECUTION_FAILED,
                                     String.format("command handler execution failed, %s", e.getMessage()));
-                            mqttClient.publish(reply.getMessageTopic(), reply.encode(), mqttMessage.getQos(), false);
+                            connection.fastPublish(reply);
                         }
                         catch (Exception ex){
                             logger.error("UGLY INTERNAL ERR ! send the err reply failed ", ex);
@@ -143,12 +144,12 @@ public class DefaultProcessor implements MqttCallback, MqttCallbackExtended {
                 });
             } else {
                 if(msg instanceof BaseMqttCommand){
-                    executor.execute(() -> {
+                    userExecutor.execute(() -> {
                         try {
                             BaseMqttReply reply = buildMqttReply((BaseMqttCommand) msg, pathList,
                                     ResponseCode.COMMAND_HANDLER_NOT_REGISTERED,
                                     "downstream command handler not registered");
-                            mqttClient.publish(reply.getMessageTopic(), reply.encode(), reply.getQos(), false);
+                            connection.fastPublish(reply);
                         }catch (Exception e) {
                             logger.error("handle the msg  {} with no handler failed ,  ", msg, e);
                         }
@@ -173,31 +174,9 @@ public class DefaultProcessor implements MqttCallback, MqttCallbackExtended {
     }
 
 
-    public <T extends IMqttResponse> void doFastPublish(IMqttRequest<T> request) throws EnvisionException {
-        try {
-            request.check();
-            if(request.getQos() == 1 ) {
-                mqttClient.publish(request.getMessageTopic(), request.encode(), request.getQos(), false);
-            }
-            /**
-             * issue: https://github.com/eclipse/paho.mqtt.java/issues/421
-             */
-            else if(request.getQos() == 0 ){
-                synchronized (mqttClient){
-                    mqttClient.publish(request.getMessageTopic(), request.encode(), request.getQos(), false);
-                }
-            }
-            else {
-                throw new EnvisionException(EnvisionError.QOS_2_NOT_ALLOWED);
-            }
 
-        } catch (MqttException e) {
-            logger.error("publish message failed messageRequestId {} ", request.getMessageTopic());
-            throw new EnvisionException(e.getMessage(), e.getCause(), EnvisionError.MQTT_CLIENT_PUBLISH_FAILED);
-        }
-    }
 
-    public <T extends IMqttResponse> void createCallbackTask(IMqttRequest<T> request, final IResponseCallback<T> callback, long timeout) throws EnvisionException {
+    public <T extends IMqttResponse> void createCallbackTask(IMqttRequest<T> request, final IResponseCallback<T> callback, long timeout) throws Exception {
         /*do expire*/
         if (callback != null) {
             final Task<T> task = new Task<T>();
@@ -216,17 +195,17 @@ public class DefaultProcessor implements MqttCallback, MqttCallbackExtended {
 
         }
 
-        this.doFastPublish(request);
+        this.connection.fastPublish(request);
 
     }
 
-    <T extends IMqttResponse> FutureTask<T> createFutureTask(IMqttRequest<T> request) throws EnvisionException {
+    <T extends IMqttResponse> FutureTask<T> createFutureTask(IMqttRequest<T> request) throws Exception {
         String key = request.getAnswerTopic() + "_" + request.getMessageId();
         Task<T> task = new Task<>();
         FutureTask<T> future = new FutureTask<>(task);
         task.setRunable(future);
         rspTaskMap.put(key, task);
-        this.doFastPublish(request);
+        this.connection.fastPublish(request);
         return future;
     }
 
@@ -245,6 +224,10 @@ public class DefaultProcessor implements MqttCallback, MqttCallbackExtended {
         connectCallback = callback;
     }
 
+    public IConnectCallback getConnectCallback(){
+        return connectCallback;
+    }
+
     public void removeArrivedMsgHandler(String topic) {
         arrivedMsgHandlerMap.remove(topic);
     }
@@ -255,14 +238,14 @@ public class DefaultProcessor implements MqttCallback, MqttCallbackExtended {
         if (logger.isDebugEnabled()) {
             logger.debug("", throwable);
         }
-        logger.error("Client <{}> Connection Lost ", this.mqttClient.getClientId());
+        logger.error("Client <{}> Connection Lost ", this.connection.getTransportClientId());
 
         logger.info("clear the subscriptions");
         //无论怎样都对cache清空
         this.subTopicCache.clean();
         if (connectCallback != null) {
             try {
-                this.executor.execute(() -> connectCallback.onConnectLost());
+                this.userExecutor.execute(() -> connectCallback.onConnectLost());
             } catch (Exception e) {
                 logger.error("Connect Callback on connect lost , execution failed ,", e);
             }
@@ -283,7 +266,7 @@ public class DefaultProcessor implements MqttCallback, MqttCallbackExtended {
         }
         if (connectCallback != null) {
             try {
-                this.executor.execute(() -> connectCallback.onConnectSuccess());
+                this.userExecutor.execute(() -> connectCallback.onConnectSuccess());
             } catch (Exception e) {
                 logger.error("connectCallback on connect success execute failed  ", e);
             }
