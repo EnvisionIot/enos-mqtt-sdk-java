@@ -163,10 +163,9 @@ public class NtpService {
 
     public static void main(String[] args) {
         MqttClient client = new MqttClient(new FileProfile());
-
         System.out.println("local :" + System.currentTimeMillis());
         System.out.println("fix : " + (client.getExtServiceFactory().getNtpService().getFixedTimestamp()));
-
+        System.out.println("fix : " + (client.getExtServiceFactory().getNtpService().getFixedTimestamp(System.currentTimeMillis())));
     }
 
 }

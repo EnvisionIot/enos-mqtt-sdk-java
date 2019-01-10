@@ -346,6 +346,23 @@ client.setArrivedMsgHandler(SubDeviceDisableCommand.class, (SubDeviceDisableComm
 
 > Note: If the user responds a null reply, the device side does not respond after executing the callback method. If the user responds an effective reply, the SDK will serialize the reply and send it to the cloud automatically. If the callback method is executed successfully, the user can set a response code 200 or not. For failed execution, the user can set a customized error code 2000 or above to be sent to the cloud. 
 
+
+### 扩展服务
+
+除了封装了EnOS 设备端接入协议，SDK还为开发者提供了一定的扩展服务，如Ntp对时服务用户可以根据需求使用对时服务。
+
+#### Ntp对时服务
+
+用户可以根据示例代码使用ntp对时服务
+```
+    public static void main(String[] args) {
+        MqttClient client = new MqttClient(new FileProfile());
+        System.out.println("local :" + System.currentTimeMillis());
+        System.out.println("fix : " + (client.getExtServiceFactory().getNtpService().getFixedTimestamp()));
+        System.out.println("fix : " + (client.getExtServiceFactory().getNtpService().getFixedTimestamp(System.currentTimeMillis())));
+    }
+```
+
 ### End-to-End Sample Code
 
 ```
