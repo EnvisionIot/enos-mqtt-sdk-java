@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
+ * msg request accumulator and disconnected msg buffer
  * @author zhensheng.cai
  * @date 2019/1/8.
  */

@@ -11,10 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * https://tools.ietf.org/html/rfc1305
@@ -24,13 +21,17 @@ import java.util.concurrent.TimeUnit;
 public class NtpService {
 
     private static Logger logger = LoggerFactory.getLogger(NtpService.class);
+    private final ScheduledFuture<?> initFuture;
 
     private String ntpServer = "cn.pool.ntp.org";
 
     private int interval = 1;
     private TimeUnit timeUnit = TimeUnit.DAYS;
-    private int timeout = 3000;
+    private int timeout;
     private TimeInfo timeInfo;
+    private int retries;
+
+
 
     private static ScheduledExecutorService scheduler = new ScheduledThreadPoolExecutor(
             1, new ThreadFactoryBuilder().setNameFormat("ntp-service-scheduler").build(),
@@ -47,23 +48,45 @@ public class NtpService {
         this.ntpServer = ntpServer;
     }
 
-    private void setTimeout(int timeout){
+    public void setTimeout(int timeout){
         this.timeout = timeout;
     }
 
+    public void setRetries(int retires){
+        this.retries = retires;
+    }
 
     public NtpService() {
-        sync();
+        this.initFuture = scheduler.schedule(new PullTask(this), 0, timeUnit);
     }
 
-    public void sync() {
+    public boolean sync() {
         try {
             this.timeInfo = pollNTPTime();
-            scheduler.schedule(new PullTask(this), interval, timeUnit);
+            return true;
         } catch (Exception e) {
-            logger.error("", e);
+            boolean result = retryRepeat(retries);
+            if(result) {
+                logger.error("", e);
+            }
         }
+        return false;
     }
+
+    public boolean retryRepeat(int times){
+        System.out.println("retry");
+        while(times-- >0 ){
+            try {
+                this.timeInfo = pollNTPTime();
+                return true;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return false;
+    }
+
+
 
     public static class PullTask implements Runnable {
 
@@ -91,22 +114,13 @@ public class NtpService {
         // We want to timeout if a response takes longer than 10 seconds
         client.setDefaultTimeout(this.timeout);
         try {
-            try {
-                InetAddress hostAddr = InetAddress.getByName(this.ntpServer);
-                System.out.println("> " + hostAddr.getHostName() + "/" + hostAddr.getHostAddress());
-                TimeInfo info = client.getTime(hostAddr,NtpV3Packet.NTP_PORT);
-                info.computeDetails();
-                System.out.println(info);
-                return info;
 
-            } catch (IOException ioe) {
-                ioe.printStackTrace();
-                throw ioe;
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
+            InetAddress hostAddr = InetAddress.getByName(this.ntpServer);
+            System.out.println("> " + hostAddr.getHostName() + "/" + hostAddr.getHostAddress());
+            TimeInfo info = client.getTime(hostAddr,NtpV3Packet.NTP_PORT);
+            info.computeDetails();
+            System.out.println(info);
+            return info;
         }
         finally {
             client.close();
@@ -120,18 +134,38 @@ public class NtpService {
      * Where OriginateTimestamp is the local time the client sent the packet (t1), ReceiveTimestamp is time request received by NTP server (t2), TransmitTimestamp is time reply sent by server (t3), and DestinationTimestamp is time at which reply received by client on local machine (t4).
      * @return
      */
-    public long getFixedTimestmap(){
-        if (timeInfo == null || timeInfo.getOffset() == null) {
-            return System.currentTimeMillis();
-        }
-        return 0;
+    public long getFixedTimestamp(){
+        check();
+        return System.currentTimeMillis()+ timeInfo.getOffset();
     }
 
+
+    public long getFixedTimestamp(long timestamp){
+        check();
+        return timestamp+ timeInfo.getOffset();
+    }
+
+
+    public void check(){
+        if (timeInfo == null || timeInfo.getOffset() == null) {
+            try {
+                //get the first pull result
+                initFuture.get();
+            } catch (InterruptedException | ExecutionException e) {
+                logger.error("", e);
+            }
+            if (timeInfo == null || timeInfo.getOffset() == null) {
+                throw new UnsupportedOperationException("ntp time pull failed , cannot getFixedTimestamp");
+            }
+        }
+    }
 
 
     public static void main(String[] args) {
         MqttClient client = new MqttClient(new FileProfile());
-        System.out.println(client.getExtServiceFactory().getNtpService().getFixedTimestmap());
+
+        System.out.println("local :" + System.currentTimeMillis());
+        System.out.println("fix : " + (client.getExtServiceFactory().getNtpService().getFixedTimestamp()));
 
     }
 
