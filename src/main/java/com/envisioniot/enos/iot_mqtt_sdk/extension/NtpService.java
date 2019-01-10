@@ -21,7 +21,10 @@ import java.util.concurrent.*;
 public class NtpService {
 
     private static Logger logger = LoggerFactory.getLogger(NtpService.class);
+
     private final ScheduledFuture<?> initFuture;
+    private ScheduledFuture<?> currentFuture;
+
 
     private String ntpServer = "cn.pool.ntp.org";
 
@@ -32,15 +35,22 @@ public class NtpService {
     private int retries;
 
 
-
     private static ScheduledExecutorService scheduler = new ScheduledThreadPoolExecutor(
             1, new ThreadFactoryBuilder().setNameFormat("ntp-service-scheduler").build(),
             new ThreadPoolExecutor.AbortPolicy()
     );
 
+    /**
+     * 如果重新设置对时周期，那么会取消当前的对时调度任务，开始执行一次对时任务，
+     * 这是为了防止设置了一个大的对时任务任务之后，这个setInterval需要在上次的对时任务执行完成之后才能生效
+     * @param interval
+     * @param timeUnit
+     */
     public void setCheckInterval(int interval , TimeUnit timeUnit){
         this.interval = interval;
         this.timeUnit = timeUnit;
+        this.currentFuture.cancel(false);
+        this.currentFuture = scheduler.schedule(new PullTask(this), this.interval, this.timeUnit);
     }
 
 
@@ -98,12 +108,8 @@ public class NtpService {
 
         @Override
         public void run() {
-            try {
-                service.timeInfo = service.pollNTPTime();
-            } catch (Exception e) {
-                //if pull ntp time failed, use the last pulled timeInfo
-            }
-            scheduler.schedule(this, service.interval, service.timeUnit);
+            service.sync();
+            service.currentFuture = scheduler.schedule(this, service.interval, service.timeUnit);
         }
     }
 
