@@ -22,6 +22,7 @@ public class ExecutorFactory {
 
     /**
      * 用于处理单线程顺序执行的任务，如连接和订阅，这些任务不需要并发，也保证了不会干扰订阅的结果。
+     * 防止在连接的过程中有订阅发生，导致订阅失败。
      */
     private ExecutorService connectExecutor = new ThreadPoolExecutor(1, 1, 0, TimeUnit.MILLISECONDS,
             new LinkedBlockingQueue<>(100),
