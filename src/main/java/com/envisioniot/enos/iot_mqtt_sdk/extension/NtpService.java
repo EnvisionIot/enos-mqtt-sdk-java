@@ -9,12 +9,12 @@ import org.apache.commons.net.ntp.TimeInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.net.InetAddress;
 import java.util.concurrent.*;
 
 /**
  * https://tools.ietf.org/html/rfc1305
+ *
  * @author zhensheng.cai
  * @date 2019/1/2.
  */
@@ -43,14 +43,18 @@ public class NtpService {
     /**
      * 如果重新设置对时周期，那么会取消当前的对时调度任务，开始执行一次对时任务，
      * 这是为了防止设置了一个大的对时任务任务之后，这个setInterval需要在上次的对时任务执行完成之后才能生效
+     *
      * @param interval
      * @param timeUnit
      */
-    public void setCheckInterval(int interval , TimeUnit timeUnit){
+    public void setCheckInterval(int interval, TimeUnit timeUnit) {
         this.interval = interval;
         this.timeUnit = timeUnit;
-        this.currentFuture.cancel(false);
-        this.currentFuture = scheduler.schedule(new PullTask(this), this.interval, this.timeUnit);
+        if (this.currentFuture != null) {
+            //取消当前的调度任务，重新开始定时执行对时任务。
+            this.currentFuture.cancel(false);
+            this.currentFuture = scheduler.schedule(new PullTask(this), this.interval, this.timeUnit);
+        }
     }
 
 
@@ -58,11 +62,11 @@ public class NtpService {
         this.ntpServer = ntpServer;
     }
 
-    public void setTimeout(int timeout){
+    public void setTimeout(int timeout) {
         this.timeout = timeout;
     }
 
-    public void setRetries(int retires){
+    public void setRetries(int retires) {
         this.retries = retires;
     }
 
@@ -70,22 +74,22 @@ public class NtpService {
         this.initFuture = scheduler.schedule(new PullTask(this), 0, timeUnit);
     }
 
-    public boolean sync() {
+    private boolean sync() {
         try {
             this.timeInfo = pollNTPTime();
             return true;
         } catch (Exception e) {
             boolean result = retryRepeat(retries);
-            if(result) {
+            if (result) {
                 logger.error("", e);
             }
         }
         return false;
     }
 
-    public boolean retryRepeat(int times){
+    private boolean retryRepeat(int times) {
         System.out.println("retry");
-        while(times-- >0 ){
+        while (times-- > 0) {
             try {
                 this.timeInfo = pollNTPTime();
                 return true;
@@ -95,7 +99,6 @@ public class NtpService {
         }
         return false;
     }
-
 
 
     public static class PullTask implements Runnable {
@@ -114,42 +117,40 @@ public class NtpService {
     }
 
 
-
     private TimeInfo pollNTPTime() throws Exception {
         NTPUDPClient client = new NTPUDPClient();
         // We want to timeout if a response takes longer than 10 seconds
         client.setDefaultTimeout(this.timeout);
         try {
             InetAddress hostAddr = InetAddress.getByName(this.ntpServer);
-            TimeInfo info = client.getTime(hostAddr,NtpV3Packet.NTP_PORT);
+            TimeInfo info = client.getTime(hostAddr, NtpV3Packet.NTP_PORT);
             info.computeDetails();
             return info;
-        }
-        finally {
+        } finally {
             client.close();
         }
     }
 
     /**
-     *
      * LocalClockOffset = ((ReceiveTimestamp_ntp - OriginateTimestamp_local) +(TransmitTimestamp_ntp - DestinationTimestamp_local)) / 2
      * offset =
      * Where OriginateTimestamp is the local time the client sent the packet (t1), ReceiveTimestamp is time request received by NTP server (t2), TransmitTimestamp is time reply sent by server (t3), and DestinationTimestamp is time at which reply received by client on local machine (t4).
+     *
      * @return
      */
-    public long getFixedTimestamp(){
+    public long getFixedTimestamp() {
         check();
-        return System.currentTimeMillis()+ timeInfo.getOffset();
+        return System.currentTimeMillis() + timeInfo.getOffset();
     }
 
 
-    public long getFixedTimestamp(long timestamp){
+    public long getFixedTimestamp(long timestamp) {
         check();
-        return timestamp+ timeInfo.getOffset();
+        return timestamp + timeInfo.getOffset();
     }
 
 
-    public void check(){
+    public void check() {
         if (timeInfo == null || timeInfo.getOffset() == null) {
             try {
                 //get the first pull result
