@@ -114,12 +114,9 @@ public class NtpService {
         // We want to timeout if a response takes longer than 10 seconds
         client.setDefaultTimeout(this.timeout);
         try {
-
             InetAddress hostAddr = InetAddress.getByName(this.ntpServer);
-            System.out.println("> " + hostAddr.getHostName() + "/" + hostAddr.getHostAddress());
             TimeInfo info = client.getTime(hostAddr,NtpV3Packet.NTP_PORT);
             info.computeDetails();
-            System.out.println(info);
             return info;
         }
         finally {
