@@ -251,6 +251,8 @@ client.setArrivedMsgHandler(SubDeviceDisableCommand.class, (SubDeviceDisableComm
 
 ### End-to-End Sample Code
 
+You can find the sample code from `<dir>/blob/master/src/main/java/com/envisioniot/enos/iot_mqtt_sdk/sample/SimpleSendReceive.java` too, where, `<dir>` is the directory of this SDK in your local store.
+
 ```
 import com.envisioniot.enos.iot_mqtt_sdk.core.IConnectCallback;
 import com.envisioniot.enos.iot_mqtt_sdk.core.MqttClient;
