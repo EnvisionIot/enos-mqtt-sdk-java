@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.concurrent.*;
 
 /**
+ * stateless processor of mqtt messages
  * @author zhensheng.cai
  * @date 2018/7/5.
  */
@@ -32,6 +33,9 @@ public class DefaultProcessor implements MqttCallback, MqttCallbackExtended {
 
     private MqttConnection connection;
 
+    /**
+     *move the states to the independent modules
+     */
     private Map<String, Task<? extends IMqttResponse>> rspTaskMap = new ConcurrentHashMap<>();
     private Map<Class<? extends IMqttArrivedMessage>, IMessageHandler<?, ?>> arrivedMsgHandlerMap = new ConcurrentHashMap<>();
     private IConnectCallback connectCallback = null;
