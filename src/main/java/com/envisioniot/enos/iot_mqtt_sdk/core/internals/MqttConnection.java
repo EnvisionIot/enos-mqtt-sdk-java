@@ -8,7 +8,6 @@ import com.envisioniot.enos.iot_mqtt_sdk.core.msg.IMqttDeliveryMessage;
 import com.envisioniot.enos.iot_mqtt_sdk.core.msg.IMqttRequest;
 import com.envisioniot.enos.iot_mqtt_sdk.core.msg.IMqttResponse;
 import com.envisioniot.enos.iot_mqtt_sdk.core.profile.AbstractProfile;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
@@ -32,19 +31,7 @@ public class MqttConnection {
     private final AbstractProfile profile;
     private SubTopicCache subTopicCache = new SubTopicCache();
 
-    /**
-     * 用于处理一般的publish任务请求。
-     */
-    private ExecutorService internalExecutor =  new ThreadPoolExecutor(10, 20, 0,TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<Runnable>(1000),
-                new ThreadFactoryBuilder().setNameFormat("internal-executor-%d").build());
-
-    /**
-     * 用于处理单线程顺序执行的任务，如连接和订阅，这些任务不需要并发，也保证了不会干扰订阅的结果。
-     */
-    private ExecutorService connectExecutor = new ThreadPoolExecutor(1, 1, 0, TimeUnit.MILLISECONDS,
-            new LinkedBlockingQueue<>(100),
-            new ThreadFactoryBuilder().setNameFormat("connect-executor-%d").build());
+    private ExecutorFactory executorFactory;
 
 
     public static class ConnectionTask {
@@ -77,17 +64,17 @@ public class MqttConnection {
     }
 
 
-
     /**
      * -1 means wait forever
      */
 
-    public MqttConnection(AbstractProfile profile, MessageBuffer buffer) {
+    public MqttConnection(AbstractProfile profile, MessageBuffer buffer, ExecutorFactory executorFactory) {
         this.profile = profile;
         this.buffer = buffer;
+        this.executorFactory = executorFactory;
         try {
             this.transport = new MqttClient(profile.getServerUrl(), profile.getClientId(), new MemoryPersistence());
-            this.mqttProcessor = new DefaultProcessor(transport, profile, subTopicCache, this);
+            this.mqttProcessor = new DefaultProcessor(profile, this);
             this.transport.setCallback(mqttProcessor);
             this.transport.setTimeToWait(profile.getTimeToWait() * 1000);
         } catch (MqttException e) {
@@ -99,11 +86,15 @@ public class MqttConnection {
     public MqttConnection recreate() throws EnvisionException {
         MqttConnection old = this;
         old.profile.reload();
-        return new MqttConnection(old.profile , buffer);
+        MqttConnection newConnection = new MqttConnection(old.profile, old.buffer , old.executorFactory);
+        //在重新建立连接的过程中需要将Processor的状态量集成下来。
+        newConnection.mqttProcessor.dumpProcessorState(old.mqttProcessor);
+        return newConnection;
     }
 
+
     public void notifyConnectSuccess(){
-        internalExecutor.execute(buffer.createRepublishDisconnetedMessageTask());
+        this.executorFactory.getPublishExecutor().execute(buffer.createRepublishDisconnetedMessageTask());
     }
 
     public void connect() throws EnvisionException {
@@ -113,7 +104,7 @@ public class MqttConnection {
     public void connect(IConnectCallback callback) throws EnvisionException {
         ConnectionTask task = new ConnectionTask();
         task.setConnectTask(this, callback);
-        connectExecutor.execute(task.getFutureTask());
+        this.executorFactory.getConnectExecutor().execute(task.getFutureTask());
         try {
             task.getFutureTask().get(profile.getConnectionTimeout(), TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
@@ -209,7 +200,7 @@ public class MqttConnection {
         if (!subTopicCache.exists(topic)) {
             ConnectionTask task = new ConnectionTask();
             task.setSubscribeTask(this, topic, request.getQos());
-            connectExecutor.execute(task.getFutureTask());
+            this.executorFactory.getConnectExecutor().execute(task.getFutureTask());
             task.getFutureTask().get(this.profile.getTimeToWait(), TimeUnit.SECONDS);
             subTopicCache.put(topic);
         }
@@ -236,6 +227,10 @@ public class MqttConnection {
         return transport.getClientId();
     }
 
+
+    public void cleanSubscribeTopicCache(){
+        this.subTopicCache.clean();
+    }
 
 
 }

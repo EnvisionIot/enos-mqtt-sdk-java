@@ -3,8 +3,11 @@ package com.envisioniot.enos.iot_mqtt_sdk.sample;
 import com.envisioniot.enos.iot_mqtt_sdk.core.IConnectCallback;
 import com.envisioniot.enos.iot_mqtt_sdk.core.MqttClient;
 import com.envisioniot.enos.iot_mqtt_sdk.core.exception.EnvisionException;
+import com.envisioniot.enos.iot_mqtt_sdk.core.msg.IMessageHandler;
 import com.envisioniot.enos.iot_mqtt_sdk.core.profile.FileProfile;
 import com.envisioniot.enos.iot_mqtt_sdk.message.downstream.activate.DeviceActivateInfoCommand;
+import com.envisioniot.enos.iot_mqtt_sdk.message.downstream.tsl.ServiceInvocationCommand;
+import com.envisioniot.enos.iot_mqtt_sdk.message.downstream.tsl.ServiceInvocationReply;
 import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.tsl.MeasurepointPostRequest;
 import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.tsl.MeasurepointPostResponse;
 
@@ -23,11 +26,12 @@ public class DynamicActivateSample {
     public static void dynamicActivateByFileProfile()  {
 
         MqttClient client = new MqttClient(new FileProfile());
+        handleServiceInvocation(client);
         initWithCallback(client);
         while(true){
             postSyncMeasurepoint(client);
             try {
-                Thread.sleep(100);
+                Thread.sleep(1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -51,6 +55,26 @@ public class DynamicActivateSample {
             e.printStackTrace();
         }
     }
+
+
+    public static void handleServiceInvocation(MqttClient client) {
+
+        IMessageHandler<ServiceInvocationCommand, ServiceInvocationReply> handler = new IMessageHandler<ServiceInvocationCommand, ServiceInvocationReply>() {
+            @Override
+            public ServiceInvocationReply onMessage(ServiceInvocationCommand request, List<String> argList) throws Exception {
+                System.out.println("rcvn async serevice invocation command" + request + " topic " + argList);
+                return ServiceInvocationReply.builder()
+//                        .setCode(2000)
+//                        /**/.setMessage("user defined err msg")
+//                        .addOutputData("pointA", "11")
+                        .addOutputData("point1", 11)
+                        .build();
+            }
+
+        };
+        client.setArrivedMsgHandler(ServiceInvocationCommand.class, handler);
+    }
+
 
 
 

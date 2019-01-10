@@ -25,13 +25,16 @@ import java.util.concurrent.*;
  */
 public class DefaultProcessor implements MqttCallback, MqttCallbackExtended {
     private static Logger logger = LoggerFactory.getLogger(DefaultProcessor.class);
-    private final SubTopicCache subTopicCache;
     /**
      * response execution pool
      */
     private ExecutorService userExecutor;
 
-    private final MqttConnection connection;
+    private MqttConnection connection;
+
+    private Map<String, Task<? extends IMqttResponse>> rspTaskMap = new ConcurrentHashMap<>();
+    private Map<Class<? extends IMqttArrivedMessage>, IMessageHandler<?, ?>> arrivedMsgHandlerMap = new ConcurrentHashMap<>();
+    private IConnectCallback connectCallback = null;
 
     /**
      * callback timeout pool
@@ -40,20 +43,26 @@ public class DefaultProcessor implements MqttCallback, MqttCallbackExtended {
             new ThreadFactoryBuilder().setNameFormat("callback-timeout-pool-%d").build());
 
 
-    public DefaultProcessor(MqttClient mqttClient, AbstractProfile profile, SubTopicCache subTopicCache, MqttConnection connection) {
+    public DefaultProcessor( AbstractProfile profile,  MqttConnection connection) {
         this.userExecutor = profile.getExecutorService();
-        this.subTopicCache = subTopicCache;
         this.connection = connection;
     }
 
-    private final Map<String, Task<? extends IMqttResponse>> rspTaskMap = new ConcurrentHashMap<>();
-    private final Map<Class<? extends IMqttArrivedMessage>, IMessageHandler<?, ?>> arrivedMsgHandlerMap = new ConcurrentHashMap<>();
-    private IConnectCallback connectCallback = null;
+    public void setMqttConnection(MqttConnection connection){
+        this.connection = connection;
+    }
 
     public void onConnectFailed(int reasonCode) {
         if (connectCallback != null) {
             this.userExecutor.execute(() -> connectCallback.onConnectFailed(reasonCode));
         }
+    }
+
+
+    void dumpProcessorState(DefaultProcessor old){
+        this.rspTaskMap = old.rspTaskMap;
+        this.arrivedMsgHandlerMap = old.arrivedMsgHandlerMap;
+        this.connectCallback = old.connectCallback;
     }
 
     @Override
@@ -242,7 +251,7 @@ public class DefaultProcessor implements MqttCallback, MqttCallbackExtended {
 
         logger.info("clear the subscriptions");
         //无论怎样都对cache清空
-        this.subTopicCache.clean();
+        this.connection.cleanSubscribeTopicCache();
         if (connectCallback != null) {
             try {
                 this.userExecutor.execute(() -> connectCallback.onConnectLost());
@@ -264,6 +273,7 @@ public class DefaultProcessor implements MqttCallback, MqttCallbackExtended {
         if (logger.isDebugEnabled()) {
             logger.debug("connect complete , reconnect {} , serverUri {} ", reconnect, serverURI);
         }
+        this.connection.notifyConnectSuccess();
         if (connectCallback != null) {
             try {
                 this.userExecutor.execute(() -> connectCallback.onConnectSuccess());

@@ -1,6 +1,8 @@
 package com.envisioniot.enos.iot_mqtt_sdk.core;
 
 import com.envisioniot.enos.iot_mqtt_sdk.core.exception.EnvisionException;
+import com.envisioniot.enos.iot_mqtt_sdk.core.internals.DefaultProcessor;
+import com.envisioniot.enos.iot_mqtt_sdk.core.internals.ExecutorFactory;
 import com.envisioniot.enos.iot_mqtt_sdk.core.internals.MessageBuffer;
 import com.envisioniot.enos.iot_mqtt_sdk.core.internals.MqttConnection;
 import com.envisioniot.enos.iot_mqtt_sdk.core.msg.*;
@@ -8,6 +10,7 @@ import com.envisioniot.enos.iot_mqtt_sdk.core.profile.AbstractProfile;
 import com.envisioniot.enos.iot_mqtt_sdk.core.profile.DefaultActivateResponseHandler;
 import com.envisioniot.enos.iot_mqtt_sdk.core.profile.DefaultProfile;
 import com.envisioniot.enos.iot_mqtt_sdk.core.profile.FileProfile;
+import com.envisioniot.enos.iot_mqtt_sdk.extension.ExtServiceFactory;
 import com.envisioniot.enos.iot_mqtt_sdk.message.downstream.activate.DeviceActivateInfoCommand;
 import com.envisioniot.enos.iot_mqtt_sdk.util.StringUtil;
 import org.slf4j.Logger;
@@ -29,7 +32,10 @@ public class MqttClient {
     private AtomicLong requestId = new AtomicLong(0);
     private MqttConnection connection;
     private AbstractProfile profile;
+    private DefaultProcessor mqttProcessor;
     private MessageBuffer buffer = new MessageBuffer();
+    private ExtServiceFactory serviceFactory = new ExtServiceFactory();
+    private ExecutorFactory executorFactory;
 
 
 
@@ -50,10 +56,11 @@ public class MqttClient {
      */
     public MqttClient(AbstractProfile profile) {
         this.profile = profile;
-        connection = new MqttConnection(profile, buffer);
+        this.executorFactory = new ExecutorFactory();
+        this.connection = new MqttConnection(profile, buffer, executorFactory);
         this.buffer.setConnection(connection);
         if(profile.getSecureMode()== 3 ){
-            //register dynamic acvtivated response handler
+            //register dynamic activated response handler
             if(this.profile instanceof FileProfile) {
                 this.setArrivedMsgHandler(DeviceActivateInfoCommand.class,
                         new DefaultActivateResponseHandler((FileProfile) this.profile , this));
@@ -122,6 +129,10 @@ public class MqttClient {
 //    }
 //
 
+    public ExtServiceFactory getExtServiceFactory(){
+        return serviceFactory;
+    }
+
     public void rebuildConnection() throws EnvisionException {
         MqttConnection newConnnection = this.connection.recreate();
         this.buffer.setConnection(newConnnection);
@@ -135,7 +146,7 @@ public class MqttClient {
             finally {
                 old.close();
             }
-            this.connect(old.getProcessor().getConnectCallback());
+            this.connect(this.connection.getProcessor().getConnectCallback());
         }
     }
 
