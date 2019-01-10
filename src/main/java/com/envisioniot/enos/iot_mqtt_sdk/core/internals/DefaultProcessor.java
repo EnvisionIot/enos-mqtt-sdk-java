@@ -101,7 +101,6 @@ public class DefaultProcessor implements MqttCallback, MqttCallbackExtended {
             // 2. handle the msg
             if (msg instanceof IMqttResponse) {
                 IMqttResponse mqttRsp = (IMqttResponse) msg;
-
                 @SuppressWarnings("unchecked")
                 Task<IMqttResponse> task = (Task<IMqttResponse>) rspTaskMap.remove(topic + "_" + mqttRsp.getMessageId());
                 if (task == null) {
@@ -111,7 +110,6 @@ public class DefaultProcessor implements MqttCallback, MqttCallbackExtended {
 
                 task.run(mqttRsp);
             }
-
             @SuppressWarnings("unchecked") final IMessageHandler<IMqttArrivedMessage, IMqttDeliveryMessage> handler = (IMessageHandler<IMqttArrivedMessage, IMqttDeliveryMessage>) arrivedMsgHandlerMap.get(msg.getClass());
             final List<String> pathList = result.getPathList();
 
@@ -120,28 +118,7 @@ public class DefaultProcessor implements MqttCallback, MqttCallbackExtended {
                 userExecutor.execute(() -> {
                     try {
                         IMqttDeliveryMessage deliveryMsg = handler.onMessage(msg, pathList);
-                        if (deliveryMsg != null) {
-                            deliveryMsg.setMessageId(msg.getMessageId());
-                            deliveryMsg.setProductKey(msg.getProductKey());
-                            deliveryMsg.setDeviceKey(msg.getDeviceKey());
-                            /*set the reply topic*/
-                            if (deliveryMsg instanceof BaseMqttReply) {
-                                ((BaseMqttReply) deliveryMsg).setTopicArgs(pathList);
-                                /*user code is below 2000 and not equal to 200  */
-                                if (((BaseMqttReply) deliveryMsg).getCode() < ResponseCode.USER_DEFINED_ERR_CODE &&
-                                        ((BaseMqttReply) deliveryMsg).getCode() != ResponseCode.SUCCESS) {
-                                    logger.warn("errCode of reply message is not allowed , " + ((BaseMqttReply) deliveryMsg).getCode());
-                                }
-                                try {
-                                    connection.fastPublish(deliveryMsg);
-                                } catch (Exception e) {
-                                    logger.error(
-                                            "mqtt client publish reply msg to cloud failed ,arrived msg {}  msg to send {} ,  ",
-                                            msg, deliveryMsg, e);
-                                }
-                            }
-                        }
-
+                        replyIfNeeded(msg, pathList, deliveryMsg);
                     } catch (Exception e) {
                         logger.error("handle the arrived msg err , may because of registered arrived msg callback ,", e);
                         try{
@@ -157,21 +134,49 @@ public class DefaultProcessor implements MqttCallback, MqttCallbackExtended {
                 });
             } else {
                 if(msg instanceof BaseMqttCommand){
-                    userExecutor.execute(() -> {
-                        try {
-                            BaseMqttReply reply = buildMqttReply((BaseMqttCommand) msg, pathList,
-                                    ResponseCode.COMMAND_HANDLER_NOT_REGISTERED,
-                                    "downstream command handler not registered");
-                            connection.fastPublish(reply);
-                        }catch (Exception e) {
-                            logger.error("handle the msg  {} with no handler failed ,  ", msg, e);
-                        }
-                    });
+                   handleCommandWithNoHandler((BaseMqttCommand) msg, pathList);
                 }
             }
         } catch (Exception e) {
             logger.error("UGLY INTERNAL ERR!! , processing the arrived  msg err , topic {}  uncaught exception : ",
                     topic, e);
+        }
+    }
+
+    private void handleCommandWithNoHandler(BaseMqttCommand msg , List<String> pathList) {
+        userExecutor.execute(() -> {
+            try {
+                BaseMqttReply reply = buildMqttReply((BaseMqttCommand) msg, pathList,
+                        ResponseCode.COMMAND_HANDLER_NOT_REGISTERED,
+                        "downstream command handler not registered");
+                connection.fastPublish(reply);
+            }catch (Exception e) {
+                logger.error("handle the msg  {} with no handler failed ,  ", msg, e);
+            }
+        });
+    }
+
+    private void replyIfNeeded( IMqttArrivedMessage msg , List<String> pathList, IMqttDeliveryMessage deliveryMsg){
+        if (deliveryMsg != null) {
+            deliveryMsg.setMessageId(msg.getMessageId());
+            deliveryMsg.setProductKey(msg.getProductKey());
+            deliveryMsg.setDeviceKey(msg.getDeviceKey());
+                            /*set the reply topic*/
+            if (deliveryMsg instanceof BaseMqttReply) {
+                ((BaseMqttReply) deliveryMsg).setTopicArgs(pathList);
+                                /*user code is below 2000 and not equal to 200  */
+                if (((BaseMqttReply) deliveryMsg).getCode() < ResponseCode.USER_DEFINED_ERR_CODE &&
+                        ((BaseMqttReply) deliveryMsg).getCode() != ResponseCode.SUCCESS) {
+                    logger.warn("errCode of reply message is not allowed , " + ((BaseMqttReply) deliveryMsg).getCode());
+                }
+                try {
+                    connection.fastPublish(deliveryMsg);
+                } catch (Exception e) {
+                    logger.error(
+                            "mqtt client publish reply msg to cloud failed ,arrived msg {}  msg to send {} ,  ",
+                            msg, deliveryMsg, e);
+                }
+            }
         }
     }
 
