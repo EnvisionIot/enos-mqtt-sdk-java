@@ -1,5 +1,6 @@
 package com.envisioniot.enos.iot_mqtt_sdk.core.profile;
 
+import com.envisioniot.enos.iot_mqtt_sdk.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +46,7 @@ public class FileProfile extends AbstractProfile {
 //                || (StringUtil.isEmpty(p_deviceSecret) && StringUtil.isEmpty(p_productSecret))) {
 //            throw new IllegalArgumentException("file config missing mandatory fields, please check config file");
 //        }
-        super.serverUrl =properties.getProperty("serverUrl");
+        super.serverUrl = properties.getProperty("serverUrl");
         super.productKey = properties.getProperty("productKey");
         super.productSecret = properties.getProperty("productSecret");
         super.deviceKey = properties.getProperty("deviceKey");
@@ -90,6 +91,23 @@ public class FileProfile extends AbstractProfile {
                 logger.warn("config filed [{}] in config file invalid , please check", "autoReconnect");
             }
         }
+        if (properties.contains("sslJksPath") && properties.contains("sslPassword")) {
+            try {
+                if (StringUtil.isNotEmpty(properties.getProperty("sslJksPath"))) {
+                    this.setSSLJksPath(properties.getProperty("sslJksPath"), properties.getProperty("sslPassword"));
+                    this.setSSLSecured(true);
+                }
+            } catch (Exception e) {
+                logger.warn("config filed sslJksPath/sslPassword in config file invalid , please check");
+            }
+        }
+        if (properties.contains("sslAlgorithm")) {
+            try {
+                this.setSSLAlgorithm(properties.getProperty("sslAlgorithm"));
+            } catch (Exception e) {
+                logger.warn("config filed [{}] in config file invalid , please check", "sslAlgorithm");
+            }
+        }
     }
 
 
@@ -110,12 +128,11 @@ public class FileProfile extends AbstractProfile {
     }
 
 
-    public void persistent(String filePath) throws IOException{
+    public void persistent(String filePath) throws IOException {
         FileOutputStream fileOutputStream = new FileOutputStream(filePath);
         try {
             this.properties.store(fileOutputStream, "store properties by mqtt sdk");
-        }
-        finally {
+        } finally {
             fileOutputStream.close();
         }
     }

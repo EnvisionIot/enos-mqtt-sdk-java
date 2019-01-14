@@ -88,7 +88,6 @@ public class NtpService {
     }
 
     private boolean retryRepeat(int times) {
-        System.out.println("retry");
         while (times-- > 0) {
             try {
                 this.timeInfo = pollNTPTime();
