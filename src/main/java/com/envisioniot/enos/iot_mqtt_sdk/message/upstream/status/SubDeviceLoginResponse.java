@@ -19,12 +19,22 @@ public class SubDeviceLoginResponse extends BaseMqttResponse {
 
     public String getSubProductKey() {
         Map<String, String> data = getData();
-        return data.get("productKey");
+        return data == null ? null : data.get("productKey");
     }
 
     public String getSubDeviceKey() {
         Map<String, String> data = getData();
-        return data.get("deviceKey");
+        return data == null ? null : data.get("deviceKey");
+    }
+
+    public String getSubDeviceSecret(){
+        Map<String, String> data = getData();
+        return data == null ? null : data.get("deviceSecret");
+    }
+
+    public String getSubDevceAssetId(){
+        Map<String, String> data = getData();
+        return data == null ? null : data.get("assetId");
     }
 
     @Override

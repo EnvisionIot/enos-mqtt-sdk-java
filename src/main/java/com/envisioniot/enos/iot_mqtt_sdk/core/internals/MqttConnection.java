@@ -7,30 +7,41 @@ import com.envisioniot.enos.iot_mqtt_sdk.core.exception.EnvisionException;
 import com.envisioniot.enos.iot_mqtt_sdk.core.msg.IMqttDeliveryMessage;
 import com.envisioniot.enos.iot_mqtt_sdk.core.msg.IMqttRequest;
 import com.envisioniot.enos.iot_mqtt_sdk.core.msg.IMqttResponse;
-import com.envisioniot.enos.iot_mqtt_sdk.core.profile.AbstractProfile;
+import com.envisioniot.enos.iot_mqtt_sdk.core.profile.BaseProfile;
+import com.envisioniot.enos.iot_mqtt_sdk.core.profile.DeviceCredential;
+import com.envisioniot.enos.iot_mqtt_sdk.core.profile.FileProfile;
+import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.status.SubDeviceLoginRequest;
+import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.status.SubDeviceLoginResponse;
+import com.envisioniot.enos.iot_mqtt_sdk.util.SecureModeUtil;
+import com.envisioniot.enos.iot_mqtt_sdk.util.StringUtil;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
+ *
+ *
  * @author zhensheng.cai
  * @date 2018/7/17.
  */
 public class MqttConnection {
     private static final Logger logger = LoggerFactory.getLogger(MqttConnection.class);
 
+    private AtomicLong requestId = new AtomicLong(0);
     private final MqttClient transport;
     //private final EnvClientContext clientContext;
     private DefaultProcessor mqttProcessor;
     private final MessageBuffer buffer;
 
-    private final AbstractProfile profile;
+    private final BaseProfile profile;
     private SubTopicCache subTopicCache = new SubTopicCache();
-
     private ExecutorFactory executorFactory;
 
 
@@ -38,23 +49,62 @@ public class MqttConnection {
 
         public FutureTask<Boolean> futureTask;
 
-        public void setConnectTask(MqttConnection connection, IConnectCallback callback) {
-            this.futureTask = new FutureTask<Boolean>(new Callable<Boolean>() {
-                @Override
-                public Boolean call() throws Exception {
-                    connection.doConnect(callback);
-                    return true;
-                }
+        public void setConnectTask(final MqttConnection connection, IConnectCallback callback) {
+            this.futureTask = new FutureTask<Boolean>(() -> {
+                connection.doConnect(callback);
+                return true;
             });
         }
 
-        public void setSubscribeTask(MqttConnection connection, String topic ,int qos) {
-            this.futureTask = new FutureTask<Boolean>(new Callable<Boolean>() {
-                @Override
-                public Boolean call() throws Exception {
-                    connection.doSubcribe(topic, qos);
-                    return true;
+        public void setSubscribeTask(final MqttConnection connection, String topic ,int qos) {
+            this.futureTask = new FutureTask<Boolean>(() -> {
+                connection.doSubscribe(topic, qos);
+                return true;
+            });
+        }
+
+        /**
+         * 顺序登录子设备，catch过程中的异常，只打印日志,当全部登录成功时返回true，否则fasle, 如果中间有失败则会发生超时。
+         * @param connection
+         * @param subDevices
+         */
+        public void setSubDeviceLoginTask(final MqttConnection connection, final List<DeviceCredential> subDevices) {
+            this.futureTask = new FutureTask<>(() -> {
+                boolean result = true;
+                for (DeviceCredential subDevice : subDevices) {
+                    SubDeviceLoginRequest request = SubDeviceLoginRequest.builder()
+                            .setSubDeviceInfo(subDevice.productKey, subDevice.productSecret, subDevice.deviceKey, subDevice.deviceSecret)
+                            .build();
+                    connection.fillRequest(request);
+                    request.check();
+
+                    try {
+
+                        SubDeviceLoginResponse rsp = connection.publish(request);
+                        if (logger.isDebugEnabled()) {
+                            logger.debug("auto connect subDeviceLogin rsp {} ", rsp);
+                        }
+                        if (request.getSecureMode() == SecureModeUtil.VIA_PRODUCT_SECRET
+                                && StringUtil.isNotEmpty(rsp.getSubDeviceSecret())) {
+                            connection.getProfile().updateOrAddSubDevice(new DeviceCredential(
+                                    rsp.getSubProductKey(), null, rsp.getSubDeviceKey(), rsp.getSubDeviceSecret()));
+                            if (connection.getProfile() instanceof FileProfile) {
+                                try {
+                                    ((FileProfile) connection.getProfile()).persistent();
+                                } catch (IOException e) {
+                                    logger.error("", e);
+                                }
+                            } else {
+                                logger.warn("mqtt client login subDevice by dynamic-activate-method ,but cannot persist the activated reply , please handle the reply: {} ", rsp);
+                            }
+                        }
+
+                    } catch (Exception e) {
+                        logger.error("", e);
+                        return false;
+                    }
                 }
+                return result;
             });
         }
 
@@ -63,12 +113,11 @@ public class MqttConnection {
         }
     }
 
-
     /**
      * -1 means wait forever
      */
 
-    public MqttConnection(AbstractProfile profile, MessageBuffer buffer, ExecutorFactory executorFactory) {
+    public MqttConnection(BaseProfile profile, MessageBuffer buffer, ExecutorFactory executorFactory) {
         this.profile = profile;
         this.buffer = buffer;
         this.executorFactory = executorFactory;
@@ -89,16 +138,33 @@ public class MqttConnection {
         MqttConnection newConnection = new MqttConnection(old.profile, old.buffer , old.executorFactory);
         //在重新建立连接的过程中需要将Processor的状态量集成下来。
         newConnection.mqttProcessor.dumpProcessorState(old.mqttProcessor);
+        newConnection.requestId = old.requestId;
         return newConnection;
     }
 
 
     public void notifyConnectSuccess(){
         this.executorFactory.getPublishExecutor().execute(buffer.createRepublishDisconnetedMessageTask());
+        if(profile.getSubDevices()!= null && !profile.getSubDevices().isEmpty()) {
+            ConnectionTask task = new ConnectionTask();
+            task.setSubDeviceLoginTask(this, profile.getSubDevices());
+            this.executorFactory.getPublishExecutor().execute(task.getFutureTask());
+        }
     }
+
+
+
 
     public void connect() throws EnvisionException {
         this.connect(null);
+    }
+
+    BaseProfile getProfile(){
+        return this.profile;
+    }
+
+    ExecutorFactory getExecutorFactory(){
+        return this.executorFactory;
     }
 
     public void connect(IConnectCallback callback) throws EnvisionException {
@@ -214,7 +280,7 @@ public class MqttConnection {
     }
 
 
-    private void doSubcribe(String topic , int qos ) throws MqttException {
+    private void doSubscribe(String topic , int qos ) throws MqttException {
         this.transport.subscribe(topic , qos);
     }
 
@@ -233,4 +299,18 @@ public class MqttConnection {
     }
 
 
+    public void fillRequest(IMqttDeliveryMessage request) {
+        if (StringUtil.isEmpty(request.getMessageId())) {
+            request.setMessageId(String.valueOf(requestId.incrementAndGet()));
+        }
+        if(request instanceof IMqttRequest) {
+            if (StringUtil.isEmpty(((IMqttRequest) request).getVersion())) {
+                ((IMqttRequest) request).setVersion(BaseProfile.VERSION);
+            }
+        }
+        if (StringUtil.isEmpty(request.getProductKey()) && StringUtil.isEmpty(request.getDeviceKey())) {
+            request.setProductKey(profile.getProductKey());
+            request.setDeviceKey(profile.getDeviceKey());
+        }
+    }
 }

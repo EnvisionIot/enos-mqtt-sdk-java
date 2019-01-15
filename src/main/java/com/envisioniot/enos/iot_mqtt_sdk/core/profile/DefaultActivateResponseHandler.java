@@ -38,11 +38,8 @@ public class DefaultActivateResponseHandler implements IMessageHandler<DeviceAct
         logger.info("handle activate reply info {}  by default handler", response.toString());
         DeviceBasicInfo deviceInfo = response.getDeviceInfo();
         String deviceSecret = deviceInfo.deviceSecret;
-        if (StringUtil.isNotEmpty(deviceSecret) && StringUtil.isEmpty(this.profile.getProperties().getProperty(DEVICE_SECRET))) {
-            this.profile.getProperties().setProperty(DEVICE_SECRET, deviceSecret);
-            if (StringUtil.isNotEmpty(deviceInfo.assetId)) {
-                this.profile.getProperties().setProperty(ASSET_ID, deviceInfo.assetId);
-            }
+        if (StringUtil.isNotEmpty(deviceSecret) && StringUtil.isEmpty(this.profile.getConfig().getDeviceSecret())) {
+            this.profile.getConfig().setDeviceSecret( deviceSecret);
             this.profile.persistent();
         }
         //publish the reply by handler and then recreate the mqtt connection

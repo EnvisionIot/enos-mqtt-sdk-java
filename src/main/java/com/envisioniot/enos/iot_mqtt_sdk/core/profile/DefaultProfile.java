@@ -6,7 +6,7 @@ import java.util.concurrent.ExecutorService;
  * @author zhensheng.cai
  * @date 2019/1/3.
  */
-public class DefaultProfile extends AbstractProfile {
+public class DefaultProfile extends BaseProfile {
 
 
     public DefaultProfile(String regionURL, String productKey, String deviceKey, String deviceSecret) {
@@ -20,11 +20,11 @@ public class DefaultProfile extends AbstractProfile {
     public DefaultProfile(String regionURL, String productKey, String productSecret,  String deviceKey, String deviceSecret,
                            ExecutorService executorService) {
         super();
-        this.serverUrl = regionURL;
-        this.productKey = productKey;
-        this.productSecret = productSecret;
-        this.deviceKey = deviceKey;
-        this.deviceSecret = deviceSecret;
+        this.config.setServerUrl(regionURL);
+        this.config.setProductKey(productKey);
+        this.config.setProductSecret(productSecret);
+        this.config.setDeviceKey(deviceKey);
+        this.config.setDeviceSecret(deviceSecret);
         this.setExecutorService(executorService);
     }
 

@@ -17,8 +17,28 @@ public class GsonUtil {
             .registerTypeAdapterFactory(ExactValueAdaptor.FACTORY)
             .create();
 
+    private static Gson prettyGson;
+
+    private static Gson getPrettyGson(){
+        if(prettyGson == null ){
+            synchronized (GsonUtil.class) {
+                if(prettyGson == null ){
+                    prettyGson = new GsonBuilder()
+                            .registerTypeAdapterFactory(ExactValueAdaptor.FACTORY)
+                            .setPrettyPrinting()
+                            .create();
+                }
+            }
+        }
+        return prettyGson;
+    }
+
     public static String toJson(Object obj) {
         return gson.toJson(obj);
+    }
+
+    public static String toPrettyJson(Object object){
+        return getPrettyGson().toJson(object);
     }
 
     public static <T> T fromJson(String json, Type typeOfT) {

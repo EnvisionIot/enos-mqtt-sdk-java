@@ -6,7 +6,7 @@ import com.envisioniot.enos.iot_mqtt_sdk.core.internals.ExecutorFactory;
 import com.envisioniot.enos.iot_mqtt_sdk.core.internals.MessageBuffer;
 import com.envisioniot.enos.iot_mqtt_sdk.core.internals.MqttConnection;
 import com.envisioniot.enos.iot_mqtt_sdk.core.msg.*;
-import com.envisioniot.enos.iot_mqtt_sdk.core.profile.AbstractProfile;
+import com.envisioniot.enos.iot_mqtt_sdk.core.profile.BaseProfile;
 import com.envisioniot.enos.iot_mqtt_sdk.core.profile.DefaultActivateResponseHandler;
 import com.envisioniot.enos.iot_mqtt_sdk.core.profile.DefaultProfile;
 import com.envisioniot.enos.iot_mqtt_sdk.core.profile.FileProfile;
@@ -29,9 +29,8 @@ public class MqttClient {
 
     private static Logger logger = LoggerFactory.getLogger(MqttClient.class);
 
-    private AtomicLong requestId = new AtomicLong(0);
     private MqttConnection connection;
-    private AbstractProfile profile;
+    private BaseProfile profile;
     private DefaultProcessor mqttProcessor;
     private MessageBuffer buffer = new MessageBuffer();
     private ExtServiceFactory serviceFactory = new ExtServiceFactory();
@@ -54,7 +53,7 @@ public class MqttClient {
      *
      * @param profile client config profile
      */
-    public MqttClient(AbstractProfile profile) {
+    public MqttClient(BaseProfile profile) {
         this.profile = profile;
         this.executorFactory = new ExecutorFactory();
         this.connection = new MqttConnection(profile, buffer, executorFactory);
@@ -72,7 +71,7 @@ public class MqttClient {
         }
     }
 
-    public AbstractProfile getProfile() {
+    public BaseProfile getProfile() {
         return this.profile;
     }
 
@@ -82,7 +81,7 @@ public class MqttClient {
      * @throws Exception
      */
     public void fastPublish(IMqttDeliveryMessage request) throws Exception {
-        fillRequest(request);
+        this.connection.fillRequest(request);
         request.check();
         this.connection.fastPublish(request);
     }
@@ -94,7 +93,7 @@ public class MqttClient {
      */
     public <T extends IMqttResponse> T publish(IMqttRequest<T> request) throws Exception {
         // 1. do register IMessageCallback
-        fillRequest(request);
+        this.connection.fillRequest(request);
         request.check();
         // 2. do post
         return connection.publish(request);
@@ -107,7 +106,7 @@ public class MqttClient {
      */
     public <T extends IMqttResponse> void publish(IMqttRequest<T> request, IResponseCallback<T> callback)
             throws Exception {
-        this.fillRequest(request);
+        this.connection.fillRequest(request);
         request.check();
 
         connection.publish(request, callback);
@@ -134,19 +133,21 @@ public class MqttClient {
     }
 
     public void rebuildConnection() throws EnvisionException {
-        MqttConnection newConnnection = this.connection.recreate();
-        this.buffer.setConnection(newConnnection);
-        MqttConnection old = this.connection;
-        this.connection = newConnnection;
-        //try reconnect
-        if(old.isConnected()){
-            try {
-                old.disconnect();
+
+        synchronized (this) {
+            MqttConnection newConnnection = this.connection.recreate();
+            MqttConnection old = this.connection;
+            this.connection = newConnnection;
+            //try reconnect
+            this.buffer.setConnection(newConnnection);
+            if (old.isConnected()) {
+                try {
+                    old.disconnect();
+                } finally {
+                    old.close();
+                }
+                this.connect(this.connection.getProcessor().getConnectCallback());
             }
-            finally {
-                old.close();
-            }
-            this.connect(this.connection.getProcessor().getConnectCallback());
         }
     }
 
@@ -172,18 +173,5 @@ public class MqttClient {
         return this.connection.isConnected();
     }
 
-    private void fillRequest(IMqttDeliveryMessage request) {
-        if (StringUtil.isEmpty(request.getMessageId())) {
-            request.setMessageId(String.valueOf(requestId.incrementAndGet()));
-        }
-        if(request instanceof IMqttRequest) {
-            if (StringUtil.isEmpty(((IMqttRequest) request).getVersion())) {
-                ((IMqttRequest) request).setVersion(AbstractProfile.VERSION);
-            }
-        }
-        if (StringUtil.isEmpty(request.getProductKey()) && StringUtil.isEmpty(request.getDeviceKey())) {
-            request.setProductKey(profile.getProductKey());
-            request.setDeviceKey(profile.getDeviceKey());
-        }
-    }
+
 }

@@ -2,10 +2,7 @@ package com.envisioniot.enos.iot_mqtt_sdk.core.internals;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * @author zhensheng.cai
@@ -29,10 +26,29 @@ public class ExecutorFactory {
             new ThreadFactoryBuilder().setNameFormat("connect-executor-%d").build());
 
 
+    /**
+     * callback timeout pool
+     */
+    private ScheduledExecutorService timeoutScheduler = new ScheduledThreadPoolExecutor(1,
+            new ThreadFactoryBuilder().setNameFormat("callback-timeout-pool-%d").build());
+
+    /**
+     * 多线程池
+     * @return
+     */
     public ExecutorService getPublishExecutor(){
         return internalExecutor;
     }
+
+    /**
+     * 单个顺序执行的线程池
+     * @return
+     */
     public ExecutorService getConnectExecutor(){
         return connectExecutor;
+    }
+
+    public ScheduledExecutorService getTimeoutScheduler(){
+        return timeoutScheduler;
     }
 }

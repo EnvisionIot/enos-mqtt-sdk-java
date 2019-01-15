@@ -1,6 +1,8 @@
 package com.envisioniot.enos.iot_mqtt_sdk.message.upstream.status;
 
 import com.envisioniot.enos.iot_mqtt_sdk.core.internals.SignUtil;
+import com.envisioniot.enos.iot_mqtt_sdk.util.SecureModeUtil;
+import com.envisioniot.enos.iot_mqtt_sdk.util.StringUtil;
 import com.google.common.collect.Maps;
 
 import java.io.Serializable;
@@ -26,6 +28,7 @@ public class SubDeviceLoginInfo implements Serializable {
     private String signMethod = DEFAULT_SIGN_METHOD;
     private boolean cleanSession = false;
     private Map<String, String> signParams;
+    private int secureMode = 2;
 
     public SubDeviceLoginInfo() {
     }
@@ -40,9 +43,31 @@ public class SubDeviceLoginInfo implements Serializable {
         signParams.put("deviceKey", deviceKey);
         signParams.put("clientId", clientId);
         signParams.put("timestamp", String.valueOf(timestamp));
-
         this.sign = SignUtil.sign(deviceSecret, signParams);
         this.signMethod = DEFAULT_SIGN_METHOD;
+        signParams.put("signMethod", this.signMethod);
+        signParams.put("sign", sign);
+        signParams.put("cleanSession", String.valueOf(cleanSession));
+    }
+
+    public SubDeviceLoginInfo(String productKey, String productSecret, String deviceKey, String deviceSecret) {
+        this.productKey = productKey;
+        this.deviceKey = deviceKey;
+        this.clientId = getDefaultClientId(productKey, deviceKey);
+        this.timestamp = System.currentTimeMillis();
+        signParams = Maps.newHashMap();
+        signParams.put("productKey", productKey);
+        signParams.put("deviceKey", deviceKey);
+        signParams.put("clientId", clientId);
+        signParams.put("timestamp", String.valueOf(timestamp));
+        secureMode = SecureModeUtil.getSecureMode(deviceSecret, productSecret);
+        if (secureMode == SecureModeUtil.VIA_DEVICE_SECRET) {
+            this.sign = SignUtil.sign(deviceSecret, signParams);
+        } else if (secureMode == SecureModeUtil.VIA_PRODUCT_SECRET) {
+            this.sign = SignUtil.sign(productSecret, signParams);
+        }
+        this.signMethod = DEFAULT_SIGN_METHOD;
+        signParams.put("secureMode", String.valueOf(secureMode));
         signParams.put("signMethod", this.signMethod);
         signParams.put("sign", sign);
         signParams.put("cleanSession", String.valueOf(cleanSession));
@@ -103,6 +128,10 @@ public class SubDeviceLoginInfo implements Serializable {
 
     public String getDeviceKey() {
         return deviceKey;
+    }
+
+    public int getSecureMode(){
+        return secureMode;
     }
 
 }

@@ -18,15 +18,25 @@ public class SubDeviceLoginRequest extends BaseMqttRequest<SubDeviceLoginRespons
 
     private static final long serialVersionUID = -3347144897822328244L;
 
+    private int secureMode = 2;
+
     public static Builder builder() {
         return new Builder();
     }
 
     public static class Builder extends BaseMqttRequest.Builder<Builder, SubDeviceLoginRequest> {
         private SubDeviceLoginInfo subDeviceInfo;
+        private int securemode = 2;
 
         public Builder setSubDeviceInfo(String productKey, String deviceKey, String deviceSecret) {
             this.subDeviceInfo = new SubDeviceLoginInfo(productKey, deviceKey, deviceSecret);
+            this.securemode = subDeviceInfo.getSecureMode();
+            return this;
+        }
+
+        public Builder setSubDeviceInfo(String productKey, String productSecret , String deviceKey, String deviceSecret) {
+            this.subDeviceInfo = new SubDeviceLoginInfo(productKey, productSecret, deviceKey, deviceSecret);
+            this.securemode = subDeviceInfo.getSecureMode();
             return this;
         }
 
@@ -44,13 +54,24 @@ public class SubDeviceLoginRequest extends BaseMqttRequest<SubDeviceLoginRespons
 
         @Override
         protected SubDeviceLoginRequest createRequestInstance() {
-            return new SubDeviceLoginRequest();
+            SubDeviceLoginRequest request = new SubDeviceLoginRequest();
+            request.secureMode = securemode;
+            return request;
         }
 
     }
 
     private SubDeviceLoginRequest() {
     }
+
+    private void setSecureMode(int secureMode){
+        this.secureMode = secureMode;
+    }
+
+    public int getSecureMode(){
+        return this.secureMode;
+    }
+
 
 
     @Override
