@@ -84,8 +84,11 @@ public class MqttConnection {
                             logger.debug("auto login subDevice rsp {} ", rsp);
                         }
                         if( rsp.getCode() != ResponseCode.SUCCESS){
-                            logger.warn("auto login subDevice failed , rsp {} , ", rsp);
+                            logger.warn("auto login subDevice failed , rsp {} ", rsp);
                             continue;
+                        }
+                        else{
+                            logger.info("auto login subDevice success, rsp {} ", rsp);
                         }
                         if (request.getSecureMode() == SecureModeUtil.VIA_PRODUCT_SECRET
                                 && StringUtil.isNotEmpty(rsp.getSubDeviceSecret())) {
