@@ -28,6 +28,7 @@ public class DeliveryTopicFormat {
     public static final String PROGRESS_REPORT_TOPIC_FMT = "/sys/%s/%s/ota/device/progress";
     public static final String VERSION_REPORT_TOPIC_FMT = "/sys/%s/%s/ota/device/inform";
     public static final String UPDATE_REQUEST_TOPIC_FMT = "/sys/%s/%s/ota/device/request";
+    public static final String GET_VERSION_TOPIC_FMT = "/sys/%s/%s/ota/device/getversion";
 
     public static final String ATTRIBUTE_UPDATE = "/sys/%s/%s/thing/attribute/update";
     public static final String ATTRIBUTE_QUERY = "/sys/%s/%s/thing/attribute/query";

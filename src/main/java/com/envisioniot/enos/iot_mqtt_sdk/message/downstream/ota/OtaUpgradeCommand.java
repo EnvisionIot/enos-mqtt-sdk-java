@@ -2,17 +2,14 @@ package com.envisioniot.enos.iot_mqtt_sdk.message.downstream.ota;
 
 import com.envisioniot.enos.iot_mqtt_sdk.core.internals.constants.ArrivedTopicPattern;
 import com.envisioniot.enos.iot_mqtt_sdk.message.downstream.BaseMqttCommand;
+import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.ota.Firmware;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
-import java.util.Map;
+import java.util.List;
 import java.util.regex.Pattern;
 
-public class DeviceOtaCommand extends BaseMqttCommand<DeviceOtaReply> {
-
-    /**
-     *
-     */
+public class OtaUpgradeCommand extends BaseMqttCommand<OtaUpgradeReply> {
     private static final long serialVersionUID = -1562255084521046172L;
     private static Pattern pattern = Pattern.compile(ArrivedTopicPattern.DEVICE_OTA_COMMAND);
 
@@ -22,13 +19,13 @@ public class DeviceOtaCommand extends BaseMqttCommand<DeviceOtaReply> {
     }
 
     @Override
-    public Class<DeviceOtaReply> getAnswerType() {
-        return DeviceOtaReply.class;
+    public Class<OtaUpgradeReply> getAnswerType() {
+        return OtaUpgradeReply.class;
     }
 
-    public Map<String, String> getOtaParams() {
-        Map<String, String> rst = new Gson().fromJson((String) this.getParams(),
-                new TypeToken<Map<String, String>>() {
+    public List<Firmware> getAvailableFirmwareList() {
+        List<Firmware> rst = new Gson().fromJson((String) this.getParams(),
+                new TypeToken<List<Firmware>>() {
                 }.getType());
         return rst;
     }

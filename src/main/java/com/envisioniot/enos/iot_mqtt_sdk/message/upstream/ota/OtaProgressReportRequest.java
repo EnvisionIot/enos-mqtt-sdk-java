@@ -8,10 +8,6 @@ import com.google.common.collect.Maps;
 import java.util.Map;
 
 public class OtaProgressReportRequest extends BaseMqttRequest<OtaProgressReportResponse> {
-
-    /**
-     *
-     */
     private static final long serialVersionUID = 1342670380317469907L;
 
     public static Builder builder() {
@@ -19,28 +15,16 @@ public class OtaProgressReportRequest extends BaseMqttRequest<OtaProgressReportR
     }
 
     public static class Builder extends BaseMqttRequest.Builder<Builder, OtaProgressReportRequest> {
-        private String deviceId;
-        private int status;
-        private String statusDesp;
-        private String firmwareId;
+        private String step;
+        private String desc;
 
-        public Builder setDeviceId(String iotId) {
-            this.deviceId = iotId;
+        public Builder setStep(String step) {
+            this.step = step;
             return this;
         }
 
-        public Builder setStatus(int status) {
-            this.status = status;
-            return this;
-        }
-
-        public Builder setStatusDesp(String desp) {
-            this.statusDesp = desp;
-            return this;
-        }
-
-        public Builder setFirmwareId(String firmwareId) {
-            this.firmwareId = firmwareId;
+        public Builder setDesc(String desc) {
+            this.desc = desc;
             return this;
         }
 
@@ -52,10 +36,8 @@ public class OtaProgressReportRequest extends BaseMqttRequest<OtaProgressReportR
         @Override
         protected Object createParams() {
             Map<String, String> map = Maps.newHashMap();
-            map.put("deviceId", deviceId);
-            map.put("status", status + "");
-            map.put("statusDesp", statusDesp);
-            map.put("firmwareId", firmwareId);
+            map.put("step", step);
+            map.put("desc", desc);
             return map;
         }
 

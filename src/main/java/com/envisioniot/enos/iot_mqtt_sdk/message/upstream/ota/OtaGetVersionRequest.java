@@ -7,18 +7,14 @@ import com.google.common.collect.Maps;
 
 import java.util.Map;
 
-public class OtaUpdateRequest extends BaseMqttRequest<OtaUpdateResponse> {
-
-    /**
-     *
-     */
+public class OtaGetVersionRequest extends BaseMqttRequest<OtaGetVersionResponse> {
     private static final long serialVersionUID = 1342670380317469907L;
 
     public static Builder builder() {
         return new Builder();
     }
 
-    public static class Builder extends BaseMqttRequest.Builder<Builder, OtaUpdateRequest> {
+    public static class Builder extends BaseMqttRequest.Builder<Builder, OtaGetVersionRequest> {
 
         @Override
         protected String createMethod() {
@@ -32,21 +28,21 @@ public class OtaUpdateRequest extends BaseMqttRequest<OtaUpdateResponse> {
         }
 
         @Override
-        protected OtaUpdateRequest createRequestInstance() {
-            return new OtaUpdateRequest();
+        protected OtaGetVersionRequest createRequestInstance() {
+            return new OtaGetVersionRequest();
         }
     }
 
     @Override
-    public Class<OtaUpdateResponse> getAnswerType() {
-        return OtaUpdateResponse.class;
+    public Class<OtaGetVersionResponse> getAnswerType() {
+        return OtaGetVersionResponse.class;
     }
 
     @Override
     protected String _getPK_DK_FormatTopic() {
-        return DeliveryTopicFormat.UPDATE_REQUEST_TOPIC_FMT;
+        return DeliveryTopicFormat.GET_VERSION_TOPIC_FMT;
     }
 
-    private OtaUpdateRequest() {
+    private OtaGetVersionRequest() {
     }
 }
