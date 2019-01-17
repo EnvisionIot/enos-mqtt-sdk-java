@@ -143,9 +143,9 @@ public abstract class BaseProfile {
         MqttConnectOptions connectOptions = new MqttConnectOptions();
         connectOptions.setUserName(mqttUsername);
         connectOptions.setPassword(mqttPassword.toCharArray());
-        connectOptions.setKeepAliveInterval(this.getKeepAlive());
+        connectOptions.setKeepAliveInterval(this.config.getKeepAlive());
         connectOptions.setAutomaticReconnect(this.config.getAutoReconnect());
-        connectOptions.setConnectionTimeout(this.getConnectionTimeout());
+        connectOptions.setConnectionTimeout(this.config.getConnectionTimeout());
         connectOptions.setMaxInflight(this.config.getMaxInFlight());
 
         if (config.getSslSecured()) {
@@ -190,7 +190,7 @@ public abstract class BaseProfile {
      * @return
      */
     public BaseProfile setConnectionTimeout(int connectionTimeout) {
-        this.setConnectionTimeout(connectionTimeout);
+        this.config.setConnectionTimeout(connectionTimeout);
         return this;
     }
 

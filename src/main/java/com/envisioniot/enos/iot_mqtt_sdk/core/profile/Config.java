@@ -65,8 +65,8 @@ public class Config {
     private String productSecret;
     private String deviceSecret;
     private Integer operationTimeout = DEFAULT_OPERATION_TIMEOUT;
-    private Integer maxInFlight;
-    private Integer connectionTimeout;
+    private Integer maxInFlight = DEFAULT_MAX_INFLIGHT;
+    private Integer connectionTimeout = DEFAULT_CONNECTION_TIMEOUT;
     private Boolean autoReconnect = true;
     private Integer keepAlive = DEFAULT_KEEP_ALIVE_INTERVAL;
 

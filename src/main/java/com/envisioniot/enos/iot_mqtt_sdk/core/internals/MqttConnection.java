@@ -10,6 +10,7 @@ import com.envisioniot.enos.iot_mqtt_sdk.core.msg.IMqttResponse;
 import com.envisioniot.enos.iot_mqtt_sdk.core.profile.BaseProfile;
 import com.envisioniot.enos.iot_mqtt_sdk.core.profile.DeviceCredential;
 import com.envisioniot.enos.iot_mqtt_sdk.core.profile.FileProfile;
+import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.ResponseCode;
 import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.status.SubDeviceLoginRequest;
 import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.status.SubDeviceLoginResponse;
 import com.envisioniot.enos.iot_mqtt_sdk.util.SecureModeUtil;
@@ -45,7 +46,7 @@ public class MqttConnection {
     private ExecutorFactory executorFactory;
 
 
-    public static class ConnectionTask {
+    static class ConnectionTask {
 
         public FutureTask<Boolean> futureTask;
 
@@ -64,7 +65,7 @@ public class MqttConnection {
         }
 
         /**
-         * 顺序登录子设备，catch过程中的异常，只打印日志,当全部登录成功时返回true，否则fasle, 如果中间有失败则会发生超时。
+         * 顺序登录子设备，catch过程中的异常，只打印日志,当全部登录成功时返回true，否则false
          * @param connection
          * @param subDevices
          */
@@ -77,12 +78,17 @@ public class MqttConnection {
                             .build();
                     connection.fillRequest(request);
                     request.check();
-
                     try {
-
                         SubDeviceLoginResponse rsp = connection.publish(request);
                         if (logger.isDebugEnabled()) {
-                            logger.debug("auto connect subDeviceLogin rsp {} ", rsp);
+                            logger.debug("auto login subDevice rsp {} ", rsp);
+                        }
+                        if( rsp.getCode() != ResponseCode.SUCCESS){
+                            logger.warn("auto login subDevice failed , rsp {} ", rsp);
+                            continue;
+                        }
+                        else{
+                            logger.info("auto login subDevice success, rsp {} ", rsp);
                         }
                         if (request.getSecureMode() == SecureModeUtil.VIA_PRODUCT_SECRET
                                 && StringUtil.isNotEmpty(rsp.getSubDeviceSecret())) {
@@ -101,7 +107,7 @@ public class MqttConnection {
 
                     } catch (Exception e) {
                         logger.error("", e);
-                        return false;
+                        result = false;
                     }
                 }
                 return result;
