@@ -6,12 +6,13 @@ import com.envisioniot.enos.iot_mqtt_sdk.core.exception.EnvisionException;
 import com.envisioniot.enos.iot_mqtt_sdk.core.msg.IMessageHandler;
 import com.envisioniot.enos.iot_mqtt_sdk.core.profile.DeviceCredential;
 import com.envisioniot.enos.iot_mqtt_sdk.core.profile.FileProfile;
-import com.envisioniot.enos.iot_mqtt_sdk.message.downstream.activate.DeviceActivateInfoCommand;
 import com.envisioniot.enos.iot_mqtt_sdk.message.downstream.tsl.ServiceInvocationCommand;
 import com.envisioniot.enos.iot_mqtt_sdk.message.downstream.tsl.ServiceInvocationReply;
 import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.topo.SubDeviceInfo;
 import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.topo.TopoAddRequest;
 import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.topo.TopoAddResponse;
+import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.tsl.MeasurepointPostBatchRequest;
+import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.tsl.MeasurepointPostBatchResponse;
 import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.tsl.MeasurepointPostRequest;
 import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.tsl.MeasurepointPostResponse;
 
@@ -33,22 +34,23 @@ public class DynamicActivateSample {
         handleServiceInvocation(client);
         initWithCallback(client);
 //        addTopo(client);
-//        while(true){
-//            postSyncMeasurepoint(client);
-//            try {
-//                Thread.sleep(1000);
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
-//            if(!client.getProfile().getSubDevices().isEmpty()){
-//                postSyncMeasurepoint(client, client.getProfile().getSubDevices().get(0));
-//                try {
-//                    Thread.sleep(1000);
-//                } catch (InterruptedException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        }
+        while(true){
+            postSyncMeasurepoint(client);
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            if(!client.getProfile().getSubDevices().isEmpty()){
+                postSyncMeasurepoint(client, client.getProfile().getSubDevices().get(0));
+                postSyncBatchMeasurepoint(client, client.getProfile().getSubDevices().get(0));
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
 
     }
 
@@ -83,6 +85,31 @@ public class DynamicActivateSample {
                 .addMeasurePoint("point1", random.nextInt(100)).build();
         try {
             MeasurepointPostResponse rsp = client.publish(request);
+            System.out.println("-->" + rsp);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void postSyncBatchMeasurepoint(MqttClient client , DeviceCredential subDevice){
+        Random random = new Random();
+        System.out.println("start post measurepoint ...");
+        MeasurepointPostRequest request = MeasurepointPostRequest.builder()
+                .setProductKey(subDevice.productKey).setDeviceKey(subDevice.deviceKey)
+                .addMeasurePoint("point1", random.nextInt(100)).build();
+        MeasurepointPostRequest request2 = MeasurepointPostRequest.builder()
+                .addMeasurePoint("point1", random.nextInt(100)).build();
+        MeasurepointPostRequest request3 = MeasurepointPostRequest.builder()
+                .setProductKey(subDevice.productKey).setDeviceKey(subDevice.deviceKey)
+                .addMeasurePoint("point1", random.nextInt(100)).build();
+        MeasurepointPostBatchRequest batchRequest = MeasurepointPostBatchRequest.builder()
+                .addReqeust(request)
+                .addReqeust(request2)
+                .addReqeust(request3)
+                .build();
+        try {
+            MeasurepointPostBatchResponse rsp = client.publish(batchRequest);
             System.out.println("-->" + rsp);
 
         } catch (Exception e) {
