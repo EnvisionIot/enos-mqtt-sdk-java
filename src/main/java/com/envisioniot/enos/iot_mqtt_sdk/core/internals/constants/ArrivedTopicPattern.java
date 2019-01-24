@@ -15,6 +15,9 @@ public class ArrivedTopicPattern {
     // "/sys/(.*)/(.*)/thing/event/measurepoint/post_reply";
     public static final String MEASUREPOINT_POST_REPLY = "/sys/(.*)/(.*)/thing/measurepoint/post_reply";
     public static final String EVENT_POST_REPLY = "/sys/(.*)/(.*)/thing/event/(.*)/post_reply";
+
+    public static final String MEASUREPOINT_POST_BATCH_REPLY = "/sys/(.*)/(.*)/thing/measurepoint/post/batch_reply";
+
     // public static final String TSL_TEMPLATE_GET_REPLY =
     // "/sys/(.*)/(.*)/thing/tsltemplate/get_reply";
     public static final String TSL_TEMPLATE_GET_REPLY = "/sys/(.*)/(.*)/thing/tsltemplate/get_reply";
