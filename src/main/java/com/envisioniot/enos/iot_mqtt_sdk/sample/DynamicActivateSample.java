@@ -33,22 +33,22 @@ public class DynamicActivateSample {
         handleServiceInvocation(client);
         initWithCallback(client);
 //        addTopo(client);
-        while(true){
-            postSyncMeasurepoint(client);
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            if(!client.getProfile().getSubDevices().isEmpty()){
-                postSyncMeasurepoint(client, client.getProfile().getSubDevices().get(0));
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
+//        while(true){
+//            postSyncMeasurepoint(client);
+//            try {
+//                Thread.sleep(1000);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//            if(!client.getProfile().getSubDevices().isEmpty()){
+//                postSyncMeasurepoint(client, client.getProfile().getSubDevices().get(0));
+//                try {
+//                    Thread.sleep(1000);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        }
 
     }
 
@@ -104,6 +104,23 @@ public class DynamicActivateSample {
         }
     }
 
+
+    public static void postSyncMeasurepointWithNtpTime(MqttClient client ) {
+        Random random = new Random();
+        System.out.println("start post measurepoint ...");
+        MeasurepointPostRequest request = MeasurepointPostRequest.builder()
+                .addMeasurePoint("point1", random.nextInt(100))
+                .setTimestamp(client.getExtServiceFactory().getNtpService().getFixedTimestamp())
+                .build();
+        try {
+            MeasurepointPostResponse rsp = client.publish(request);
+            System.out.println("-->" + rsp);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void handleServiceInvocation(MqttClient client) {
 
         IMessageHandler<ServiceInvocationCommand, ServiceInvocationReply> handler = new IMessageHandler<ServiceInvocationCommand, ServiceInvocationReply>() {
@@ -121,6 +138,8 @@ public class DynamicActivateSample {
         };
         client.setArrivedMsgHandler(ServiceInvocationCommand.class, handler);
     }
+
+
 
 
 

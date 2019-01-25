@@ -1,7 +1,6 @@
 package com.envisioniot.enos.iot_mqtt_sdk.core;
 
 import com.envisioniot.enos.iot_mqtt_sdk.core.exception.EnvisionException;
-import com.envisioniot.enos.iot_mqtt_sdk.core.internals.DefaultProcessor;
 import com.envisioniot.enos.iot_mqtt_sdk.core.internals.ExecutorFactory;
 import com.envisioniot.enos.iot_mqtt_sdk.core.internals.MessageBuffer;
 import com.envisioniot.enos.iot_mqtt_sdk.core.internals.MqttConnection;
@@ -12,11 +11,8 @@ import com.envisioniot.enos.iot_mqtt_sdk.core.profile.DefaultProfile;
 import com.envisioniot.enos.iot_mqtt_sdk.core.profile.FileProfile;
 import com.envisioniot.enos.iot_mqtt_sdk.extension.ExtServiceFactory;
 import com.envisioniot.enos.iot_mqtt_sdk.message.downstream.activate.DeviceActivateInfoCommand;
-import com.envisioniot.enos.iot_mqtt_sdk.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Envision Mqtt Sdk
@@ -31,11 +27,9 @@ public class MqttClient {
 
     private MqttConnection connection;
     private BaseProfile profile;
-    private DefaultProcessor mqttProcessor;
     private MessageBuffer buffer = new MessageBuffer();
     private ExtServiceFactory serviceFactory = new ExtServiceFactory();
     private ExecutorFactory executorFactory;
-
 
 
     /**
@@ -58,13 +52,12 @@ public class MqttClient {
         this.executorFactory = new ExecutorFactory();
         this.connection = new MqttConnection(profile, buffer, executorFactory);
         this.buffer.setConnection(connection);
-        if(profile.getSecureMode()== 3 ){
+        if (profile.getSecureMode() == 3) {
             //register dynamic activated response handler
-            if(this.profile instanceof FileProfile) {
+            if (this.profile instanceof FileProfile) {
                 this.setArrivedMsgHandler(DeviceActivateInfoCommand.class,
-                        new DefaultActivateResponseHandler((FileProfile) this.profile , this));
-            }
-            else {
+                        new DefaultActivateResponseHandler((FileProfile) this.profile, this));
+            } else {
                 logger.warn("mqtt client dynamic activate device ,please handle the reply message [{}]",
                         DeviceActivateInfoCommand.class.getSimpleName());
             }
@@ -115,7 +108,7 @@ public class MqttClient {
     /**
      * set the msg handler for specific arrived msg
      */
-    public <T extends IMqttArrivedMessage , D extends IMqttDeliveryMessage> void setArrivedMsgHandler(Class<T> arrivedMsgCls, IMessageHandler<T, D> handler) {
+    public <T extends IMqttArrivedMessage, D extends IMqttDeliveryMessage> void setArrivedMsgHandler(Class<T> arrivedMsgCls, IMessageHandler<T, D> handler) {
         connection.getProcessor().setArrivedMsgHandler(arrivedMsgCls, handler);
     }
 
@@ -128,7 +121,7 @@ public class MqttClient {
 //    }
 //
 
-    public ExtServiceFactory getExtServiceFactory(){
+    public ExtServiceFactory getExtServiceFactory() {
         return serviceFactory;
     }
 

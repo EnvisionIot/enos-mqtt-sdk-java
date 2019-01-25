@@ -230,7 +230,7 @@ client.connect(new IConnectCallback() {
 当配置文件中提供了参数deviceSecret则采用securemode=2进行登录，如果没有提供deviceSecret，而提供了productSecret那么采用securemode=3进行登录。
 用于可以使用如下的代码，使用配置文件的方式完成连接过程。
  
-需要注意的是如果在配置文件中配置了子设备信息，那么SDK会在连接成功之后，自动登录子设备，*这些子设备需要在云端预先配置成网关设备的子设备*。如果用户需要手动的管理子设备的状态，那么可以不将子设备配置在配置文件中，用户根据SubDeviceLoginRequest手动的管理子设备的上线。
+需要注意的是如果在配置文件中配置了子设备信息，那么SDK会在连接成功之后，自动登录子设备，*这些子设备需要在云端预先配置成该网关设备的子设备*。如果用户需要手动的管理子设备的状态，那么可以不将子设备配置在配置文件中，用户根据SubDeviceLoginRequest手动的管理子设备的上线。
 同样的如果子设备登录方式使用securemode=3动态激活方式登录，那么云端会返回设备对应的设备密钥至设备端，设备端需要持久化保存该设备密钥信息，后续使用设备密钥进行登录签名认证。同样的java sdk已经封装了这一过程。
 
 使用配置文件方式连接服务的示例代码如下：
@@ -361,7 +361,8 @@ client.setArrivedMsgHandler(SubDeviceDisableCommand.class, (SubDeviceDisableComm
 
 ### 扩展服务
 
-除了封装了EnOS 设备端接入协议，SDK还为开发者提供了一定的扩展服务，如Ntp对时服务用户可以根据需求使用对时服务。
+除了封装了EnOS 设备端接入协议，SDK还为开发者提供了一定的扩展服务，如Ntp对时服务。用户可以根据需求使用对时服务。
+当用户需要使用对时候的事件来发送测点上报数据时，用户只需要主动的设置上报事件戳为对时后的时间戳。
 
 #### Ntp对时服务
 
@@ -372,10 +373,24 @@ client.setArrivedMsgHandler(SubDeviceDisableCommand.class, (SubDeviceDisableComm
         System.out.println("local :" + System.currentTimeMillis());
         System.out.println("fix : " + (client.getExtServiceFactory().getNtpService().getFixedTimestamp()));
         System.out.println("fix : " + (client.getExtServiceFactory().getNtpService().getFixedTimestamp(System.currentTimeMillis())));
+        //使用Ntp对时事件上报测点数据
+        MeasurepointPostRequest request = MeasurepointPostRequest.builder()
+                        .addMeasurePoint("point1", random.nextInt(100))
+                        .setTimestamp(client.getExtServiceFactory().getNtpService().getFixedTimestamp())
+                        .build();
+        try {
+            MeasurepointPostResponse rsp = client.publish(request);
+            System.out.println("-->" + rsp);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 ```
 
 ### End-to-End Sample Code
+
+You can find the sample code from `<dir>/blob/master/src/main/java/com/envisioniot/enos/iot_mqtt_sdk/sample/SimpleSendReceive.java` too, where, `<dir>` is the directory of this SDK in your local store.
 
 ```
 import com.envisioniot.enos.iot_mqtt_sdk.core.IConnectCallback;

@@ -15,10 +15,7 @@ import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.status.SubDeviceLoginR
 import com.envisioniot.enos.iot_mqtt_sdk.util.SecureModeUtil;
 import com.envisioniot.enos.iot_mqtt_sdk.util.StringUtil;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
-import org.eclipse.paho.client.mqttv3.MqttCallback;
-import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
-import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.eclipse.paho.client.mqttv3.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,6 +61,9 @@ public class DefaultProcessor implements MqttCallback, MqttCallbackExtended {
 
 
     public void onConnectFailed(int reasonCode) {
+        if(reasonCode == MqttException.REASON_CODE_NOT_AUTHORIZED){
+            logger.error("Not authorized mqtt connect request, please refer to EnOS portal connective service log ");
+        }
         if (connectCallback != null) {
             this.userExecutor.execute(() -> connectCallback.onConnectFailed(reasonCode));
         }
@@ -149,6 +149,7 @@ public class DefaultProcessor implements MqttCallback, MqttCallbackExtended {
         }
     }
 
+
     private void handleCommandWithNoHandler(BaseMqttCommand msg, List<String> pathList) {
         userExecutor.execute(() -> {
             try {
@@ -227,32 +228,6 @@ public class DefaultProcessor implements MqttCallback, MqttCallbackExtended {
         return future;
     }
 
-    /**
-     * 执行sdk的附加任务,目前只有针对{@link SubDeviceLoginResponse}的附加任务
-     */
-//    private <T extends IMqttResponse> Runnable createAdditionTask(IMqttRequest<T> request, T response) {
-//        if (request instanceof SubDeviceLoginRequest) {
-//            Runnable task = () -> {
-//                SubDeviceLoginResponse loginRsp = (SubDeviceLoginResponse) response;
-//                if (((SubDeviceLoginRequest) request).getSecureMode() == SecureModeUtil.VIA_PRODUCT_SECRET
-//                        && StringUtil.isNotEmpty(loginRsp.getSubDeviceSecret())) {
-//                    connection.getProfile().updateOrAddSubDevice(new DeviceCredential(
-//                            loginRsp.getSubProductKey(), null, loginRsp.getSubDeviceKey(), loginRsp.getSubDeviceSecret()));
-//                    if (connection.getProfile() instanceof FileProfile) {
-//                        try {
-//                            ((FileProfile) connection.getProfile()).persistent();
-//                        } catch (IOException e) {
-//                            logger.error("", e);
-//                        }
-//                    } else {
-//                        logger.warn("mqtt client login subDevice by dynamic-activate-method ,but cannot persist the activated reply , please handle the reply: {} ", response);
-//                    }
-//                }
-//            };
-//            return task;
-//        }
-//        return null;
-//    }
 
 
     <T extends IMqttResponse> void removeFutureTask(IMqttRequest<T> request) {
