@@ -35,14 +35,14 @@ public class DynamicActivateSample {
         initWithCallback(client);
 //        addTopo(client);
         while(true){
-            postSyncMeasurepoint(client);
+//            postSyncMeasurepoint(client);
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
             if(!client.getProfile().getSubDevices().isEmpty()){
-                postSyncMeasurepoint(client, client.getProfile().getSubDevices().get(0));
+//                postSyncMeasurepoint(client, client.getProfile().getSubDevices().get(0));
                 postSyncBatchMeasurepoint(client, client.getProfile().getSubDevices().get(0));
                 try {
                     Thread.sleep(1000);
