@@ -6,7 +6,9 @@ import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.ota.Firmware;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 public class OtaUpgradeCommand extends BaseMqttCommand<OtaUpgradeReply> {
@@ -23,10 +25,14 @@ public class OtaUpgradeCommand extends BaseMqttCommand<OtaUpgradeReply> {
         return OtaUpgradeReply.class;
     }
 
-    public List<Firmware> getAvailableFirmwareList() {
-        List<Firmware> rst = new Gson().fromJson((String) this.getParams(),
-                new TypeToken<List<Firmware>>() {
-                }.getType());
-        return rst;
+    public Firmware getFirmwareInfo() {
+        Map<String, Object> map = this.getParams();
+        Firmware f = new Firmware();
+        f.version = (String) map.get("version");
+        f.signMethod = (String) map.get("signMethod");
+        f.sign = (String) map.get("sign");
+        f.fileUrl = (String) map.get("fileUrl");
+        f.fileSize = (int) map.get("fileSize");
+        return f;
     }
 }
