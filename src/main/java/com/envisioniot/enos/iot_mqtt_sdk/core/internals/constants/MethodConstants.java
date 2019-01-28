@@ -41,7 +41,7 @@ public class MethodConstants {
 
     public static final String OTA_INFORM = "ota.inform";
 
-    public static final String OTA_REQUEST = "ota.request";
+    public static final String OTA_GETVERSION = "ota.getversion";
 
 
     public static final String SUB_DEVICE_DISABLE = "combine.disable";

@@ -18,7 +18,7 @@ public class OtaGetVersionRequest extends BaseMqttRequest<OtaGetVersionResponse>
 
         @Override
         protected String createMethod() {
-            return MethodConstants.OTA_REQUEST;
+            return MethodConstants.OTA_GETVERSION;
         }
 
         @Override

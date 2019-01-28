@@ -18,14 +18,16 @@ public class OtaGetVersionResponse extends BaseMqttResponse {
     public List<Firmware> getFirmwareList() {
         List<Map<String, Object>> dataList = getData();
         List<Firmware> results = Lists.newArrayList();
-        for (Map<String, Object> data : dataList) {
-            Firmware f = new Firmware();
-            f.version = (String) data.get("version");
-            f.signMethod = (String) data.get("signMethod");
-            f.sign = (String) data.get("sign");
-            f.fileUrl = (String) data.get("fileUrl");
-            f.fileSize = (int) data.get("fileSize");
-            results.add(f);
+        if (dataList != null) {
+            for (Map<String, Object> data : dataList) {
+                Firmware f = new Firmware();
+                f.version = (String) data.get("version");
+                f.signMethod = (String) data.get("signMethod");
+                f.sign = (String) data.get("sign");
+                f.fileUrl = (String) data.get("fileUrl");
+                f.fileSize = (int) data.get("fileSize");
+                results.add(f);
+            }
         }
         return results;
     }
