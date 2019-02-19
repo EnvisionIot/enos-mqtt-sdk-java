@@ -59,4 +59,5 @@ public class DeliveryTopicFormat {
 
     public static final String ACTIVATE_INFO_REPLY = "/ext/session/%s/%s/thing/activate/info_reply";
 
+    public static final String MEASUREPOINT_POST_BATCH = "/sys/%s/%s/thing/measurepoint/post/batch";
 }

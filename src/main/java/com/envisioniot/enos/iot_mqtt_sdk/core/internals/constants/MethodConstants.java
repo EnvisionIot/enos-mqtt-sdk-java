@@ -52,4 +52,5 @@ public class MethodConstants {
     public static final String ATTRIBUTE_QUERY = "thing.attribute.query";
     public static final String ATTRIBUTE_DELETE = "thing.attribute.delete";
 
+    public static final String MEASUREPOINT_POST_BATCH = "thing.measurepoint.post.batch" ;
 }
