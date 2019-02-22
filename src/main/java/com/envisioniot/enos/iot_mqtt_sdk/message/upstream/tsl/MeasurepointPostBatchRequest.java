@@ -34,7 +34,12 @@ public class MeasurepointPostBatchRequest extends BaseMqttRequest<MeasurepointPo
             return this;
         }
 
-        public Builder addReqeust(MeasurepointPostRequest request){
+        public Builder addRequests(List<MeasurepointPostRequest> requests) {
+            this.requests.addAll(requests);
+            return this;
+        }
+
+        public Builder addRequest(MeasurepointPostRequest request){
             this.requests.add(request);
             return this;
         }

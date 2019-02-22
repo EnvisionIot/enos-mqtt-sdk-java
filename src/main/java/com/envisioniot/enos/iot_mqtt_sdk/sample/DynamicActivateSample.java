@@ -104,9 +104,9 @@ public class DynamicActivateSample {
                 .setProductKey(subDevice.productKey).setDeviceKey(subDevice.deviceKey)
                 .addMeasurePoint("point1", random.nextInt(100)).build();
         MeasurepointPostBatchRequest batchRequest = MeasurepointPostBatchRequest.builder()
-                .addReqeust(request)
-                .addReqeust(request2)
-                .addReqeust(request3)
+                .addRequest(request)
+                .addRequest(request2)
+                .addRequest(request3)
                 .build();
         try {
             MeasurepointPostBatchResponse rsp = client.publish(batchRequest);
