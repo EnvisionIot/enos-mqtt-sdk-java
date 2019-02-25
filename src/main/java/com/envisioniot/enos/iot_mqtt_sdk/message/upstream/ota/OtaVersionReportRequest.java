@@ -8,11 +8,6 @@ import com.google.common.collect.Maps;
 import java.util.Map;
 
 public class OtaVersionReportRequest extends BaseMqttRequest<OtaVersionReportResponse> {
-
-
-    /**
-     *
-     */
     private static final long serialVersionUID = 234410161857671987L;
 
     public static Builder builder() {
@@ -20,16 +15,10 @@ public class OtaVersionReportRequest extends BaseMqttRequest<OtaVersionReportRes
     }
 
     public static class Builder extends BaseMqttRequest.Builder<Builder, OtaVersionReportRequest> {
-        private String deviceId;
-        private String firmwareId;
+        private String version;
 
-        public Builder setDeviceId(String iotId) {
-            this.deviceId = iotId;
-            return this;
-        }
-
-        public Builder setFirmwareId(String firmwareId) {
-            this.firmwareId = firmwareId;
+        public Builder setVersion(String version) {
+            this.version = version;
             return this;
         }
 
@@ -41,8 +30,7 @@ public class OtaVersionReportRequest extends BaseMqttRequest<OtaVersionReportRes
         @Override
         protected Object createParams() {
             Map<String, String> map = Maps.newHashMap();
-            map.put("deviceId", deviceId);
-            map.put("firmwareId", firmwareId);
+            map.put("version", version);
             return map;
         }
 

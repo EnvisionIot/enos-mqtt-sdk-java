@@ -70,5 +70,6 @@ public class ArrivedTopicPattern {
     public static final String PROGRESS_REPORT_TOPIC_REPLY = "/sys/(.*)/(.*)/ota/device/progress_reply";
     public static final String VERSION_REPORT_TOPIC_REPLY = "/sys/(.*)/(.*)/ota/device/inform_reply";
     public static final String UPDATE_REQUEST_TOPIC_REPLY = "/sys/(.*)/(.*)/ota/device/request_reply";
+    public static final String GET_VERSION_TOPIC_REPLY = "/sys/(.*)/(.*)/ota/device/getversion_reply";
 
 }

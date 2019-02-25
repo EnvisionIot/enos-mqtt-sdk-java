@@ -37,11 +37,11 @@ public class MethodConstants {
     public static final String SERVICE_INOVKE = "thing.service.%s";
 
 
-    public static final String OTA_PROGRESS = "ota.progress";
+    public static final String OTA_PROGRESS = "ota.device.progress";
 
-    public static final String OTA_INFORM = "ota.inform";
+    public static final String OTA_INFORM = "ota.device.inform";
 
-    public static final String OTA_REQUEST = "ota.request";
+    public static final String OTA_GETVERSION = "ota.device.getversion";
 
 
     public static final String SUB_DEVICE_DISABLE = "combine.disable";
