@@ -407,13 +407,17 @@ import com.envisioniot.enos.iot_mqtt_sdk.message.upstream.ota.*;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * device firmware over-the-air
+ */
 public class OtaSample {
 
+    //please use your productKey  deviceKey and deviceSecret
     static String productKey = "testPK";
     static String deviceKey = "testDK";
     static String deviceSecret = "testDS";
 
-    //ALPHA
+    //use actual mqtt-broker url
     static String brokerUrl = "tcp://{mqtt-broker-url}";
 
     static MqttClient client;
@@ -422,7 +426,8 @@ public class OtaSample {
         client = new MqttClient(new DefaultProfile(brokerUrl, productKey, deviceKey, deviceSecret));
         initWithCallback(client);
 
-        reportVersion("initVersion1");
+        //report firmware version firstly
+        reportVersion("initVersion");
 
         //        upgradeFirmwareByCloudPush();
 
@@ -530,7 +535,6 @@ public class OtaSample {
             e.printStackTrace();
         }
     }
-
 }
 ```
 
