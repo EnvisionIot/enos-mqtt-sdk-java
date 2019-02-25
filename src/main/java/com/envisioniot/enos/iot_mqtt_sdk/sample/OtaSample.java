@@ -20,16 +20,12 @@ import java.util.concurrent.TimeUnit;
  */
 public class OtaSample {
 
-    //    static String productKey = "testPK";
-    //    static String deviceKey = "testDK";
-    //    static String deviceSecret = "testDS";
-
-    static String productKey = "wb2g9nhI";
-    static String deviceKey = "yzDevice2";
-    static String deviceSecret = "C9gQX378vm89b6whXqHW";
+    static String productKey = "testPK";
+    static String deviceKey = "testDK";
+    static String deviceSecret = "testDS";
 
     //ALPHA
-    static String brokerUrl = "tcp://10.27.21.6:11883";
+    static String brokerUrl = "tcp://{mqtt-broker-url}";
 
     static MqttClient client;
 
@@ -37,9 +33,9 @@ public class OtaSample {
         client = new MqttClient(new DefaultProfile(brokerUrl, productKey, deviceKey, deviceSecret));
         initWithCallback(client);
 
-        //        reportVersion("initVersion1");
+        reportVersion("initVersion1");
 
-        upgradeFirmwareByCloudPush();
+        //        upgradeFirmwareByCloudPush();
 
 
         //        upgradeFirmwareByDeviceReq();
@@ -51,7 +47,11 @@ public class OtaSample {
             public IMqttDeliveryMessage onMessage(OtaUpgradeCommand otaUpgradeCommand, List<String> list) throws Exception {
                 System.out.println("receive command: " + otaUpgradeCommand);
 
-                //report progress
+                Firmware firmware = otaUpgradeCommand.getFirmwareInfo();
+
+                //TODO: download firmware from firmware.fileUrl
+
+                //mock reporting progress
                 reportUpgradeProgress("20", "20");
                 TimeUnit.SECONDS.sleep(2);
 
@@ -61,6 +61,7 @@ public class OtaSample {
                 reportUpgradeProgress("80", "80");
                 TimeUnit.SECONDS.sleep(20);
 
+                //firmware upgrade success, report new version
                 reportVersion(otaUpgradeCommand.getFirmwareInfo().version);
 
                 return null;
