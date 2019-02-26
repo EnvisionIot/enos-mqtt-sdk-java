@@ -4,7 +4,7 @@
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.envisioniot</groupId>
-    <version>2.1.2-SNAPSHOT</version>
+    <version>2.1.2</version>
     <artifactId>enos-mqtt</artifactId>
 
     <name>iot_mqtt_sdk</name>
@@ -13,14 +13,15 @@
 
     <description>
         0.0.3-SNAPSHOT remove command DeleteDeviceCommand DisableDeviceCommand
-                       use these command instead: SubDeviceDelete, SubDeviceDisable SubDeviceEnable commands
-                       remove RrpcCommand, the ServiceInvocationCommand handle the sync service as well
-                       add requests including : QueryDeviceTag,AttributeQuery,AttributeUpdate
+        use these command instead: SubDeviceDelete, SubDeviceDisable SubDeviceEnable commands
+        remove RrpcCommand, the ServiceInvocationCommand handle the sync service as well
+        add requests including : QueryDeviceTag,AttributeQuery,AttributeUpdate
         0.0.4-SNAPSHOT rename some requests
-        2.1.0          release
+        2.1.0 release
         2.1.1-SNAPSHOT support dynamic activate(login by productSecret)
-                       support init by config file
+        support init by config file
         2.1.2-SNAPSHOT support ota feature
+        2.1.2 release
     </description>
 
     <properties>
